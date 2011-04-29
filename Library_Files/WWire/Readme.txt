@@ -1,0 +1,1 @@
+This is just a copy of the original Wire.h library that comes with the Arduino IDE. We only changed the speed of TWI to 400khz and changed buffers to 132 instead of 32, so we can transfer 64 byte to the EEPROM at the time of a single byte (5ms) and also read 128 bytes faster with less code.

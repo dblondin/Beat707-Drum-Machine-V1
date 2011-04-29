@@ -1,0 +1,39 @@
+
+Created by Beat707 (c) 2011
+
+http://www.Beat707.com
+
+---------------------------------------------------------------------------------
+
+March 30 2011 - Version 1.0.0
+
+ - Complete Design with 3 Modes: Pattern, Song and File
+ - Midi SysEx Dump/Receive
+ - Midi Sync Modes: None, Slave, Master
+ - Drum Tracks and Synth Tracks
+ - 32 steps per pattern (quick shift toggles)
+ - 93 Patterns per Song + 99 Song-Pattern Positions on a Song
+ - 42 Songs Flash Memory Storage + 14 character name per Song
+
+---------------------------------------------------------------------------------
+
+April 17 2011 - Version 1.2.0
+  
+ - This version uses Song Format 2, therefore is not compatible with previous Songs.
+ - Double Pattern Size: each pattern now holds 64 steps, instead of the 32 previous mode.
+ - Each pattern now has an A and B set of steps, each has 32 steps for a total of 64 steps.
+ - The Copy/Paste pattern area is now saved on the EEPROM. So you can copy a pattern from one song and past into another song's pattern.
+ - Improved the LCD code by reducing the LiquidCrystal library and creating the WLCD library on its place.
+ - Improved MIDI Clock by using the 16-bit Timer1 (before was 8-bit Timer2)
+ - BPM Range now goes from 25 to 255 BPM
+ - Added special Pattern Mirror Mode Editing (slow double click Shift or use the menu navigation)
+ - Added Midi Clock Shuffle (0 to 6)
+ - Added option to edit patterns from the Song mode. Just hit Record and it will go directly to the Pattern that is playing, hit Left+Right to go back to Song mode.
+ - When Playing in Song Mode, now you can go up and down Song Positions. (before you could only edit BPM)
+ - Added Left+Right key shortcut: cycles all 3 modes: Pattern, Song and File.
+ - Holding shift and Hiting Record will make the Shift key "stick". Release Shift and hit Record again to "un-stick" the Shift key.
+ - Quick Shift Click still goes from 1/16 to 1/32 step editing. (or 1/32 to 1/64 in double speed) But now, you don't see a message, just a small icon change next to the pattern number, where now shows A/B. A small square above A/B tells you are in double step editing mode.
+ - Better code for less Flash space even with the latest additions.
+ - New USB Mode that uses an extra program to talk to the unit directly without the need of a MIDI connection.
+
+---------------------------------------------------------------------------------
