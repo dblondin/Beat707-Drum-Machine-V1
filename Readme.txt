@@ -4,7 +4,7 @@ Created by Beat707 (c) 2011 - http://www.Beat707.com
 
 You can download manuals at:
 
-http://www.beat707.com/w/manual
+http://www.beat707.com/w/downloads/manual
 
 And Tutorial Videos at:
 

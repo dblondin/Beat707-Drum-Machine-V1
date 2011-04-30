@@ -116,6 +116,8 @@ void saveSetup()
       else if (q == 11) value = autoSteps;
       else if (q == 12) value = mirrorPatternEdit;
       else if (q == 13) value = midiClockShuffle;
+      else if (q == 14) value = numberOfSteps;
+      else if (q == 15) value = enableABpattern;
     Wire.send(value);
   }
   for (char x=0; x<DRUMTRACKS; x++) Wire.send(dmNotes[x]); 
@@ -133,6 +135,9 @@ void loadSetup()
   autoSteps = EEPROM_READ(11);
   mirrorPatternEdit = EEPROM_READ(12);
   midiClockShuffle = EEPROM_READ(13);
+  numberOfSteps = EEPROM_READ(14);
+  if (numberOfSteps == 0 || numberOfSteps > 16) numberOfSteps = 16;
+  enableABpattern = EEPROM_READ(15);
   
   wireBeginTransmission(prePosLS);
   Wire.endTransmission();

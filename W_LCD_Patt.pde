@@ -81,6 +81,20 @@ void updateLCDPattern()
     }
     else if (curZone == 11)
     {
+      lcdPrint(N_OF_STEPS);
+      printCursor();
+      lcdPrintNumber(numberOfSteps);
+      lcdPrintEmptyChars(1);
+    }
+    else if (curZone == 12)
+    {
+      lcdPrint(PATTERN_AB);
+      printCursor();
+      if (enableABpattern) lcdPrint(ON_); else lcdPrint(OFF_);
+      lcdPrintEmptyChars(3);
+    }
+    else if (curZone == 13)
+    {
       lcdNextMode();
     }
     else if (curZone == 4 || curZone == 5)

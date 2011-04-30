@@ -21,7 +21,7 @@ void InterfaceTickPattern()
       }
       else
       {
-        editStepsPos = !editStepsPos;
+        if (enableABpattern) editStepsPos = !editStepsPos;
         curZone = 0;
       }
       if (patternChanged) savePattern(0);
@@ -40,13 +40,13 @@ void InterfaceTickPattern()
       
     // ------------------------------- LEFT ------------------------------- //
     case 2:
-      if (holdingShift) { curZone = 0; holdingShiftUsed = 1; } else { curZone--; if (curZone == 255) curZone = 11; }
+      if (holdingShift) { curZone = 0; holdingShiftUsed = 1; } else { curZone--; if (curZone == 255) curZone = 13; }
       updateLCDPattern();
       break;
       
     // ------------------------------- RIGHT ------------------------------ //
     case 5:
-      if (holdingShift) { curZone = 11; holdingShiftUsed = 1; } else { curZone++; if (curZone > 11) curZone = 0; }
+      if (holdingShift) { curZone = 13; holdingShiftUsed = 1; } else { curZone++; if (curZone > 13) curZone = 0; }
       updateLCDPattern();
       break;
       
@@ -61,7 +61,7 @@ void InterfaceTickPattern()
       }
       else if (curZone == 0)
       {
-        if ((!autoSteps || !midiClockRunning) && !editStepsPos && !mirrorPatternEdit)
+        if (enableABpattern && ((!autoSteps || !midiClockRunning) && !editStepsPos && !mirrorPatternEdit))
         {
           editStepsPos = 1;
           updateLCDPattern();
@@ -69,7 +69,7 @@ void InterfaceTickPattern()
         }
         
         if (nextPattern < (MAXSPATTERNS-1)) nextPattern++;
-        if ((!autoSteps || !midiClockRunning) && !editStepsPos && !mirrorPatternEdit) editStepsPos = 0;
+        if (enableABpattern && ((!autoSteps || !midiClockRunning) && !editStepsPos && !mirrorPatternEdit)) editStepsPos = 0;
         updateLCDPattern();
         break;
       }
@@ -137,6 +137,7 @@ void InterfaceTickPattern()
         editDoubleSteps = 0;
         editStepsPos = stepsPos;
         mirrorPatternEdit = !mirrorPatternEdit;
+        if (mirrorPatternEdit) enableABpattern = 1;
         setupChanged = 1;          
       }
       else if (curZone == 10)
@@ -147,6 +148,18 @@ void InterfaceTickPattern()
         setupChanged = 1;
       }
       else if (curZone == 11)
+      {
+        numberOfSteps++;
+        if (numberOfSteps > 16) numberOfSteps = 16;
+        setupChanged = 1;
+      }
+      else if (curZone == 12)
+      {
+        enableABpattern = !enableABpattern;
+        editStepsPos = stepsPos = 0;
+        setupChanged = 1;
+      }
+      else if (curZone == 13)
       {
         nextMode++;
         if (nextMode > 2) nextMode = 0;
@@ -166,7 +179,7 @@ void InterfaceTickPattern()
       }
       else if (curZone == 0)
       {
-        if ((!autoSteps || !midiClockRunning) && editStepsPos && !mirrorPatternEdit)
+        if (enableABpattern && ((!autoSteps || !midiClockRunning) && editStepsPos && !mirrorPatternEdit))
         {
           editStepsPos = 0;
           updateLCDPattern();
@@ -174,7 +187,7 @@ void InterfaceTickPattern()
         }
         
         if (nextPattern > 0) nextPattern--;
-        if ((!autoSteps || !midiClockRunning) && editStepsPos && !mirrorPatternEdit) editStepsPos = 1;
+        if (enableABpattern && ((!autoSteps || !midiClockRunning) && editStepsPos && !mirrorPatternEdit)) editStepsPos = 1;
         updateLCDPattern();
         break;
       }
@@ -243,6 +256,7 @@ void InterfaceTickPattern()
         editDoubleSteps = 0;
         editStepsPos = stepsPos;
         mirrorPatternEdit = !mirrorPatternEdit;
+        if (mirrorPatternEdit) enableABpattern = 1;
         setupChanged = 1;          
       }
       else if (curZone == 10)
@@ -253,6 +267,17 @@ void InterfaceTickPattern()
         setupChanged = 1;
       }
       else if (curZone == 11)
+      {
+        if (numberOfSteps > 1) numberOfSteps--;
+        setupChanged = 1;
+      }
+      else if (curZone == 12)
+      {
+        enableABpattern = !enableABpattern;
+        editStepsPos = stepsPos = 0;
+        setupChanged = 1;
+      }      
+      else if (curZone == 13)
       {
         nextMode--;
         if (nextMode == 255) nextMode = 2;
@@ -383,13 +408,14 @@ void shiftButtonPattern()
           editDoubleSteps = 0;
           editStepsPos = stepsPos;
           mirrorPatternEdit = !mirrorPatternEdit;
+          if (mirrorPatternEdit) enableABpattern = 1;
           setupChanged = 1;          
           doLCDupdate = 1;
         }
         else
         {
           // Shift was pressed very quickly //
-          if (curZone == 11) loadNextMode();
+          if (curZone == 13) loadNextMode();
             else if (recordEnabled) recordShowCurPos = !recordShowCurPos;
             else
             {
