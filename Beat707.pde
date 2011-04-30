@@ -2,7 +2,7 @@
 
   Created by Beat707 (c) 2011 - http://www.Beat707.com
 
-  Main File for Variable Declaration and Setup - April 17 2011 - Version 1.2.0
+  Main File for Variable Declaration and Setup - April 30 2011 - Version 1.2.4
 
 */
 
@@ -28,6 +28,7 @@ uint8_t incomingByte = 0; // Used by the MIDI Input Code
 uint8_t timeScale;
 uint8_t autoSteps; // Used to rotate from 16 to 32 extra steps automaticaly
 uint8_t midiClockShuffleData[2][3], midiClockShuffle, midiClockShuffleCounter;
+uint8_t numberOfSteps = 16;
 
 // Boolean Variables //
 uint8_t doLCDupdate, nextPatternReady, patternBufferN, midiClockRunning, editStepsPos,

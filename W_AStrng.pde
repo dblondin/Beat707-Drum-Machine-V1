@@ -187,6 +187,8 @@ prog_char myStrings_064[] PROGMEM  = "MirrorEdMode";
 #define MIRROREDMODE 103
 prog_char myStrings_065[] PROGMEM  = "ClockShuffle";
 #define CLOCKSHUFFLE 104
+prog_char myStrings_066[] PROGMEM  = "# Of Steps";
+#define N_OF_STEPS 105
 
 
 PROGMEM const char *stringlist[] = { empty_Str, 
@@ -202,4 +204,4 @@ PROGMEM const char *stringlist[] = { empty_Str,
   myStrings_023, myStrings_024, myStrings_025, myStrings_026, myStrings_027, myStrings_028, myStrings_029, myStrings_030, myStrings_031, myStrings_032, myStrings_033,
   myStrings_034, myStrings_035, myStrings_036, myStrings_037, myStrings_038, myStrings_039, myStrings_040, myStrings_041, myStrings_042, myStrings_043, myStrings_044,
   myStrings_045, myStrings_046, myStrings_047, myStrings_048, myStrings_049, myStrings_050, myStrings_051, myStrings_052, myStrings_053, myStrings_054, myStrings_055,
-  myStrings_056, myStrings_057, myStrings_058, myStrings_059, myStrings_060, myStrings_061, myStrings_062, myStrings_063, myStrings_064, myStrings_065};
+  myStrings_056, myStrings_057, myStrings_058, myStrings_059, myStrings_060, myStrings_061, myStrings_062, myStrings_063, myStrings_064, myStrings_065, myStrings_066};

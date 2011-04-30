@@ -81,6 +81,13 @@ void updateLCDPattern()
     }
     else if (curZone == 11)
     {
+      lcdPrint(N_OF_STEPS);
+      printCursor();
+      lcdPrintNumber(numberOfSteps);
+      lcdPrintEmptyChars(3);
+    }
+    else if (curZone == 12)
+    {
       lcdNextMode();
     }
     else if (curZone == 4 || curZone == 5)

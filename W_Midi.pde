@@ -81,7 +81,7 @@ void midiTimer()
     midiClockProcess = 1;
     midiClockCounterDivider = 0;
     midiClockCounter++;
-    if (midiClockCounter >= 16)
+    if (midiClockCounter >= numberOfSteps)
     {
       stepsPos++;
       midiClockCounter = 0;

@@ -40,13 +40,13 @@ void InterfaceTickPattern()
       
     // ------------------------------- LEFT ------------------------------- //
     case 2:
-      if (holdingShift) { curZone = 0; holdingShiftUsed = 1; } else { curZone--; if (curZone == 255) curZone = 11; }
+      if (holdingShift) { curZone = 0; holdingShiftUsed = 1; } else { curZone--; if (curZone == 255) curZone = 12; }
       updateLCDPattern();
       break;
       
     // ------------------------------- RIGHT ------------------------------ //
     case 5:
-      if (holdingShift) { curZone = 11; holdingShiftUsed = 1; } else { curZone++; if (curZone > 11) curZone = 0; }
+      if (holdingShift) { curZone = 12; holdingShiftUsed = 1; } else { curZone++; if (curZone > 12) curZone = 0; }
       updateLCDPattern();
       break;
       
@@ -147,6 +147,12 @@ void InterfaceTickPattern()
         setupChanged = 1;
       }
       else if (curZone == 11)
+      {
+        numberOfSteps++;
+        if (numberOfSteps > 16) numberOfSteps = 16;
+        setupChanged = 1;
+      }
+      else if (curZone == 12)
       {
         nextMode++;
         if (nextMode > 2) nextMode = 0;
@@ -253,6 +259,11 @@ void InterfaceTickPattern()
         setupChanged = 1;
       }
       else if (curZone == 11)
+      {
+        if (numberOfSteps > 1) numberOfSteps--;
+        setupChanged = 1;
+      }      
+      else if (curZone == 12)
       {
         nextMode--;
         if (nextMode == 255) nextMode = 2;
@@ -389,7 +400,7 @@ void shiftButtonPattern()
         else
         {
           // Shift was pressed very quickly //
-          if (curZone == 11) loadNextMode();
+          if (curZone == 12) loadNextMode();
             else if (recordEnabled) recordShowCurPos = !recordShowCurPos;
             else
             {

@@ -37,3 +37,9 @@ April 17 2011 - Version 1.2.0
  - New USB Mode that uses an extra program to talk to the unit directly without the need of a MIDI connection.
 
 ---------------------------------------------------------------------------------
+
+April 30 2011 - Version 1.2.4
+
+ - Added Number of Steps (global)
+  
+---------------------------------------------------------------------------------
