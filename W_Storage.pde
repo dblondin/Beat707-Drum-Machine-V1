@@ -118,6 +118,10 @@ void saveSetup()
       else if (q == 13) value = midiClockShuffle;
       else if (q == 14) value = numberOfSteps;
       else if (q == 15) value = enableABpattern;
+      #if ANALOG_INPUT_A0
+      else if (q == 16) value = analogInputMode;
+      #endif
+      
     Wire.send(value);
   }
   for (char x=0; x<DRUMTRACKS; x++) Wire.send(dmNotes[x]); 
@@ -138,6 +142,9 @@ void loadSetup()
   numberOfSteps = EEPROM_READ(14);
   if (numberOfSteps == 0 || numberOfSteps > 16) numberOfSteps = 16;
   enableABpattern = EEPROM_READ(15);
+  #if ANALOG_INPUT_A0
+    analogInputMode = EEPROM_READ(16);
+  #endif
   
   wireBeginTransmission(prePosLS);
   Wire.endTransmission();
@@ -149,7 +156,7 @@ void loadSetup()
 // ======================================================================================= //
 boolean checkStorageHeader()
 {
-  #if DISABLE_STORAGE_CHECK
+  #if DISABLE_STORAGE_CHK
     return true;
   #endif
   

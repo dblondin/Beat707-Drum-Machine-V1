@@ -29,6 +29,14 @@ uint8_t timeScale;
 uint8_t autoSteps; // Used to rotate from 16 to 32 extra steps automaticaly
 uint8_t midiClockShuffleData[2][3], midiClockShuffle, midiClockShuffleCounter;
 uint8_t numberOfSteps = 16;
+#if ANALOG_INPUT_A0
+  uint8_t prevAnalogA0value = 0;
+  uint8_t analogInputMode = 0; // 0=BPM, 1=Pattern#, 2=NumberOfSteps, 3=TrackSelector, 4=Note Selector
+  unsigned long analogInputModeNewDelay = 0;
+  #if ANALOG_INPUT_CHECK
+    uint8_t prevAnalogButtonCheckState = HIGH;
+  #endif
+#endif
 
 // Boolean Variables //
 uint8_t doLCDupdate, nextPatternReady, patternBufferN, midiClockRunning, editStepsPos,
@@ -113,7 +121,15 @@ void setup()
   #if !CHECK_FOR_USB_MODE
     digitalWrite(MIDI_ENn,LOW);  
   #endif
-        
+  
+  #if ANALOG_INPUT_A0
+    pinMode(A0, INPUT);
+    #if ANALOG_INPUT_CHECK
+      pinMode(2, INPUT);
+      digitalWrite(2, HIGH);
+    #endif
+  #endif
+  
   pinMode(LATCHOUT, OUTPUT);  digitalWrite(LATCHOUT, LOW);
   pinMode(FLASH_SSn, OUTPUT);
   pinMode(SWITCH_SSn, OUTPUT); digitalWrite(SWITCH_SSn, HIGH);

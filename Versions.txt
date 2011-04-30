@@ -42,5 +42,6 @@ April 30 2011 - Version 1.2.4
 
  - Added Number of Steps (global)
  - Added Enable Pattern AB. (when disabled, only Pattern A will play)
-  
+ - Added ANALOG_INPUT_A0 to Config.h - Analog input option, by using the free Analog A0 Pin. (D14 on the Beat707 SV2 Headers) The current options are: BPM Tempo, Pattern Selector, Track Selector, Note Selector and Number of Steps. There's a 2 second delay for when you select a new input mode or press an optional button attached to Digital Pin 2. (the delay can be tweaked)
+
 ---------------------------------------------------------------------------------

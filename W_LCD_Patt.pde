@@ -93,7 +93,23 @@ void updateLCDPattern()
       if (enableABpattern) lcdPrint(ON_); else lcdPrint(OFF_);
       lcdPrintEmptyChars(3);
     }
+    #if ANALOG_INPUT_A0
     else if (curZone == 13)
+    {
+      lcdPrintString("AnalogIn");
+      printCursor();
+      switch (analogInputMode)
+      {
+        case 0: lcdPrint(BPM); break;
+        case 1: lcdPrint(PATTERN); break;
+        case 2: lcdPrintString("Steps #"); break;
+        case 3: lcdPrintString("Track"); break;
+        case 4: lcdPrintString("S1/S2N#"); break;
+      }
+      lcdPrintEmptyChars(4);
+    }
+    #endif
+    else if (curZone == LAST_PATT_ZONE)
     {
       lcdNextMode();
     }

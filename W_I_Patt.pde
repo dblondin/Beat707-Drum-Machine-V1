@@ -40,13 +40,13 @@ void InterfaceTickPattern()
       
     // ------------------------------- LEFT ------------------------------- //
     case 2:
-      if (holdingShift) { curZone = 0; holdingShiftUsed = 1; } else { curZone--; if (curZone == 255) curZone = 13; }
+      if (holdingShift) { curZone = 0; holdingShiftUsed = 1; } else { curZone--; if (curZone == 255) curZone = LAST_PATT_ZONE; }
       updateLCDPattern();
       break;
       
     // ------------------------------- RIGHT ------------------------------ //
     case 5:
-      if (holdingShift) { curZone = 13; holdingShiftUsed = 1; } else { curZone++; if (curZone > 13) curZone = 0; }
+      if (holdingShift) { curZone = LAST_PATT_ZONE; holdingShiftUsed = 1; } else { curZone++; if (curZone > LAST_PATT_ZONE) curZone = 0; }
       updateLCDPattern();
       break;
       
@@ -159,7 +159,16 @@ void InterfaceTickPattern()
         editStepsPos = stepsPos = 0;
         setupChanged = 1;
       }
+      #if ANALOG_INPUT_A0
       else if (curZone == 13)
+      {
+        analogInputMode++;
+        if (analogInputMode > 4) analogInputMode = 0;
+        analogInputModeNewDelay = millisNI()+ANALOG_MDLY;
+        setupChanged = 1;
+      }
+      #endif
+      else if (curZone == LAST_PATT_ZONE)
       {
         nextMode++;
         if (nextMode > 2) nextMode = 0;
@@ -276,8 +285,17 @@ void InterfaceTickPattern()
         enableABpattern = !enableABpattern;
         editStepsPos = stepsPos = 0;
         setupChanged = 1;
-      }      
+      }
+      #if ANALOG_INPUT_A0
       else if (curZone == 13)
+      {
+        analogInputMode--;
+        if (analogInputMode == 255) analogInputMode = 4;
+        analogInputModeNewDelay = millisNI()+ANALOG_MDLY;
+        setupChanged = 1;
+      }
+      #endif      
+      else if (curZone == LAST_PATT_ZONE)
       {
         nextMode--;
         if (nextMode == 255) nextMode = 2;
@@ -415,7 +433,7 @@ void shiftButtonPattern()
         else
         {
           // Shift was pressed very quickly //
-          if (curZone == 13) loadNextMode();
+          if (curZone == LAST_PATT_ZONE) loadNextMode();
             else if (recordEnabled) recordShowCurPos = !recordShowCurPos;
             else
             {
