@@ -41,9 +41,6 @@ April 17 2011 - Version 1.2.0
 April 30 2011 - Version 1.2.4
 
  - Added Number of Steps (global)
-<<<<<<< HEAD
  - Added Enable Pattern AB. (when disabled, only Pattern A will play)
-=======
->>>>>>> 6fa878d55531170174dc3ab0dd55f064db36f2f5
   
 ---------------------------------------------------------------------------------
