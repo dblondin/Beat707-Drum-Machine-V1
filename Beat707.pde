@@ -2,7 +2,7 @@
 
   Created by Beat707 (c) 2011 - http://www.Beat707.com
 
-  Main File for Variable Declaration and Setup - April 30 2011 - Version 1.2.4
+  Main File for Variable Declaration and Setup - May 1st 2011 - Version 1.2.4
 
 */
 
@@ -36,6 +36,9 @@ uint8_t numberOfSteps = 16;
   #if ANALOG_INPUT_CHECK
     uint8_t prevAnalogButtonCheckState = HIGH;
   #endif
+#endif
+#if GATE_OUTS
+  unsigned long gateOutDelay[3] = {0,0,0};
 #endif
 
 // Boolean Variables //
@@ -128,6 +131,15 @@ void setup()
       pinMode(2, INPUT);
       digitalWrite(2, HIGH);
     #endif
+  #endif
+  
+  #if GATE_OUTS
+    pinMode(A0, OUTPUT);
+    pinMode(2, OUTPUT);
+    pinMode(3, OUTPUT);
+    digitalWrite(A0, LOW);
+    digitalWrite(2, LOW);
+    digitalWrite(3, LOW);
   #endif
   
   pinMode(LATCHOUT, OUTPUT);  digitalWrite(LATCHOUT, LOW);

@@ -162,4 +162,18 @@ void loop()
       }
     }
   #endif
+
+  // ======================================================================================= //      
+  #if GATE_OUTS
+    for (int gx=0; gx<3; gx++)
+    {
+      if (gateOutDelay[gx] != 0 && gateOutDelay[gx] < millisNI())
+      {
+        gateOutDelay[gx] = 0;
+        if (gx == 0) digitalWrite(A0, LOW);
+        else if (gx == 1) digitalWrite(2, LOW);
+        else if (gx == 2) digitalWrite(3, LOW);
+      }
+    }
+  #endif
 }

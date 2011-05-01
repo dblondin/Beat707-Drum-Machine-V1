@@ -123,10 +123,28 @@ void updateLCDPattern()
         else if (currentTrack == (DRUMTRACKS+3)) lcdPrint(A2);
         else lcdPrintNumber(currentTrack+1);
       if (curZone == 5) printCursor(); else lcdPrintEmptyChars(1);
-      lcdPrint(MIDICHAN);
+      #if GATE_OUTS
+        if (currentTrack <= 2) lcdPrintString("Gate Pin");
+          else lcdPrint(MIDICHAN);
+      #else
+        lcdPrint(MIDICHAN);
+      #endif
       lcdPrintEmptyChars(1);
-      if (currentTrack >= DRUMTRACKS+2) lcdPrintEmptyChars(2);
-        else lcdPrintNumber(dmChannel[currentTrack]+1);
+      if (currentTrack >= DRUMTRACKS+2)
+      {
+        lcdPrintEmptyChars(2);
+      }
+      else
+      {
+        #if GATE_OUTS
+          if (currentTrack == 0) lcdPrintString("A0");
+            else if (currentTrack == 1) lcdPrintString("D2");
+            else if (currentTrack == 2) lcdPrintString("D3");
+            else lcdPrintNumber(dmChannel[currentTrack]+1);
+        #else
+          lcdPrintNumber(dmChannel[currentTrack]+1);
+        #endif
+      }
     }
     else
     {

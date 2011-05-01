@@ -17,10 +17,12 @@
 
   // ===================================================================================================================================================================== // 
   // List of possible Hacks and Mods
-  #define ANALOG_INPUT_A0 1     // Reads the analog input A0 (D14 on the Beat707 SV2 Headers) for multiple options (also uses ANALOG_PATT_MAX and ANALOG_MDLY below)
+  #define ANALOG_INPUT_A0 0     // Reads the analog input A0 (D14 on the Beat707 SV2 Headers) for multiple options (also uses ANALOG_PATT_MAX and ANALOG_MDLY below)
   #define ANALOG_INPUT_CHECK 0  // When Enabled in conjunction with ANALOG_INPUT_A0, it will only work if a button is attached and pressed on Digital Pin 2 (S2 on Beat707 SV3 Headers) Pull-Up Resistors internally used, so all you need to do is attach a regular button to the port and connect the button to ground.
   #define ANALOG_PATT_MAX 16    // If Analog Input is enabled and is in Pattern mode, this will define the max number of patterns to select. (0 to MAX)
   #define ANALOG_MDLY 100       // If Analog Input is enabled, the delay for when a new mode is selected (in ms) or, if ANALOG_INPUT_CHECK is enabled, the time to pause when the button is pressed 
+  #define GATE_OUTS 0           // When enabled adds 3 Gate Outputs on pins A0, D2 and D3. (check the Board Details PDF file for headers information - should be SV2 and SV3) Gates are fixed for Tracks 1, 2 and 3. (MIDI is disabled on those tracks)
+  #define GATE_OUTS_TIME 15     // Time of the Gate Trig (from High to Low)
     
   // ===================================================================================================================================================================== //
   #define CHECK_FOR_USB_MODE 0  // The Device will check if the USB Remote Program is running (takes 1 second during initialization)
