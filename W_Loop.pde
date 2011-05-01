@@ -111,7 +111,7 @@ void loop()
     if (digitalRead(2) == HIGH) prevAnalogButtonCheckState = HIGH;
     if (curMode != 2 && analogInputModeNewDelay < millisNI() && digitalRead(2) == LOW)
     #else
-    if (curMode != 2 && analogInputModeNewDelay < millisNI())
+    if (curMode != 2 && !holdingShift && analogInputModeNewDelay < millisNI())
     #endif
     {
       #if ANALOG_INPUT_CHECK

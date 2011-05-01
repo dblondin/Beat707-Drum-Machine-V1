@@ -104,7 +104,7 @@ void updateLCDPattern()
         case 1: lcdPrint(PATTERN); break;
         case 2: lcdPrintString("Steps #"); break;
         case 3: lcdPrintString("Track"); break;
-        case 4: lcdPrintString("S1/S2N#"); break;
+        case 4: lcdPrintString("Note #"); break;
       }
       lcdPrintEmptyChars(4);
     }
