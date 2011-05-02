@@ -44,5 +44,6 @@ May 1st 2011 - Version 1.2.4
  - Added Enable Pattern AB. (when disabled, only Pattern A will play)
  - Added ANALOG_INPUT_A0 to Config.h - Analog input option, by using the free Analog A0 Pin. (D14 on the Beat707 SV2 Headers) The current options are: BPM Tempo, Pattern Selector, Track Selector, Note Selector and Number of Steps. There's a 2 second delay for when you select a new input mode or press an optional button attached to Digital Pin 2. (the delay can be tweaked)
  - Added GATE_OUTS to Config.h - Gate Output option for the first 3 tracks: T>01, T>02 and T>03. When enabled it will use 3 pins to output a gate voltage trigger on pins A0, D2 and D3. Check the Board Details PDF file for headers information - should be SV2 and SV3) Gates are fixed for Tracks 1, 2 and 3. (MIDI is disabled on those tracks)
+ - Added EXTRA_8_BUTTONS to the Config.h and also a new tab named W_I_ExtraBt - This new option will use the extra 8 buttons input header to read 8 inputs (no need for pull-up/down resistors, the hardware already has it) and call user-code that can be written on the W_I_ExtraBt tab.
 
 ---------------------------------------------------------------------------------
