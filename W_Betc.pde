@@ -43,6 +43,16 @@ void buttonsInputAndLEDsOutput()
     else if (interfaceButtons & BTN_DOWN)  tempButton = 3;   // Down
     else if (interfaceButtons & BTN_UP)    tempButton = 4;   // Up
     else if (interfaceButtons & BTN_RIGHT) tempButton = 5;   // Right
+    #if EXTRA_8_BUTTONS
+      else if (extraExternal & BTN_EXT1) tempButton = 21;
+      else if (extraExternal & BTN_EXT2) tempButton = 22;
+      else if (extraExternal & BTN_EXT3) tempButton = 23;
+      else if (extraExternal & BTN_EXT4) tempButton = 24;
+      else if (extraExternal & BTN_EXT5) tempButton = 25;
+      else if (extraExternal & BTN_EXT6) tempButton = 26;
+      else if (extraExternal & BTN_EXT7) tempButton = 27;
+      else if (extraExternal & BTN_EXT8) tempButton = 28;
+    #endif
     else 
     {
       if (prevbutton != 99) 

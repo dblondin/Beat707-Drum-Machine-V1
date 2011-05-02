@@ -101,20 +101,23 @@ void loop()
   if (curMode == 0) InterfaceTickPattern(); 
     else if (curMode == 1) InterfaceTickSong();
     else if (curMode == 2) InterfaceTickFile();
+  #if EXTRA_8_BUTTONS
+    Extra8ButtonsInterface();
+  #endif
     
   // ======================================================================================= //  
   if (doPatternLCDupdate && !holdingShift) { doPatternLCDupdate = 0; updateLCDPatNumber(); } // Its in the W_LCD_Patt File
 
   // ======================================================================================= //    
   #if ANALOG_INPUT_A0
-    #if ANALOG_INPUT_CHECK
+    #if ANALOG_INPUT_BT
     if (digitalRead(2) == HIGH) prevAnalogButtonCheckState = HIGH;
     if (curMode != 2 && analogInputModeNewDelay < millisNI() && digitalRead(2) == LOW)
     #else
     if (curMode != 2 && !holdingShift && analogInputModeNewDelay < millisNI())
     #endif
     {
-      #if ANALOG_INPUT_CHECK
+      #if ANALOG_INPUT_BT
         if (prevAnalogButtonCheckState == HIGH)
         {
           analogInputModeNewDelay = millisNI()+ANALOG_MDLY;

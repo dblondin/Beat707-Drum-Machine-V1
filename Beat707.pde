@@ -33,7 +33,7 @@ uint8_t numberOfSteps = 16;
   uint8_t prevAnalogA0value = 0;
   uint8_t analogInputMode = 0; // 0=BPM, 1=Pattern#, 2=NumberOfSteps, 3=TrackSelector, 4=Note Selector
   unsigned long analogInputModeNewDelay = 0;
-  #if ANALOG_INPUT_CHECK
+  #if ANALOG_INPUT_BT
     uint8_t prevAnalogButtonCheckState = HIGH;
   #endif
 #endif
@@ -127,7 +127,7 @@ void setup()
   
   #if ANALOG_INPUT_A0
     pinMode(A0, INPUT);
-    #if ANALOG_INPUT_CHECK
+    #if ANALOG_INPUT_BT
       pinMode(2, INPUT);
       digitalWrite(2, HIGH);
     #endif
