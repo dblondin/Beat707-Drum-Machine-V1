@@ -25,7 +25,7 @@ void buttonsInputAndLEDsOutput()
   digitalWrite(LATCHOUT, LOW);     // Pulse LED latches
   digitalWrite(LATCHOUT, HIGH);    // 74HC165 set to shift mode
   
-  delayNI(15); // Better Debouncing  
+  delayNI(15); // Better Debouncing
   
   stepButtons = (~stepButtonsTemp) & stepButtonsPrevHigh;
   stepButtonsPrevHigh = stepButtonsTemp;
