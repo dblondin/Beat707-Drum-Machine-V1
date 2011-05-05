@@ -31,18 +31,7 @@ void midiTimer()
       if (bitRead(dmSteps[patternBufferN][xdtm+dBB],midiClockCounter) && !bitRead(dmMutes,xdtm))
       {
         #if GATE_OUTS
-          if (xdtm <= 2)
-          {
-            if (xdtm == 0) digitalWrite(A0, HIGH);
-            else if (xdtm == 1) digitalWrite(2, HIGH);
-            else if (xdtm == 2) digitalWrite(3, HIGH);
-            gateOutDelay[xdtm] = millisNI()+GATE_OUTS_TIME;            
-          }
-          else
-          {
-            sendMidiNoteOff(dmNotes[xdtm], dmChannel[xdtm]);
-            sendMidiNoteOn(dmNotes[xdtm],velocity, dmChannel[xdtm]);
-          }
+          Gate_Outs_Midi();
         #else
           sendMidiNoteOff(dmNotes[xdtm], dmChannel[xdtm]);
           sendMidiNoteOn(dmNotes[xdtm],velocity, dmChannel[xdtm]);
