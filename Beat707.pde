@@ -122,7 +122,8 @@ void setup()
   #endif
   
   #if !CHECK_FOR_USB_MODE
-    digitalWrite(MIDI_ENn,LOW);  
+    MSerial.begin(31250);
+    digitalWrite(MIDI_ENn,LOW);
   #endif
   
   #if ANALOG_INPUT_A0
