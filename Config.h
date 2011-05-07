@@ -25,7 +25,7 @@
   #define GATE_OUTS 0           // When enabled adds 3 Gate Outputs on pins A0, D2 and D3. (check the Board Details PDF file for headers information - should be SV2 and SV3) Gates are fixed for Tracks 1, 2 and 3. (MIDI is disabled on those tracks)
     #define GATE_OUTS_TIME 15   // Time of the Gate Trig (from High to Low)
     #define GATE_OUTS_VEL_D3 0  // Add Velocity (PWM) on Digital Pin 3 (D3)
-  #define EXTRA_8_BUTTONS 0     // Will use the extra 8 buttons input header to read 8 inputs (no need for pull-up/down resistors, the hardware already has it) and call user-code that can be written on the W_Hacks tab.
+  #define EXTRA_8_BUTTONS 0     // Will use the extra 8 buttons input header to read 8 inputs (no need for pull-up/down resistors, the hardware already has it) and call user-code that can be written on the W_Hacks tab. By default, J1 is for sequencer play / stop.
     
   // ===================================================================================================================================================================== //
   #define CHECK_FOR_USB_MODE 0  // The Device will check if the USB Remote Program is running (takes 1 second during initialization)

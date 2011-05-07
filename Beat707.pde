@@ -44,7 +44,7 @@ uint8_t numberOfSteps = 16;
 // Boolean Variables //
 uint8_t doLCDupdate, nextPatternReady, patternBufferN, midiClockRunning, editStepsPos,
         shiftClick, holdingShift, holdingShiftUsed, patternChanged, stickyShift, mirrorPatternEdit,
-        midiClockProcess, noteOn, setupChanged, recordEnabled, recordShowCurPos, 
+        midiClockProcess, noteOn, setupChanged, recordEnabled, recordShowCurPos, holdingButton,
         editDoubleSteps, midiClockProcessDoubleSteps, soloCheckerTemp, stepsPos, enableABpattern,
         showOnlyOnce, lateAutoSave, songChanged, songNextPosition, doPatternLCDupdate = 0;
 

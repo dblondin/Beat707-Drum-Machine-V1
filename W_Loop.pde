@@ -98,9 +98,7 @@ void loop()
   }
 
   // ======================================================================================= //
-  if (curMode == 0) InterfaceTickPattern(); 
-    else if (curMode == 1) InterfaceTickSong();
-    else if (curMode == 2) InterfaceTickFile();
+  InterfaceButtons();
   #if EXTRA_8_BUTTONS
     Extra8ButtonsInterface();
   #endif

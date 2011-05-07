@@ -34,6 +34,7 @@ void buttonsInputAndLEDsOutput()
      
   // ------ Process Interface Buttons ------ //
   multiButton = tempButton = 99;
+  holdingButton = 0;
   
   if ((interfaceButtons & BTN_LEFT) && (interfaceButtons & BTN_RIGHT)) tempButton = 9;   // Left+Right = Cycle Modes
     else if (interfaceButtons & BTN_STOP)  tempButton = 0;   // Stop
@@ -70,6 +71,7 @@ void buttonsInputAndLEDsOutput()
   {
     if (tempButton != prevbutton) // A New Button was pressed
     {
+      holdingButton = 0;
       prevbutton = tempButton;
       multiButton = tempButton;
       lastMillis = millisNI()+500;
@@ -80,6 +82,7 @@ void buttonsInputAndLEDsOutput()
     {
       if (tempButton >= 2 && lastMillis < millisNI()) // The previous button is still down, repeat action
       {
+        holdingButton = 1;
         multiButton = tempButton;
         if (lastMillisCounter == 255) lastMillisCounter = 100;
         lastMillisCounter -= 2;
@@ -113,6 +116,15 @@ void timerStop(void)
 {
   bitWrite(TIMSK1, OCIE1A, 0);
   TCCR1A = TCCR1B = OCR1A = 0;
+}
+
+// ======================================================================================= //
+
+void InterfaceButtons()
+{
+  if (curMode == 0) InterfaceTickPattern(); 
+    else if (curMode == 1) InterfaceTickSong();
+    else if (curMode == 2) InterfaceTickFile();
 }
 
 // ======================================================================================= //
