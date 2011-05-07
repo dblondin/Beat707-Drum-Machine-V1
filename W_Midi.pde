@@ -270,7 +270,33 @@ void midiInputCheck()
          case 2:
            if(incomingByte < 128) // Velocity //
            {
-             //if (noteOn && incomingByte > 0) playNote();
+             #if MIDI_INPUT_ST
+               if (noteOn && incomingByte > 0 && curMode == 0 && curZone == 3 && currentTrack < (DRUMTRACKS+2))
+               {
+                  dbStepsCalc();
+                  uint8_t dTrack = currentTrack-DRUMTRACKS;
+                  newNote = note+1;
+                  #if MIDI_INPUT_AUTO_V
+                    if (incomingByte <= 40) newNote = 0;
+                  #endif
+                  #if MIDI_INPUT_AU_LW
+                    if (note <= MIDI_INPUT_AU_LW) newNote = 0;
+                  #endif
+                  
+                  if (mirrorPatternEdit) dmSynthTrack[dTrack][patternBufferN][dmSynthTrackStepPos[1]+(16*editDoubleSteps)+32] = dmSynthTrack[dTrack][patternBufferN][dmSynthTrackStepPos[1]+(16*editDoubleSteps)] = dmSynthTrackLastNoteEdit[dTrack] = newNote;
+                    else dmSynthTrack[dTrack][patternBufferN][dbStepsSpos] = dmSynthTrackLastNoteEdit[dTrack] = newNote;
+                    
+                  #if MIDI_INPUT_AUTO
+                    dmSynthTrackStepPos[1] += MIDI_INPUT_AUTO_N;
+                    if (dmSynthTrackStepPos[1] > 15)
+                    {
+                      if (!mirrorPatternEdit) dmSynthTrackStepPos[0] = !dmSynthTrackStepPos[0];
+                      dmSynthTrackStepPos[1] -= 16;
+                    }
+                  #endif
+                  patternChanged = doLCDupdate = 1;
+               }
+             #endif
              noteOn = 0;
              state = 0;
            }
