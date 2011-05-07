@@ -27,6 +27,7 @@ void buttonsInputAndLEDsOutput()
   
   delayNI(15); // Better Debouncing
   
+  if (~stepButtonsTemp) holdingStepButton = 1; else holdingStepButton = 0;
   stepButtons = (~stepButtonsTemp) & stepButtonsPrevHigh;
   stepButtonsPrevHigh = stepButtonsTemp;
   if ((stepButtons == 0 && stepButtonsPrev > 0) || (stepButtons > 0 && stepButtonsPrev != stepButtons)) delayNI(10); // Debouncing //

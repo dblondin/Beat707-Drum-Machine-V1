@@ -97,13 +97,19 @@ void InterfaceTickPattern()
           uint8_t dTrack = currentTrack-DRUMTRACKS;
           if (mirrorPatternEdit)
           {
-            if (dmSynthTrack[dTrack][patternBufferN][dmSynthTrackStepPos[1]+(16*editDoubleSteps)] < 255) dmSynthTrack[dTrack][patternBufferN][dmSynthTrackStepPos[1]+(16*editDoubleSteps)]++;
+            newNote = dmSynthTrack[dTrack][patternBufferN][dmSynthTrackStepPos[1]+(16*editDoubleSteps)];
+            if (holdingStepButton && newNote == 0) newNote = 13; else newNote += ((holdingStepButton) ? 12 : 1);
+            if (newNote > 255) newNote = 255;
+            dmSynthTrack[dTrack][patternBufferN][dmSynthTrackStepPos[1]+(16*editDoubleSteps)] = (uint8_t)newNote;
             dmSynthTrack[dTrack][patternBufferN][dmSynthTrackStepPos[1]+(16*editDoubleSteps)+32] = dmSynthTrack[dTrack][patternBufferN][dmSynthTrackStepPos[1]+(16*editDoubleSteps)];
-            if (dmSynthTrack[dTrack][patternBufferN][dmSynthTrackStepPos[1]+(16*editDoubleSteps)] > 1) dmSynthTrackLastNoteEdit[dTrack] = dmSynthTrack[dTrack][patternBufferN][dmSynthTrackStepPos[1]+(16*editDoubleSteps)];            
+            if (dmSynthTrack[dTrack][patternBufferN][dmSynthTrackStepPos[1]+(16*editDoubleSteps)] > 1) dmSynthTrackLastNoteEdit[dTrack] = dmSynthTrack[dTrack][patternBufferN][dmSynthTrackStepPos[1]+(16*editDoubleSteps)];
           }
           else
           {
-            if (dmSynthTrack[dTrack][patternBufferN][dbStepsSpos] < 255) dmSynthTrack[dTrack][patternBufferN][dbStepsSpos]++;
+            newNote = dmSynthTrack[dTrack][patternBufferN][dbStepsSpos];
+            if (holdingStepButton && newNote == 0) newNote = 13; else newNote += ((holdingStepButton) ? 12 : 1);
+            if (newNote > 255) newNote = 255;            
+            dmSynthTrack[dTrack][patternBufferN][dbStepsSpos] = (uint8_t)newNote;
             if (dmSynthTrack[dTrack][patternBufferN][dbStepsSpos] > 1) dmSynthTrackLastNoteEdit[dTrack] = dmSynthTrack[dTrack][patternBufferN][dbStepsSpos];
           }
           patternChanged = 1;
@@ -225,13 +231,17 @@ void InterfaceTickPattern()
           uint8_t dTrack = currentTrack-DRUMTRACKS;
           if (mirrorPatternEdit)
           {
-            if (dmSynthTrack[dTrack][patternBufferN][dmSynthTrackStepPos[1]+(16*editDoubleSteps)] > 0) dmSynthTrack[dTrack][patternBufferN][dmSynthTrackStepPos[1]+(16*editDoubleSteps)]--;
+            newNote = dmSynthTrack[dTrack][patternBufferN][dmSynthTrackStepPos[1]+(16*editDoubleSteps)] - ((holdingStepButton) ? 12 : 1);
+            if (newNote < 0) newNote = 0;
+            dmSynthTrack[dTrack][patternBufferN][dmSynthTrackStepPos[1]+(16*editDoubleSteps)] = (uint8_t)newNote;
             dmSynthTrack[dTrack][patternBufferN][dmSynthTrackStepPos[1]+(16*editDoubleSteps)+32] = dmSynthTrack[dTrack][patternBufferN][dmSynthTrackStepPos[1]+(16*editDoubleSteps)];
             if (dmSynthTrack[dTrack][patternBufferN][dmSynthTrackStepPos[1]+(16*editDoubleSteps)] > 1) dmSynthTrackLastNoteEdit[dTrack] = dmSynthTrack[dTrack][patternBufferN][dmSynthTrackStepPos[1]+(16*editDoubleSteps)];
           }
           else
           {          
-            if (dmSynthTrack[dTrack][patternBufferN][dbStepsSpos] > 0) dmSynthTrack[dTrack][patternBufferN][dbStepsSpos]--;
+            newNote = dmSynthTrack[dTrack][patternBufferN][dbStepsSpos] - ((holdingStepButton) ? 12 : 1);
+            if (newNote < 0) newNote = 0;            
+            dmSynthTrack[dTrack][patternBufferN][dbStepsSpos] = (uint8_t)newNote;
             if (dmSynthTrack[dTrack][patternBufferN][dbStepsSpos] > 1) dmSynthTrackLastNoteEdit[dTrack] = dmSynthTrack[dTrack][patternBufferN][dbStepsSpos];
           }
           patternChanged = 1;

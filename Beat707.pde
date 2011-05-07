@@ -42,7 +42,7 @@ uint8_t numberOfSteps = 16;
 #endif
 
 // Boolean Variables //
-uint8_t doLCDupdate, nextPatternReady, patternBufferN, midiClockRunning, editStepsPos,
+uint8_t doLCDupdate, nextPatternReady, patternBufferN, midiClockRunning, editStepsPos, holdingStepButton,
         shiftClick, holdingShift, holdingShiftUsed, patternChanged, stickyShift, mirrorPatternEdit,
         midiClockProcess, noteOn, setupChanged, recordEnabled, recordShowCurPos, holdingButton,
         editDoubleSteps, midiClockProcessDoubleSteps, soloCheckerTemp, stepsPos, enableABpattern,
@@ -81,6 +81,7 @@ uint8_t nextMode = 0; // Used by the interface when selecting a new mode
 // Other Variables //
 uint8_t wireBufferCounter = 0; // Used with the Wire Library to send 64 bytes of data at once to the EEPROM
 extern volatile unsigned long timer0_millis;
+int newNote = 0; // Used by the S1/S2 Up/Down editor
 
 // ======================================================================================= //
 void sysInit()
