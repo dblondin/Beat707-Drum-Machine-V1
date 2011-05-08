@@ -96,6 +96,19 @@ void Hack_and_Mods_Loop()
       }
     }
   #endif
+  
+  // ======================================================================================= //    
+  #if ENCODER_INPUT
+    for (char x=0; x<2; x++)
+    {
+      while (globalEncoder[x] > 0)
+      {
+        multiButton = 3+x;
+        globalEncoder[x]--;
+        InterfaceButtons();
+      }
+    }
+  #endif
 }
 
 // ======================================================================================= //    
@@ -228,6 +241,37 @@ void Hack_and_Mods_Loop()
         if (byte3 > 90 && !midiClockRunning) MidiClockStart(); 
           else if (byte3 < 40 && midiClockRunning) MidiClockStop(); 
         break;
+    }
+  }
+#endif
+
+#if ENCODER_INPUT
+  void EncoderChange()
+  {
+    enCval1 = digitalRead(2);
+    enCval2 = digitalRead(3);
+    
+      // Detect changes
+    if (enCval1 != enColdVal1 || enCval2 != enColdVal2) 
+    {
+      enColdVal1=enCval1;
+      enColdVal2=enCval2;
+      
+        //for each pair there's a position out of four
+      if (enCval1 == 1) // stationary position
+      {
+        if (enCval2 == 1) enCpos = 0; else if (enCval2 == 0) enCpos = 3;
+      } 
+      else if (enCval1 == 0)
+      {
+        if (enCval2 == 1) enCpos = 1; else if (enCval2 == 0) enCpos = 2;
+      }
+      
+      enCturn = enCpos-enColdPos;
+      enColdPos = enCpos;
+     
+      if (abs(enCturn) != 2) { if (enCturn == 1 || enCturn == -3) enCturnCount++; else if (enCturn == -1 || enCturn == 3) enCturnCount--; }
+      if (enCpos==0) { if (enCturnCount>0) { enCturnCount=0; globalEncoder[0]++; } else if (enCturnCount<0) { enCturnCount=0; globalEncoder[1]++; } else { enCturnCount=0; } }
     }
   }
 #endif

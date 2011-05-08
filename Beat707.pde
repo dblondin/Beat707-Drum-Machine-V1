@@ -30,17 +30,6 @@ uint8_t timeScale;
 uint8_t autoSteps; // Used to rotate from 16 to 32 extra steps automaticaly
 uint8_t midiClockShuffleData[2][3], midiClockShuffle, midiClockShuffleCounter;
 uint8_t numberOfSteps = 16;
-#if ANALOG_INPUT_A0
-  uint8_t prevAnalogA0value = 0;
-  uint8_t analogInputMode = 0; // 0=BPM, 1=Pattern#, 2=NumberOfSteps, 3=TrackSelector, 4=Note Selector
-  unsigned long analogInputModeNewDelay = 0;
-  #if ANALOG_INPUT_BT
-    uint8_t prevAnalogButtonCheckState = HIGH;
-  #endif
-#endif
-#if GATE_OUTS
-  unsigned long gateOutDelay[3] = {0,0,0};
-#endif
 
 // Boolean Variables //
 uint8_t doLCDupdate, nextPatternReady, patternBufferN, midiClockRunning, editStepsPos, holdingStepButton,
@@ -83,6 +72,25 @@ uint8_t nextMode = 0; // Used by the interface when selecting a new mode
 uint8_t wireBufferCounter = 0; // Used with the Wire Library to send 64 bytes of data at once to the EEPROM
 extern volatile unsigned long timer0_millis;
 int newNote = 0; // Used by the S1/S2 Up/Down editor
+
+// Hack & Mods //
+#if ENCODER_INPUT 
+  void EncoderChange();
+  char globalEncoder[2] = {0,0};
+  char enCval1,enCval2,enColdVal1,enColdVal2=1;
+  char enCpos,enColdPos,enCturn,enCturnCount=0;
+#endif
+#if ANALOG_INPUT_A0
+  uint8_t prevAnalogA0value = 0;
+  uint8_t analogInputMode = 0; // 0=BPM, 1=Pattern#, 2=NumberOfSteps, 3=TrackSelector, 4=Note Selector
+  unsigned long analogInputModeNewDelay = 0;
+  #if ANALOG_INPUT_BT
+    uint8_t prevAnalogButtonCheckState = HIGH;
+  #endif
+#endif
+#if GATE_OUTS
+  unsigned long gateOutDelay[3] = {0,0,0};
+#endif
 
 // ======================================================================================= //
 void sysInit()
@@ -159,6 +167,15 @@ void setup()
     digitalWrite(A0, LOW);
     digitalWrite(2, LOW);
     digitalWrite(3, LOW);
+  #endif
+  
+  #if ENCODER_INPUT
+    pinMode(2, INPUT);
+    pinMode(3, INPUT);
+    digitalWrite(2, HIGH);
+    digitalWrite(3, HIGH);
+    attachInterrupt(0, EncoderChange, CHANGE);
+    attachInterrupt(1, EncoderChange, CHANGE);
   #endif
   
   pinMode(LATCHOUT, OUTPUT);  digitalWrite(LATCHOUT, LOW);
