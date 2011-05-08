@@ -59,7 +59,7 @@ April 17 2011 - Version 1.2.0
 
 ---------------------------------------------------------------------------------
 
-May 07 2011 - Version 1.2.4
+May 08 2011 - Version 1.2.4
 
 - Added Number of Steps (global)
 - Added Enable Pattern AB. (when disabled, only Pattern A will play)
@@ -67,9 +67,11 @@ May 07 2011 - Version 1.2.4
 - Added GATE_OUTS to Config.h - Gate Output option for the first 3 tracks: T>01, T>02 and T>03. When enabled it will use 3 pins to output a gate voltage trigger on pins A0, D2 and D3. Check the Board Details PDF file for headers information - should be SV2 and SV3) Gates are fixed for Tracks 1, 2 and 3. (MIDI is disabled on those tracks) We also added the option to use GATE_OUTS_VEL_D3 to activate Velocity (PWM) on Track 3 (Digital Pin 3, D3)
 - Added EXTRA_8_BUTTONS to the Config.h and also a new tab named W_Hacks - This new option will use the extra 8 buttons input header to read 8 inputs (no need for pull-up/down resistors, the hardware already has it) and call user-code that can be written on the W_I_ExtraBt tab. By default J1 is set to Sequencer Play/Stop.
 - Updated S1/S2 Tracks Note Editing - Holding a step button and pressing up/down will change the octave of the selected step-note.
-- Added MIDI_INPUT_ST to Config.h (On by Default) - When enabled will drive Midi Note Inputs to Tracks S1/S2 - this allows you to manipulate the 2x synth tracks directly from a Midi Keyboard (Midi Channel 1) - Keep in mind that you must have the cursor in the note-editing (zone 3) position.
+- Added MIDI_INPUT_ST to Config.h (On by Default) - When enabled will drive Midi Note Inputs to Tracks S1/S2 - this allows you to manipulate the 2x synth tracks directly from a Midi Keyboard (Omni MIDI Channel) - Keep in mind that you must have the cursor in the note-editing (zone 3) position.
 - Added to the above option: MIDI_INPUT_AUTO - Auto-Step - When activated and a new note is hit, the current editing step will move to the next one (as defined in MIDI_INPUT_AUTO_N) 
 - Added to the above option: MIDI_INPUT_AUTO_V - When set, a low-velocity note will set an empty note (velocity < 40)
 - Added to the above option: MIDI_INPUT_AU_LW 24 - When set, a lower-octave note will set an empty note (note < MIDI_INPUT_AU_LW)
+- Added MIDIECHO_BYTRACK to Config.h (Off by Default) - If set in conjunction with MIDIECHO, notes will be translated to the current selected track channel, only Note-On/Off will be Echoed when this is selected (for now)
+- Added MIDI_INPUT_REC to Config.h (On by Default) - Adds extra code for when Record is pressed in Pattern Mode - Input MIDI Notes will be added to the current playing steps. (Omni MIDI Channel)
 
 ---------------------------------------------------------------------------------

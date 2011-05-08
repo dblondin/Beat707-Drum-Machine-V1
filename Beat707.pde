@@ -2,7 +2,7 @@
 
   Created by Beat707 (c) 2011 - http://www.Beat707.com
 
-  Main File for Variable Declaration and Setup - May 07 2011 - Version 1.2.4
+  Main File for Variable Declaration and Setup - May 08 2011 - Version 1.2.4
 
 */
 
@@ -24,6 +24,7 @@ uint8_t midiClockCounterDivider, midiClockCounter, currentTrack, currentPattern,
         nextPattern, shiftMode, noteStepPositionBlinker, sync24PPQ = 0;
 uint8_t note = 0; // Used by the MIDI Input code, the last note been Input
 uint8_t state = 0; // Used by the MIDI Input code (to check 3 bytes of Note information)
+uint8_t channel = 0; // Used by the MIDI Input code, the last note channel been Input
 uint8_t incomingByte = 0; // Used by the MIDI Input Code
 uint8_t timeScale;
 uint8_t autoSteps; // Used to rotate from 16 to 32 extra steps automaticaly
@@ -50,7 +51,7 @@ uint8_t doLCDupdate, nextPatternReady, patternBufferN, midiClockRunning, editSte
 
 // Patterns //
 #define DRUMTRACKS 14
-uint8_t dmNotes[DRUMTRACKS] = {36,37,38,39,40,42,44,46,51,49,45,47,48,50}; // GM Format //
+uint8_t dmNotes[DRUMTRACKS];
 uint8_t dmChannel[DRUMTRACKS+2];
 unsigned int dmSteps[2][(DRUMTRACKS+2)*4]; // [currentPattern/nextPattern][tracks*steps] - 32x2 Steps - last 2 tracks are Accents - each bit is a step on/off
 unsigned int dmMutes;
@@ -93,6 +94,22 @@ void sysInit()
   memset(dmSynthTrack,0,sizeof(dmSynthTrack));
   memset(fileSongName,0,sizeof(fileSongName));
   memset(midiClockShuffleData,0,sizeof(midiClockShuffleData));
+  
+  // GM Note Names //
+  dmNotes[0] = 36;
+  dmNotes[1] = 37;
+  dmNotes[2] = 38;
+  dmNotes[3] = 39;
+  dmNotes[4] = 40;
+  dmNotes[5] = 42;
+  dmNotes[6] = 44;
+  dmNotes[7] = 46;
+  dmNotes[8] = 51;
+  dmNotes[9] = 49;
+  dmNotes[10] = 45;
+  dmNotes[11] = 47;
+  dmNotes[12] = 48;
+  dmNotes[13] = 50;
   
   midiClockBPM = 120;
   midiClockType = dmMutes = mirrorPatternEdit = midiClockShuffle = midiClockShuffleCounter = 0;

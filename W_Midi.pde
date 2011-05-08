@@ -242,7 +242,7 @@ void midiInputCheck()
   while (MSerial.available() > 0) 
   { 
     incomingByte = MSerial.read();
-    #if MIDIECHO
+    #if MIDIECHO && !MIDIECHO_BYTRACK
       MSerial.write(incomingByte);
     #endif 
     
@@ -259,8 +259,8 @@ void midiInputCheck()
       switch (state)
       {
         case 0:        
-          if (incomingByte == 144) { noteOn = 1; state = 1; } // Note On //
-            else if (incomingByte == 128) { noteOn = 0; state = 1; }  // Note Off //
+          if (incomingByte >= 144 && incomingByte <= 159) { noteOn = 1; state = 1; channel = incomingByte-144; } // Note On //
+            else if (incomingByte >= 128 && incomingByte <= 143) { noteOn = 0; state = 1; channel = incomingByte-128; }  // Note Off //
           break;
           
          case 1:
@@ -270,33 +270,85 @@ void midiInputCheck()
          case 2:
            if(incomingByte < 128) // Velocity //
            {
-             #if MIDI_INPUT_ST
-               if (noteOn && incomingByte > 0 && curMode == 0 && curZone == 3 && currentTrack < (DRUMTRACKS+2))
-               {
-                  dbStepsCalc();
-                  uint8_t dTrack = currentTrack-DRUMTRACKS;
-                  newNote = note+1;
-                  #if MIDI_INPUT_AUTO_V
-                    if (incomingByte <= 40) newNote = 0;
-                  #endif
-                  #if MIDI_INPUT_AU_LW
-                    if (note <= MIDI_INPUT_AU_LW) newNote = 0;
-                  #endif
-                  
-                  if (mirrorPatternEdit) dmSynthTrack[dTrack][patternBufferN][dmSynthTrackStepPos[1]+(16*editDoubleSteps)+32] = dmSynthTrack[dTrack][patternBufferN][dmSynthTrackStepPos[1]+(16*editDoubleSteps)] = dmSynthTrackLastNoteEdit[dTrack] = newNote;
-                    else dmSynthTrack[dTrack][patternBufferN][dbStepsSpos] = dmSynthTrackLastNoteEdit[dTrack] = newNote;
-                    
-                  #if MIDI_INPUT_AUTO
-                    dmSynthTrackStepPos[1] += MIDI_INPUT_AUTO_N;
-                    if (dmSynthTrackStepPos[1] > 15)
-                    {
-                      if (!mirrorPatternEdit) dmSynthTrackStepPos[0] = !dmSynthTrackStepPos[0];
-                      dmSynthTrackStepPos[1] -= 16;
-                    }
-                  #endif
-                  patternChanged = doLCDupdate = 1;
-               }
+             #if MIDIECHO && MIDIECHO_BYTRACK
+               if (currentTrack < (DRUMTRACKS+2)) { if (noteOn && incomingByte > 0) sendMidiNoteOn(note,incomingByte, dmChannel[currentTrack]); else sendMidiNoteOff(note, dmChannel[currentTrack]); }
              #endif
+             if (noteOn && incomingByte > 0 && curMode == 0)
+             {
+               if (currentTrack < DRUMTRACKS)
+               {
+                 // REGULAR DRUM TRACKS ---------------------------------------------------------------- //
+                 #if MIDI_INPUT_REC
+                   if (recordEnabled)
+                   {
+                     if (midiClockRunning)
+                     {
+                        dbStepsCalc();
+                        for (char i=0; i<DRUMTRACKS; i++)
+                        { 
+                          if (note == dmNotes[i])
+                          {
+                              if (mirrorPatternEdit)
+                              {
+                                bitWrite(dmSteps[patternBufferN][i+((DRUMTRACKS+2)*editDoubleSteps)],midiClockCounter,1);
+                                bitWrite(dmSteps[patternBufferN][i+(((DRUMTRACKS+2)*editDoubleSteps)+((DRUMTRACKS+2))*2)],midiClockCounter,1);
+                              }
+                              else bitWrite(dmSteps[patternBufferN][i+dbSteps],midiClockCounter,1);
+                              patternChanged = 1;
+                          }
+                        }                       
+                     }
+                   }
+                  #endif
+               }
+               else if (currentTrack < (DRUMTRACKS+2))
+               {
+                 // S1/S2 NOTE-STEP TRACKS -------------------------------------------------------------- //
+                 if (recordEnabled)
+                 {
+                   #if MIDI_INPUT_REC
+                     if (midiClockRunning)
+                     {
+                       dbStepsCalc();
+                       uint8_t dTrack = currentTrack-DRUMTRACKS;
+                       
+                       if (mirrorPatternEdit) 
+                         dmSynthTrack[dTrack][patternBufferN][midiClockCounter+32] = dmSynthTrack[dTrack][patternBufferN][midiClockCounter] = dmSynthTrackLastNoteEdit[dTrack] = note+1;
+                           else dmSynthTrack[dTrack][patternBufferN][midiClockCounter] = dmSynthTrackLastNoteEdit[dTrack] = note+1;
+                         
+                       patternChanged = doLCDupdate = 1;
+                     }
+                   #endif
+                 }
+                 else if (curZone == 3)
+                 {
+                   #if MIDI_INPUT_ST
+                      dbStepsCalc();
+                      uint8_t dTrack = currentTrack-DRUMTRACKS;
+                      newNote = note+1;
+                      #if MIDI_INPUT_AUTO_V
+                        if (incomingByte <= 40) newNote = 0;
+                      #endif
+                      #if MIDI_INPUT_AU_LW
+                        if (note <= MIDI_INPUT_AU_LW) newNote = 0;
+                      #endif
+                      
+                      if (mirrorPatternEdit) dmSynthTrack[dTrack][patternBufferN][dmSynthTrackStepPos[1]+(16*editDoubleSteps)+32] = dmSynthTrack[dTrack][patternBufferN][dmSynthTrackStepPos[1]+(16*editDoubleSteps)] = dmSynthTrackLastNoteEdit[dTrack] = newNote;
+                        else dmSynthTrack[dTrack][patternBufferN][dbStepsSpos] = dmSynthTrackLastNoteEdit[dTrack] = newNote;
+                        
+                      #if MIDI_INPUT_AUTO
+                        dmSynthTrackStepPos[1] += MIDI_INPUT_AUTO_N;
+                        if (dmSynthTrackStepPos[1] >= numberOfSteps)
+                        {
+                          if (!mirrorPatternEdit) dmSynthTrackStepPos[0] = !dmSynthTrackStepPos[0];
+                          dmSynthTrackStepPos[1] -= numberOfSteps;
+                        }
+                      #endif
+                      patternChanged = doLCDupdate = 1;
+                   #endif
+                 }
+               }
+             }
              noteOn = 0;
              state = 0;
            }
