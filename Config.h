@@ -14,7 +14,7 @@
   #define MAXSPATTERNS 90       // Check W_Storage to see the size of each pattern, so you know how many patterns you can store on an EEPROM chip
   #define MAXSONGSFILE 21       // Used by the Flash Storage, to determinate how many songs the Flash memory can hold (see W_Storage)
   #define MIDIECHO 1            // Copies all Midi Input to the Midi Output
-    #define MIDIECHO_BYTRACK 0  // If set in conjunction with MIDIECHO, notes will be translated to the current selected track channel, only Note-On/Off will be Echoed when this is selected (for now)
+    #define MIDIECHO_BYTRACK 0  // If set in conjunction with MIDIECHO, notes will be translated to the current selected track channel
 
   // ===================================================================================================================================================================== // 
   // List of possible Hacks and Mods - Note: ANALOG_INPUT_A0 and GATE_OUTS can be used only one at a time (as they use the same pins)
@@ -33,6 +33,7 @@
     #define MIDI_INPUT_AUTO_N 1 // Used by the Auto-Step - number of steps to move when a new note is hit
     #define MIDI_INPUT_AUTO_V 1 // When set, a low-velocity note will set an empty note (velocity < 40)
     #define MIDI_INPUT_AU_LW 24 // When set, a lower-octave note will set an empty note (note < MIDI_INPUT_AU_LW)
+  #define EXTRA_MIDI_IN_HACKS 0 // When set, will call midiInputHacks() in the W_Hacks Tab for any new Midi Input Data - The current codes are already set: Program Change to Pattern Selection, Modulation Wheel to BPM Tempo and Pitch Wheel (Bend) to Sequence Stop/Play
     
   // ===================================================================================================================================================================== //
   #define CHECK_FOR_USB_MODE 0  // The Device will check if the USB Remote Program is running (takes 1 second during initialization)

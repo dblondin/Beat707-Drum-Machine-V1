@@ -63,8 +63,7 @@ void Hack_and_Mods_Loop()
             }
             break;
         }
-        setupChanged = 1;
-        doLCDupdate = 1;
+        setupChanged = doLCDupdate = 1;
       }
     }
   #endif
@@ -189,6 +188,46 @@ void Hack_and_Mods_Loop()
       case 28:
         // User Code Here //
       break;
+    }
+  }
+#endif
+
+#if EXTRA_MIDI_IN_HACKS
+  // ======================================================================================= //    
+  void midiInputHacks(uint8_t byte1, uint8_t byte2, uint8_t byte3, uint8_t channel)
+  {
+    /* List MIDI Commands from: http://www.omega-art.com/midi/mbytes.html
+    
+      byte1 =  144 = Note On                  byte2 =  note number        byte3  = velocity (on)
+               128 = Note Off                          note number                 velocity (off)
+               160 = Polyphonic aftertouch             note number                 amount (0 to 127)
+               176 = Control (CC)                      value1                      value2
+               192 = Program Change (PC)               pc-value (0 to 127)         
+               208 = Channel Aftertouch                amount (0 to 127)           
+               224 = Pitch Wheel (Bend)                LSB                         MSB  (14 bits - see the site above for details)
+    */
+    
+    switch (byte1)
+    {
+      case 192: // Program Change to Pattern Selector
+        if (byte2 < MAXSPATTERNS)  { nextPattern = byte2; updateLCDPattern(); }
+        break;
+        
+      case 176:
+        switch (byte2)
+        {
+          case 1: // Midi CC - Modulation Wheel to BPM Tempo
+            midiClockBPM = map(byte3, 0, 127, 25, 255);
+            if (midiClockRunning) MidiClockNewTime();
+            setupChanged = doLCDupdate = 1;
+          break;
+        }
+        break;
+        
+      case 224:  // Pitch Wheel (Bend)
+        if (byte3 > 90 && !midiClockRunning) MidiClockStart(); 
+          else if (byte3 < 40 && midiClockRunning) MidiClockStop(); 
+        break;
     }
   }
 #endif

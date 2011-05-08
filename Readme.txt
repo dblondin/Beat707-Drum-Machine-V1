@@ -71,7 +71,8 @@ May 08 2011 - Version 1.2.4
 - Added to the above option: MIDI_INPUT_AUTO - Auto-Step - When activated and a new note is hit, the current editing step will move to the next one (as defined in MIDI_INPUT_AUTO_N) 
 - Added to the above option: MIDI_INPUT_AUTO_V - When set, a low-velocity note will set an empty note (velocity < 40)
 - Added to the above option: MIDI_INPUT_AU_LW 24 - When set, a lower-octave note will set an empty note (note < MIDI_INPUT_AU_LW)
-- Added MIDIECHO_BYTRACK to Config.h (Off by Default) - If set in conjunction with MIDIECHO, notes will be translated to the current selected track channel, only Note-On/Off will be Echoed when this is selected (for now)
+- Added MIDIECHO_BYTRACK to Config.h (Off by Default) - If set in conjunction with MIDIECHO, notes will be translated to the current selected track channel.
 - Added MIDI_INPUT_REC to Config.h (On by Default) - Adds extra code for when Record is pressed in Pattern Mode - Input MIDI Notes will be added to the current playing steps. (Omni MIDI Channel)
+- Added EXTRA_MIDI_IN_HACKS to Config.h (Off by Default) - When set, will call midiInputHacks() in the W_Hacks Tab for any new Midi Input Data - The current codes are already set: Program Change to Pattern Selection, Modulation Wheel to BPM Tempo and Pitch Wheel (Bend) to Sequence Stop/Play
 
 ---------------------------------------------------------------------------------

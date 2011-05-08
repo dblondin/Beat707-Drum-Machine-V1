@@ -189,6 +189,16 @@ void sendMidiNoteOn(char note, char velocity, char channel)
 }
 
 // ======================================================================================= //
+void sendMidiData(uint8_t byte1, uint8_t byte2, uint8_t byte3, uint8_t nBytes)
+{
+  #if !DISABLE_MIDI
+    MSerial.write(byte1);
+    if (nBytes >= 2) MSerial.write(byte2);
+    if (nBytes >= 3) MSerial.write(byte3);
+  #endif
+}
+
+// ======================================================================================= //
 void sendMidiNoteOff(char note, char channel)
 {
   #if !DISABLE_MIDI
@@ -252,28 +262,70 @@ void midiInputCheck()
     }
     else if (incomingByte == 0xF8 && midiClockType == 1) { midiTimer(); midiTimer(); }
     else if (incomingByte == 0xFA && midiClockType == 1) MidiClockStart();
-    else if (incomingByte == 0xFB && midiClockType == 1) MidiClockStart(false); // Continue //
+    else if (incomingByte == 0xFB && midiClockType == 1) MidiClockStart(false); // Continue
     else if (incomingByte == 0xFC && midiClockType == 1) MidiClockStop();
     else
     {
       switch (state)
       {
-        case 0:        
-          if (incomingByte >= 144 && incomingByte <= 159) { noteOn = 1; state = 1; channel = incomingByte-144; } // Note On //
-            else if (incomingByte >= 128 && incomingByte <= 143) { noteOn = 0; state = 1; channel = incomingByte-128; }  // Note Off //
+        case 0:
+            if (incomingByte >= 128)
+            {
+              if      (incomingByte <= 143) { midiInputB[0] = 128; state = 1; channel = incomingByte-128; }  // Note Off
+              else if (incomingByte <= 159) { midiInputB[0] = 144; state = 1; channel = incomingByte-144; }  // Note On
+              else if (incomingByte <= 175) { midiInputB[0] = 160; state = 1; channel = incomingByte-160; }  // Polyphonic aftertouch
+              else if (incomingByte <= 191) { midiInputB[0] = 176; state = 1; channel = incomingByte-176; }  // Control (CC)
+              else if (incomingByte <= 207) { midiInputB[0] = 192; state = 1; channel = incomingByte-192; }  // Program Change (2 bytes)
+              else if (incomingByte <= 223) { midiInputB[0] = 208; state = 1; channel = incomingByte-208; }  // Channel aftertouch (2 bytes)
+              else if (incomingByte <= 239) { midiInputB[0] = 224; state = 1; channel = incomingByte-224; }  // Pitch Wheel
+            }
           break;
           
          case 1:
-           if(incomingByte < 128) { note = incomingByte; state = 2; } // Note Number //
+           if(incomingByte < 128) 
+           { 
+             if (midiInputB[0] == 192) // Program Change
+             {
+               #if MIDIECHO && MIDIECHO_BYTRACK
+                  if (currentTrack < (DRUMTRACKS+2)) sendMidiData(192+dmChannel[currentTrack], incomingByte, 0, 2);
+               #endif
+               #if EXTRA_MIDI_IN_HACKS
+                 midiInputHacks(192,incomingByte,0,channel);
+               #endif
+               midiInputB[0] = midiInputB[1] = state = 0;
+             }
+             else if (midiInputB[0] == 208) // Channel aftertouch
+             {
+               #if MIDIECHO && MIDIECHO_BYTRACK
+                  if (currentTrack < (DRUMTRACKS+2)) sendMidiData(208+dmChannel[currentTrack], incomingByte, 0, 2);
+               #endif
+               #if EXTRA_MIDI_IN_HACKS
+                 midiInputHacks(208,incomingByte,0,channel);
+               #endif               
+               midiInputB[0] = midiInputB[1] = state = 0;
+             }
+             else
+             {
+               midiInputB[1] = incomingByte; state = 2; 
+             }
+           }
            break;
          
          case 2:
-           if(incomingByte < 128) // Velocity //
+           if(incomingByte < 128)
            {
              #if MIDIECHO && MIDIECHO_BYTRACK
-               if (currentTrack < (DRUMTRACKS+2)) { if (noteOn && incomingByte > 0) sendMidiNoteOn(note,incomingByte, dmChannel[currentTrack]); else sendMidiNoteOff(note, dmChannel[currentTrack]); }
+               if (currentTrack < (DRUMTRACKS+2))
+               {
+                 if (midiInputB[0] == 144 && incomingByte > 0) sendMidiNoteOn(midiInputB[1],incomingByte, dmChannel[currentTrack]);
+                   else if (midiInputB[0] == 128) sendMidiNoteOff(midiInputB[1], dmChannel[currentTrack]);
+                   else if (midiInputB[0] == 160 || midiInputB[0] == 176 || midiInputB[0] == 224) sendMidiData(midiInputB[0]+dmChannel[currentTrack], midiInputB[1], incomingByte, 3);
+               }
              #endif
-             if (noteOn && incomingByte > 0 && curMode == 0)
+             #if EXTRA_MIDI_IN_HACKS
+               midiInputHacks(midiInputB[0],midiInputB[1],incomingByte,channel);
+             #endif             
+             if (midiInputB[0] == 144 && incomingByte > 0 && curMode == 0)
              {
                if (currentTrack < DRUMTRACKS)
                {
@@ -286,7 +338,7 @@ void midiInputCheck()
                         dbStepsCalc();
                         for (char i=0; i<DRUMTRACKS; i++)
                         { 
-                          if (note == dmNotes[i])
+                          if (midiInputB[1] == dmNotes[i])
                           {
                               if (mirrorPatternEdit)
                               {
@@ -313,8 +365,8 @@ void midiInputCheck()
                        uint8_t dTrack = currentTrack-DRUMTRACKS;
                        
                        if (mirrorPatternEdit) 
-                         dmSynthTrack[dTrack][patternBufferN][midiClockCounter+32] = dmSynthTrack[dTrack][patternBufferN][midiClockCounter] = dmSynthTrackLastNoteEdit[dTrack] = note+1;
-                           else dmSynthTrack[dTrack][patternBufferN][midiClockCounter] = dmSynthTrackLastNoteEdit[dTrack] = note+1;
+                         dmSynthTrack[dTrack][patternBufferN][midiClockCounter+32] = dmSynthTrack[dTrack][patternBufferN][midiClockCounter] = dmSynthTrackLastNoteEdit[dTrack] = midiInputB[1]+1;
+                           else dmSynthTrack[dTrack][patternBufferN][midiClockCounter] = dmSynthTrackLastNoteEdit[dTrack] = midiInputB[1]+1;
                          
                        patternChanged = doLCDupdate = 1;
                      }
@@ -325,12 +377,12 @@ void midiInputCheck()
                    #if MIDI_INPUT_ST
                       dbStepsCalc();
                       uint8_t dTrack = currentTrack-DRUMTRACKS;
-                      newNote = note+1;
+                      newNote = midiInputB[1]+1;
                       #if MIDI_INPUT_AUTO_V
                         if (incomingByte <= 40) newNote = 0;
                       #endif
                       #if MIDI_INPUT_AU_LW
-                        if (note <= MIDI_INPUT_AU_LW) newNote = 0;
+                        if (midiInputB[1] <= MIDI_INPUT_AU_LW) newNote = 0;
                       #endif
                       
                       if (mirrorPatternEdit) dmSynthTrack[dTrack][patternBufferN][dmSynthTrackStepPos[1]+(16*editDoubleSteps)+32] = dmSynthTrack[dTrack][patternBufferN][dmSynthTrackStepPos[1]+(16*editDoubleSteps)] = dmSynthTrackLastNoteEdit[dTrack] = newNote;
@@ -349,8 +401,7 @@ void midiInputCheck()
                  }
                }
              }
-             noteOn = 0;
-             state = 0;
+             midiInputB[0] = midiInputB[1] = state = 0;
            }
            break;
        }

@@ -22,9 +22,9 @@ uint8_t midiClockBPM; // 25 to 255 BPM //
 uint8_t midiClockType; // 0=Internal Only (no Sync), 1=SyncToExternal (Slave), 2=SendSync (Master)
 uint8_t midiClockCounterDivider, midiClockCounter, currentTrack, currentPattern, 
         nextPattern, shiftMode, noteStepPositionBlinker, sync24PPQ = 0;
-uint8_t note = 0; // Used by the MIDI Input code, the last note been Input
-uint8_t state = 0; // Used by the MIDI Input code (to check 3 bytes of Note information)
-uint8_t channel = 0; // Used by the MIDI Input code, the last note channel been Input
+uint8_t midiInputB[2] = {0,0}; // Used by the MIDI Input code to read 3 Bytes (the last byte is stored in incomingByte)
+uint8_t channel = 0; // Used by the MIDI Input code, the last MIDI channel been Input
+uint8_t state = 0; // Used by the MIDI Input code (to check 3 bytes of MIDI information)
 uint8_t incomingByte = 0; // Used by the MIDI Input Code
 uint8_t timeScale;
 uint8_t autoSteps; // Used to rotate from 16 to 32 extra steps automaticaly
@@ -45,7 +45,7 @@ uint8_t numberOfSteps = 16;
 // Boolean Variables //
 uint8_t doLCDupdate, nextPatternReady, patternBufferN, midiClockRunning, editStepsPos, holdingStepButton,
         shiftClick, holdingShift, holdingShiftUsed, patternChanged, stickyShift, mirrorPatternEdit,
-        midiClockProcess, noteOn, setupChanged, recordEnabled, recordShowCurPos, holdingButton,
+        midiClockProcess, setupChanged, recordEnabled, recordShowCurPos, holdingButton,
         editDoubleSteps, midiClockProcessDoubleSteps, soloCheckerTemp, stepsPos, enableABpattern,
         showOnlyOnce, lateAutoSave, songChanged, songNextPosition, doPatternLCDupdate = 0;
 
