@@ -79,6 +79,9 @@ int newNote = 0; // Used by the S1/S2 Up/Down editor
   char globalEncoder[2] = {0,0};
   char enCval1,enCval2,enColdVal1,enColdVal2=1;
   char enCpos,enColdPos,enCturn,enCturnCount=0;
+  #if ENCODER_SPEED
+    unsigned long encoderMillis = millisNI();
+  #endif
 #endif
 #if ANALOG_INPUT_A0
   uint8_t prevAnalogA0value = 0;

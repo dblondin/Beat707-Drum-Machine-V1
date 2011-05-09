@@ -271,7 +271,28 @@ void Hack_and_Mods_Loop()
       enColdPos = enCpos;
      
       if (abs(enCturn) != 2) { if (enCturn == 1 || enCturn == -3) enCturnCount++; else if (enCturn == -1 || enCturn == 3) enCturnCount--; }
-      if (enCpos==0) { if (enCturnCount>0) { enCturnCount=0; globalEncoder[0]++; } else if (enCturnCount<0) { enCturnCount=0; globalEncoder[1]++; } else { enCturnCount=0; } }
+      if (enCpos==0) 
+      { 
+        if (enCturnCount>0) 
+        {
+          #if ENCODER_SPEED
+            if ((millisNI()-encoderMillis) < 25) globalEncoder[0] += 5; else globalEncoder[0]++;
+            encoderMillis = millisNI();
+          #else
+            globalEncoder[0]++; 
+          #endif          
+        }
+        else if (enCturnCount<0) 
+        { 
+          #if ENCODER_SPEED
+            if ((millisNI()-encoderMillis) < 25) globalEncoder[1] += 5; else globalEncoder[1]++;
+            encoderMillis = millisNI();
+          #else
+            globalEncoder[1]++; 
+          #endif          
+        }
+        enCturnCount=0;          
+      }
     }
   }
 #endif
