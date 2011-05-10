@@ -59,7 +59,7 @@ April 17 2011 - Version 1.2.0
 
 ---------------------------------------------------------------------------------
 
-May 08 2011 - Version 1.2.4
+May 10 2011 - Version 1.2.4
 
 - Added Number of Steps (global)
 - Added Enable Pattern AB. (when disabled, only Pattern A will play)
@@ -73,7 +73,7 @@ May 08 2011 - Version 1.2.4
 - Added to the above option: MIDI_INPUT_AU_LW 24 - When set, a lower-octave note will set an empty note (note < MIDI_INPUT_AU_LW)
 - Added MIDIECHO_BYTRACK to Config.h (Off by Default) - If set in conjunction with MIDIECHO, notes will be translated to the current selected track channel.
 - Added MIDI_INPUT_REC to Config.h (On by Default) - Adds extra code for when Record is pressed in Pattern Mode - Input MIDI Notes will be added to the current playing steps. (Omni MIDI Channel)
-- Added EXTRA_MIDI_IN_HACKS to Config.h (Off by Default) - When set, will call midiInputHacks() in the W_Hacks Tab for any new Midi Input Data - The current codes are already set: Program Change to Pattern Selection, Modulation Wheel to BPM Tempo and Pitch Wheel (Bend) to Sequence Stop/Play
+- Added EXTRA_MIDI_IN_HACKS to Config.h (Off by Default) - When set, will call midiInputHacks() in the W_Hacks Tab for any new Midi Input Data - It includes the following code: Program Change to Pattern Selection, Modulation Wheel to BPM Tempo, CC #2 to Number of Steps, Drums/S1/S2-Tracks KeyZone Split and Pitch Wheel (Bend) to Sequence Stop/Play
 - Added ENCODER_INPUT to Config.h (Off by Default) - When set, it will setup and read an endless encoder on pins D2 and D3. (see Header SV3) The encoder will act as an Up and Down button, therefore, working on anywhere in the interface where Up and Down strokes can be used to tweak values. Currently speed is not been detected, but this could change in the future
 - Added ENCODER_SPEED to Config.h - When set, it will detect the speed of the encoder movement and apply changes faster or slower
 

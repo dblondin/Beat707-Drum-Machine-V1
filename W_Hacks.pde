@@ -207,9 +207,15 @@ void Hack_and_Mods_Loop()
 
 #if EXTRA_MIDI_IN_HACKS
   // ======================================================================================= //    
-  void midiInputHacks(uint8_t byte1, uint8_t byte2, uint8_t byte3, uint8_t channel)
+  void midiInputHacks(uint8_t* data, uint8_t channel)
   {
-    /* List MIDI Commands from: http://www.omega-art.com/midi/mbytes.html
+    /* 
+    
+      MIDI byte1 = data[0] - (MIDI Channel is removed and set to the channel variable instead
+      MIDI byte2 = data[1]
+      MIDI byte3 = data[2]
+    
+      List MIDI Commands from: http://www.omega-art.com/midi/mbytes.html
     
       byte1 =  144 = Note On                  byte2 =  note number        byte3  = velocity (on)
                128 = Note Off                          note number                 velocity (off)
@@ -220,31 +226,47 @@ void Hack_and_Mods_Loop()
                224 = Pitch Wheel (Bend)                LSB                         MSB  (14 bits - see the site above for details)
     */
     
-    switch (byte1)
+    // !!! The Codes below are set as examples - feel free to erase and create your own codes !!! //
+    
+    switch (data[0])
     {
       case 192: // Program Change to Pattern Selector
-        if (byte2 < MAXSPATTERNS)  { nextPattern = byte2; updateLCDPattern(); }
+        if (data[1] < MAXSPATTERNS)  { nextPattern = data[1]; updateLCDPattern(); }
         break;
         
       case 176:
-        switch (byte2)
+        switch (data[1])
         {
           case 1: // Midi CC - Modulation Wheel to BPM Tempo
-            midiClockBPM = map(byte3, 0, 127, 25, 255);
+            midiClockBPM = map(data[2], 0, 127, 25, 255);
             if (midiClockRunning) MidiClockNewTime();
             setupChanged = doLCDupdate = 1;
-          break;
+            break;
+            
+          case 2: // Midi CC 2 to Pattern Number of Steps
+            numberOfSteps = map(data[2], 0, 127, 1, 16); break;
+            setupChanged = doLCDupdate = 1;
+            break;
         }
         break;
         
       case 224:  // Pitch Wheel (Bend)
-        if (byte3 > 90 && !midiClockRunning) MidiClockStart(); 
-          else if (byte3 < 40 && midiClockRunning) MidiClockStop(); 
+        if (data[2] > 90 && !midiClockRunning) MidiClockStart(); 
+          else if (data[2] < 40 && midiClockRunning) MidiClockStop(); 
+        break;
+        
+      case 144: // This will split the whole keyboard into 3 sections: Drum-Tracks, S1 and S2 - this will only work correctly if MIDIECHO is disabled
+      case 128:
+        if (data[1] >= 72) { data[1] -= 24; channel = dmChannel[DRUMTRACKS+1]; }
+          else if (data[1] >= 36) { channel = dmChannel[DRUMTRACKS]; }
+          else { data[1] += 12; channel = dmChannel[0]; }
+        sendMidiData(data, channel, 3);
         break;
     }
   }
 #endif
 
+// ======================================================================================= //    
 #if ENCODER_INPUT
   void EncoderChange()
   {

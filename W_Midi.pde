@@ -189,12 +189,12 @@ void sendMidiNoteOn(char note, char velocity, char channel)
 }
 
 // ======================================================================================= //
-void sendMidiData(uint8_t byte1, uint8_t byte2, uint8_t byte3, uint8_t nBytes)
+void sendMidiData(uint8_t* data, uint8_t channel, uint8_t nBytes)
 {
   #if !DISABLE_MIDI
-    MSerial.write(byte1);
-    if (nBytes >= 2) MSerial.write(byte2);
-    if (nBytes >= 3) MSerial.write(byte3);
+    MSerial.write(data[0]+channel);
+    if (nBytes >= 2) MSerial.write(data[1]);
+    if (nBytes >= 3) MSerial.write(data[2]);
   #endif
 }
 
@@ -284,29 +284,30 @@ void midiInputCheck()
          case 1:
            if(incomingByte < 128) 
            { 
+             midiInputB[1] = incomingByte;
              if (midiInputB[0] == 192) // Program Change
              {
-               #if MIDIECHO && MIDIECHO_BYTRACK
-                  if (currentTrack < (DRUMTRACKS+2)) sendMidiData(192+dmChannel[currentTrack], incomingByte, 0, 2);
-               #endif
                #if EXTRA_MIDI_IN_HACKS
-                 midiInputHacks(192,incomingByte,0,channel);
+                 midiInputHacks(midiInputB,channel);
+               #endif               
+               #if MIDIECHO && MIDIECHO_BYTRACK
+                  if (currentTrack < (DRUMTRACKS+2)) sendMidiData(midiInputB, dmChannel[currentTrack], 2);
                #endif
-               midiInputB[0] = midiInputB[1] = state = 0;
+               midiInputB[0] = midiInputB[1] = midiInputB[2] = state = 0;
              }
              else if (midiInputB[0] == 208) // Channel aftertouch
              {
-               #if MIDIECHO && MIDIECHO_BYTRACK
-                  if (currentTrack < (DRUMTRACKS+2)) sendMidiData(208+dmChannel[currentTrack], incomingByte, 0, 2);
-               #endif
                #if EXTRA_MIDI_IN_HACKS
-                 midiInputHacks(208,incomingByte,0,channel);
+                 midiInputHacks(midiInputB,channel);
                #endif               
-               midiInputB[0] = midiInputB[1] = state = 0;
+               #if MIDIECHO && MIDIECHO_BYTRACK
+                  if (currentTrack < (DRUMTRACKS+2)) sendMidiData(midiInputB, dmChannel[currentTrack], 2);
+               #endif
+               midiInputB[0] = midiInputB[1] = midiInputB[2] = state = 0;
              }
              else
              {
-               midiInputB[1] = incomingByte; state = 2; 
+               state = 2; 
              }
            }
            break;
@@ -314,17 +315,18 @@ void midiInputCheck()
          case 2:
            if(incomingByte < 128)
            {
+             midiInputB[2] = incomingByte;
+             #if EXTRA_MIDI_IN_HACKS
+               midiInputHacks(midiInputB,channel);
+             #endif             
              #if MIDIECHO && MIDIECHO_BYTRACK
                if (currentTrack < (DRUMTRACKS+2))
                {
-                 if (midiInputB[0] == 144 && incomingByte > 0) sendMidiNoteOn(midiInputB[1],incomingByte, dmChannel[currentTrack]);
-                   else if (midiInputB[0] == 128) sendMidiNoteOff(midiInputB[1], dmChannel[currentTrack]);
-                   else if (midiInputB[0] == 160 || midiInputB[0] == 176 || midiInputB[0] == 224) sendMidiData(midiInputB[0]+dmChannel[currentTrack], midiInputB[1], incomingByte, 3);
+                 if (midiInputB[0] == 144 && incomingByte > 0) sendMidiNoteOn(midiInputB[1], incomingByte, dmChannel[currentTrack]);
+                   else if ((midiInputB[0] == 144 && incomingByte == 0) || midiInputB[0] == 128) sendMidiNoteOff(midiInputB[1], dmChannel[currentTrack]);
+                   else if (midiInputB[0] == 160 || midiInputB[0] == 176 || midiInputB[0] == 224) sendMidiData(midiInputB, dmChannel[currentTrack], 3);
                }
              #endif
-             #if EXTRA_MIDI_IN_HACKS
-               midiInputHacks(midiInputB[0],midiInputB[1],incomingByte,channel);
-             #endif             
              if (midiInputB[0] == 144 && incomingByte > 0 && curMode == 0)
              {
                if (currentTrack < DRUMTRACKS)
@@ -401,7 +403,7 @@ void midiInputCheck()
                  }
                }
              }
-             midiInputB[0] = midiInputB[1] = state = 0;
+             midiInputB[0] = midiInputB[1] = midiInputB[2] = state = 0;
            }
            break;
        }

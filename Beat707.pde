@@ -2,7 +2,7 @@
 
   Created by Beat707 (c) 2011 - http://www.Beat707.com
 
-  Main File for Variable Declaration and Setup - May 08 2011 - Version 1.2.4
+  Main File for Variable Declaration and Setup - May 10 2011 - Version 1.2.4
 
 */
 
@@ -22,7 +22,7 @@ uint8_t midiClockBPM; // 25 to 255 BPM //
 uint8_t midiClockType; // 0=Internal Only (no Sync), 1=SyncToExternal (Slave), 2=SendSync (Master)
 uint8_t midiClockCounterDivider, midiClockCounter, currentTrack, currentPattern, 
         nextPattern, shiftMode, noteStepPositionBlinker, sync24PPQ = 0;
-uint8_t midiInputB[2] = {0,0}; // Used by the MIDI Input code to read 3 Bytes (the last byte is stored in incomingByte)
+uint8_t midiInputB[3] = {0,0,0}; // Used by the MIDI Input code to read 3 Bytes
 uint8_t channel = 0; // Used by the MIDI Input code, the last MIDI channel been Input
 uint8_t state = 0; // Used by the MIDI Input code (to check 3 bytes of MIDI information)
 uint8_t incomingByte = 0; // Used by the MIDI Input Code
@@ -256,7 +256,7 @@ void delayNI(unsigned long ms)
   endtime = timer0_millis + ms;
   while (((long)endtime - (long)timer0_millis) > 0)
   {
-    #if MIDIECHO
+    #if MIDIECHO || EXTRA_MIDI_IN_HACKS
       midiInputCheck();
     #else
     ;

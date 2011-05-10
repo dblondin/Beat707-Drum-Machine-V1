@@ -33,9 +33,9 @@
     #define MIDI_INPUT_AUTO_N 1 // Used by the Auto-Step - number of steps to move when a new note is hit
     #define MIDI_INPUT_AUTO_V 1 // When set, a low-velocity note will set an empty note (velocity < 40)
     #define MIDI_INPUT_AU_LW 24 // When set, a lower-octave note will set an empty note (note < MIDI_INPUT_AU_LW)
-  #define EXTRA_MIDI_IN_HACKS 0 // When set, will call midiInputHacks() in the W_Hacks Tab for any new Midi Input Data - The current codes are already set: Program Change to Pattern Selection, Modulation Wheel to BPM Tempo and Pitch Wheel (Bend) to Sequence Stop/Play
-  #define ENCODER_INPUT 1       // When set, it will setup and read an endless encoder on pins D2 and D3. (see Header SV3) The encoder will act as an Up and Down button, therefore, working on anywhere in the interface where Up and Down strokes can be used to tweak values. Currently speed is not been detected, but this could change in the future
-    #define ENCODER_SPEED 1     // When set, it will detect the speed of the encoder movement and apply changes faster or slower
+  #define EXTRA_MIDI_IN_HACKS 0 // When set, will call midiInputHacks() in the W_Hacks Tab for any new Midi Input Data - It includes the following code: Program Change to Pattern Selection, Modulation Wheel to BPM Tempo, CC #2 to Number of Steps, Drums/S1/S2-Tracks KeyZone Split and Pitch Wheel (Bend) to Sequence Stop/Play
+  #define ENCODER_INPUT 0       // When set, it will setup and read an endless encoder on pins D2 and D3. (see Header SV3) The encoder will act as an Up and Down button, therefore, working on anywhere in the interface where Up and Down strokes can be used to tweak values. Currently speed is not been detected, but this could change in the future
+    #define ENCODER_SPEED 0     // When set, it will detect the speed of the encoder movement and apply changes faster or slower
     
   // ===================================================================================================================================================================== //
   #define CHECK_FOR_USB_MODE 0  // The Device will check if the USB Remote Program is running (takes 1 second during initialization)
