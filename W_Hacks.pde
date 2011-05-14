@@ -113,7 +113,7 @@ void Hack_and_Mods_Loop()
 
 // ======================================================================================= //    
 #if GATE_OUTS
-  void Gate_Outs_Midi()
+  void Gate_Outs_Midi(uint8_t xdtm, uint8_t velocity)
   {
     if (xdtm <= 2)
     {

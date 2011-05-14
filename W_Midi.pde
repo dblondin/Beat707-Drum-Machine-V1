@@ -35,7 +35,7 @@ void midiTimer()
       if (bitRead(dmSteps[patternBufferN][xdtm+dBB],midiClockCounter2) && !bitRead(dmMutes,xdtm))
       {
         #if GATE_OUTS
-          Gate_Outs_Midi();
+          Gate_Outs_Midi(xdtm, velocity);
         #else
           sendMidiNoteOff(dmNotes[xdtm], dmChannel[xdtm]);
           sendMidiNoteOn(dmNotes[xdtm],velocity, dmChannel[xdtm]);
