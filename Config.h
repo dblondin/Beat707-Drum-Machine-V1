@@ -46,9 +46,9 @@
   #define DISABLE_MIDI 0        // Debug Only
   #define DISABLE_STORAGE_CHK 0 // Debug Only
   #if ANALOG_INPUT_A0
-    #define LAST_PATT_ZONE 15   // The code of the last Pattern Zone. If you add a new option/zone, you will need to update this value.
+    #define LAST_PATT_ZONE 16   // The code of the last Pattern Zone. If you add a new option/zone, you will need to update this value.
   #else
-    #define LAST_PATT_ZONE 14
+    #define LAST_PATT_ZONE 15
   #endif
   
   // ===================================================================================================================================================================== //  

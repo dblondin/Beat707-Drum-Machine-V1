@@ -100,8 +100,16 @@ void updateLCDPattern()
       if (midiUSBmode == 1) lcdPrint(ON_); else lcdPrint(OFF_);
       lcdPrintEmptyChars(5);
     }
-    #if ANALOG_INPUT_A0
     else if (curZone == 14)
+    {
+      lcdPrint(SEQDIRECTION);
+      printCursor();
+      if (midiClockDirection == 1) lcdPrint(REV); 
+        else if (midiClockDirection == 2) lcdPrint(RND); 
+        else lcdPrint(NRM);
+    }
+    #if ANALOG_INPUT_A0
+    else if (curZone == 15)
     {
       lcdPrintString("AnalogIn");
       printCursor();

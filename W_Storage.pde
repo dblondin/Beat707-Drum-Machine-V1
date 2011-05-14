@@ -123,6 +123,7 @@ void saveSetup()
       #endif
       else if (q == 17) value = midiUSBmode;
       else if (q == 18) value = externalMIDIportSelector; // slot 18 is used for an external variable: MIDI Out Port - for the USB to MIDI Converter  
+      else if (q == 19) value = midiClockDirection;
       
     Wire.send(value);
   }
@@ -149,6 +150,7 @@ void loadSetup()
   #endif
   midiUSBmode = EEPROM_READ(17);
   externalMIDIportSelector = EEPROM_READ(18); // slot 18 is used for an external variable: MIDI Out Port - for the USB to MIDI Converter  
+  midiClockDirection = EEPROM_READ(19);
   
   wireBeginTransmission(prePosLS);
   Wire.endTransmission();

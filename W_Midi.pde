@@ -21,14 +21,18 @@ void midiTimer()
   }
   
   if (midiClockProcess || midiClockProcessDoubleSteps)
-  {    
+  {
+    if (midiClockDirection == 1) midiClockCounter2 = 15-midiClockCounter;
+      else if (midiClockDirection == 2) midiClockCounter2 = random(0, 15);
+        else midiClockCounter2 = midiClockCounter;
+    
     uint8_t dBB = (((DRUMTRACKS+2)*midiClockProcessDoubleSteps)+(((DRUMTRACKS+2)*2)*stepsPos));
     uint8_t dBBs = ((16*midiClockProcessDoubleSteps)+(32*stepsPos));    
-    uint8_t velocity = 87+(bitRead(dmSteps[patternBufferN][DRUMTRACKS+dBB],midiClockCounter)*20)+(bitRead(dmSteps[patternBufferN][DRUMTRACKS+1+dBB],midiClockCounter)*20);
+    uint8_t velocity = 87+(bitRead(dmSteps[patternBufferN][DRUMTRACKS+dBB],midiClockCounter2)*20)+(bitRead(dmSteps[patternBufferN][DRUMTRACKS+1+dBB],midiClockCounter2)*20);
     
     for (char xdtm=0; xdtm<DRUMTRACKS; xdtm++)
     {
-      if (bitRead(dmSteps[patternBufferN][xdtm+dBB],midiClockCounter) && !bitRead(dmMutes,xdtm))
+      if (bitRead(dmSteps[patternBufferN][xdtm+dBB],midiClockCounter2) && !bitRead(dmMutes,xdtm))
       {
         #if GATE_OUTS
           Gate_Outs_Midi();
@@ -43,24 +47,24 @@ void midiTimer()
     {
       if (!bitRead(dmMutes,DRUMTRACKS+xdtm))
       {
-        if (dmSynthTrack[xdtm][patternBufferN][midiClockCounter+dBBs] == 1)
+        if (dmSynthTrack[xdtm][patternBufferN][midiClockCounter2+dBBs] == 1)
         {
           sendMidiNoteOff(dmSynthTrackPrevNote[xdtm], dmChannel[DRUMTRACKS+xdtm]);
           dmSynthTrackPrevNote[xdtm] = 0;
         }
-        else if (dmSynthTrack[xdtm][patternBufferN][midiClockCounter+dBBs] > 1)
+        else if (dmSynthTrack[xdtm][patternBufferN][midiClockCounter2+dBBs] > 1)
         {
-          if (dmSynthTrack[xdtm][patternBufferN][midiClockCounter+dBBs] < 128)
+          if (dmSynthTrack[xdtm][patternBufferN][midiClockCounter2+dBBs] < 128)
           {
             if (dmSynthTrackPrevNote[xdtm] > 0) sendMidiNoteOff(dmSynthTrackPrevNote[xdtm], dmChannel[DRUMTRACKS+xdtm]);
-            sendMidiNoteOn(dmSynthTrack[xdtm][patternBufferN][midiClockCounter+dBBs]-1,velocity, dmChannel[DRUMTRACKS+xdtm]);
-            dmSynthTrackPrevNote[xdtm] = dmSynthTrack[xdtm][patternBufferN][midiClockCounter+dBBs]-1;
+            sendMidiNoteOn(dmSynthTrack[xdtm][patternBufferN][midiClockCounter2+dBBs]-1,velocity, dmChannel[DRUMTRACKS+xdtm]);
+            dmSynthTrackPrevNote[xdtm] = dmSynthTrack[xdtm][patternBufferN][midiClockCounter2+dBBs]-1;
           }
           else
           {
-            sendMidiNoteOn(dmSynthTrack[xdtm][patternBufferN][midiClockCounter+dBBs]-1-127,velocity, dmChannel[DRUMTRACKS+xdtm]);
+            sendMidiNoteOn(dmSynthTrack[xdtm][patternBufferN][midiClockCounter2+dBBs]-1-127,velocity, dmChannel[DRUMTRACKS+xdtm]);
             if (dmSynthTrackPrevNote[xdtm] > 0) sendMidiNoteOff(dmSynthTrackPrevNote[xdtm], dmChannel[DRUMTRACKS+xdtm]);
-            dmSynthTrackPrevNote[xdtm] = dmSynthTrack[xdtm][patternBufferN][midiClockCounter+dBBs]-1-127;
+            dmSynthTrackPrevNote[xdtm] = dmSynthTrack[xdtm][patternBufferN][midiClockCounter2+dBBs]-1-127;
           }
         }
       }

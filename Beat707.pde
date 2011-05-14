@@ -20,8 +20,8 @@ unsigned long lastMillis, lastMillisRecButtons, lastMillisStepPosBlinker, lastMi
 #define PPQ 96 // Min BPM = 50 //
 uint8_t midiClockBPM; // 25 to 255 BPM //
 uint8_t midiClockType; // 0=Internal Only (no Sync), 1=SyncToExternal (Slave), 2=SendSync (Master)
-uint8_t midiClockCounterDivider, midiClockCounter, currentTrack, currentPattern, 
-        nextPattern, shiftMode, noteStepPositionBlinker, sync24PPQ = 0;
+uint8_t midiClockCounterDivider, midiClockCounter, midiClockCounter2, currentTrack, currentPattern, 
+        nextPattern, shiftMode, midiClockDirection, noteStepPositionBlinker, sync24PPQ = 0;
 uint8_t midiInputB[3] = {0,0,0}; // Used by the MIDI Input code to read 3 Bytes
 uint8_t channel = 0; // Used by the MIDI Input code, the last MIDI channel been Input
 uint8_t state = 0; // Used by the MIDI Input code (to check 3 bytes of MIDI information)
@@ -142,6 +142,10 @@ void setup()
     Serial.println(""); Serial.println(""); Serial.print("Free Mem: ");
     Serial.println(freeMemory()); Serial.println("");
   #endif
+  
+  // Uses the Analog Input for the Random Numbers Seed
+  pinMode(A0, INPUT);
+  randomSeed(analogRead(0));
   
   #if ANALOG_INPUT_A0
     pinMode(A0, INPUT);

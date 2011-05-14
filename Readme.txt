@@ -77,5 +77,6 @@ May 14 2011 - Version 1.2.4
 - Added ENCODER_INPUT to Config.h (Off by Default) - When set, it will setup and read an endless encoder on pins D2 and D3. (see Header SV3) The encoder will act as an Up and Down button, therefore, working on anywhere in the interface where Up and Down strokes can be used to tweak values. Currently speed is not been detected, but this could change in the future
 - Added ENCODER_SPEED to Config.h - When set, it will detect the speed of the encoder movement and apply changes faster or slower
 - New MIDI over USB code that is compatible with the new USB to MIDI Converter applicated found at: http://www.beat707.com/w/downloads/software-and-sources - the previous VST is no longer compatible, we will work on a new version soon. To select USB mode, use the navigation menu to find the option USB MODE and enable it.
+- New Sequencer Direction option: FWR = Forward (Normal) - REV = Reverse (Backwards) - RND = Random
 
 ---------------------------------------------------------------------------------

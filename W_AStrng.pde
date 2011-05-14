@@ -195,6 +195,14 @@ prog_char myStrings_068[] PROGMEM  = "USB MODE";
 #define USB_MODE 107
 prog_char myStrings_069[] PROGMEM  = "USB TO MIDI OK";
 #define USB_TO_MIDI_OK 108
+prog_char myStrings_070[] PROGMEM  = "SeqDirection";
+#define SEQDIRECTION 109
+prog_char myStrings_071[] PROGMEM  = "Nrm";
+#define NRM 110
+prog_char myStrings_072[] PROGMEM  = "Rev";
+#define REV 111
+prog_char myStrings_073[] PROGMEM  = "Rnd";
+#define RND 112
 
 PROGMEM const char *stringlist[] = { empty_Str, 
 #if EXTENDED_DRUM_NAMES
@@ -210,4 +218,4 @@ PROGMEM const char *stringlist[] = { empty_Str,
   myStrings_034, myStrings_035, myStrings_036, myStrings_037, myStrings_038, myStrings_039, myStrings_040, myStrings_041, myStrings_042, myStrings_043, myStrings_044,
   myStrings_045, myStrings_046, myStrings_047, myStrings_048, myStrings_049, myStrings_050, myStrings_051, myStrings_052, myStrings_053, myStrings_054, myStrings_055,
   myStrings_056, myStrings_057, myStrings_058, myStrings_059, myStrings_060, myStrings_061, myStrings_062, myStrings_063, myStrings_064, myStrings_065, myStrings_066, 
-  myStrings_067, myStrings_068, myStrings_069};
+  myStrings_067, myStrings_068, myStrings_069, myStrings_070, myStrings_071, myStrings_072, myStrings_073};
