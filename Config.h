@@ -38,20 +38,17 @@
     #define ENCODER_SPEED 0     // When set, it will detect the speed of the encoder movement and apply changes faster or slower
     
   // ===================================================================================================================================================================== //
-  #define CHECK_FOR_USB_MODE 0  // The Device will check if the USB Remote Program is running (takes 1 second during initialization)
   #define EXTENDED_DRUM_NAMES 1 // Add more GM Drum Note Names to the Track Drum Note Selectors
   #define STORAGE_FORCE_INIT 0  // Force an Initiation of all EEPROM memory during startup 
-  #define SHOW_INITIALIZING 0   // Display "Initializing..." during startup (only when CHECK_FOR_USB_MODE is 1)
-  #define SHOW_USB_MODE 0       // Display "USB Mode Ready" during startup (only when CHECK_FOR_USB_MODE is 1)
   #define SHOWFREEMEM 0         // Outputs free RAM to Serial
   #define MSerial Serial        // Used for MIDI Input/Output
   #define INIT_EMPTY_SONG 1     // Determinates if an Empty Song should be saved during Initiation of the EEPROM + Flash
   #define DISABLE_MIDI 0        // Debug Only
   #define DISABLE_STORAGE_CHK 0 // Debug Only
   #if ANALOG_INPUT_A0
-    #define LAST_PATT_ZONE 14   // The code of the last Pattern Zone. If you add a new option/zone, you will need to update this value.
+    #define LAST_PATT_ZONE 15   // The code of the last Pattern Zone. If you add a new option/zone, you will need to update this value.
   #else
-    #define LAST_PATT_ZONE 13
+    #define LAST_PATT_ZONE 14
   #endif
   
   // ===================================================================================================================================================================== //  

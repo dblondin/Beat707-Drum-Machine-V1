@@ -2,7 +2,7 @@
 
   Created by Beat707 (c) 2011 - http://www.Beat707.com
 
-  Main File for Variable Declaration and Setup - May 10 2011 - Version 1.2.4
+  Main File for Variable Declaration and Setup - May 14 2011 - Version 1.2.4
 
 */
 
@@ -34,7 +34,7 @@ uint8_t numberOfSteps = 16;
 // Boolean Variables //
 uint8_t doLCDupdate, nextPatternReady, patternBufferN, midiClockRunning, editStepsPos, holdingStepButton,
         shiftClick, holdingShift, holdingShiftUsed, patternChanged, stickyShift, mirrorPatternEdit,
-        midiClockProcess, setupChanged, recordEnabled, recordShowCurPos, holdingButton,
+        midiClockProcess, setupChanged, recordEnabled, recordShowCurPos, holdingButton, midiUSBmode,
         editDoubleSteps, midiClockProcessDoubleSteps, soloCheckerTemp, stepsPos, enableABpattern,
         showOnlyOnce, lateAutoSave, songChanged, songNextPosition, doPatternLCDupdate = 0;
 
@@ -72,6 +72,7 @@ uint8_t nextMode = 0; // Used by the interface when selecting a new mode
 uint8_t wireBufferCounter = 0; // Used with the Wire Library to send 64 bytes of data at once to the EEPROM
 extern volatile unsigned long timer0_millis;
 int newNote = 0; // Used by the S1/S2 Up/Down editor
+char externalMIDIportSelector = 0; // from the external USB to MIDI Converter
 
 // Hack & Mods //
 #if ENCODER_INPUT 
@@ -135,24 +136,11 @@ void sysInit()
 void setup() 
 {
   pinMode(MIDI_ENn,OUTPUT);
-  #if CHECK_FOR_USB_MODE
-    MSerial.begin(57600); // Startup in USB Mode //  
-    digitalWrite(MIDI_ENn,HIGH);  
-    MSerial.write(240); MSerial.write('B'); MSerial.write('7'); 
-    MSerial.write('0'); MSerial.write('7'); MSerial.write(247);
-  #endif
   
   #if SHOWFREEMEM
-    #if !CHECK_FOR_USB_MODE
-      MSerial.begin(57600);
-    #endif    
+    MSerial.begin(57600);
     Serial.println(""); Serial.println(""); Serial.print("Free Mem: ");
     Serial.println(freeMemory()); Serial.println("");
-  #endif
-  
-  #if !CHECK_FOR_USB_MODE
-    MSerial.begin(31250);
-    digitalWrite(MIDI_ENn,LOW);
   #endif
   
   #if ANALOG_INPUT_A0
@@ -194,9 +182,6 @@ void setup()
   Wire.begin();
     
   lcd.begin();
-  #if SHOW_INITIALIZING
-    lcdPrintString("Initializing...");
-  #endif
   lcd.createChar(LcdCursors);
 
   flashInit();  
@@ -207,38 +192,14 @@ void setup()
   patternBufferN = 1;
   recordShowCurPos = 1;
   timerStop();
-
-  #if CHECK_FOR_USB_MODE
-    unsigned long endtime = timer0_millis + 1000;
-    while (((long)endtime - (long)timer0_millis) > 0) { ; } // Don't use delayNI here as it clears up MIDI Data
-
-    uint8_t keepInUSBmode = false;
-    if (MSerial.available() > 0)
-    {
-      keepInUSBmode = true;
-      
-      if (MSerial.read() != 240) keepInUSBmode = false;
-        else if (MSerial.read() != 'U') keepInUSBmode = false;
-        else if (MSerial.read() != 'S') keepInUSBmode = false;
-        else if (MSerial.read() != 'B') keepInUSBmode = false;
-        else if (MSerial.read() != 247) keepInUSBmode = false;
-    }
-    
-    if (!keepInUSBmode)
-    {  
-      MSerial.begin(31250); // Regular MIDI Interface
-      digitalWrite(MIDI_ENn,LOW);  // Write to MIDI OUT, MIDI IN enabled      
-    }    
-    else
-    {
-      MSerial.write(240); MSerial.write('I'); MSerial.write('D'); MSerial.write(sysMIDI_ID); MSerial.write(247);
-      #if SHOW_USB_MODE
-        lcd.clear();
-        lcdPrintString("USB Mode Ready");
-        delayNI(1000);        
-      #endif
-    }
-  #endif
+  
+  checkMIDIusbMode();
+  if (midiUSBmode)
+  {
+    lcd.setCursor(4,0);
+    lcdPrint(107); // USB_MODE
+    delayNI(1000);
+  }  
   
   if (curMode == 0) updateLCDPattern(); 
     else if (curMode == 1) updateLCDSong();

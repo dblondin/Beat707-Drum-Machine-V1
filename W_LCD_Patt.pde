@@ -93,8 +93,15 @@ void updateLCDPattern()
       if (enableABpattern) lcdPrint(ON_); else lcdPrint(OFF_);
       lcdPrintEmptyChars(3);
     }
-    #if ANALOG_INPUT_A0
     else if (curZone == 13)
+    {
+      lcdPrint(USB_MODE);
+      printCursor();
+      if (midiUSBmode == 1) lcdPrint(ON_); else lcdPrint(OFF_);
+      lcdPrintEmptyChars(5);
+    }
+    #if ANALOG_INPUT_A0
+    else if (curZone == 14)
     {
       lcdPrintString("AnalogIn");
       printCursor();

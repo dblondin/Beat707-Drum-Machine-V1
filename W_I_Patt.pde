@@ -165,8 +165,14 @@ void InterfaceTickPattern()
         editStepsPos = stepsPos = 0;
         setupChanged = 1;
       }
-      #if ANALOG_INPUT_A0
       else if (curZone == 13)
+      {
+        midiUSBmode = !midiUSBmode;
+        checkMIDIusbMode();
+        setupChanged = 1;
+      }
+      #if ANALOG_INPUT_A0
+      else if (curZone == 14)
       {
         analogInputMode++;
         if (analogInputMode > 4) analogInputMode = 0;
@@ -296,8 +302,14 @@ void InterfaceTickPattern()
         editStepsPos = stepsPos = 0;
         setupChanged = 1;
       }
-      #if ANALOG_INPUT_A0
       else if (curZone == 13)
+      {
+        midiUSBmode = !midiUSBmode;
+        checkMIDIusbMode();
+        setupChanged = 1;
+      }      
+      #if ANALOG_INPUT_A0
+      else if (curZone == 14)
       {
         analogInputMode--;
         if (analogInputMode == 255) analogInputMode = 4;

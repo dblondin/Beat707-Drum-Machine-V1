@@ -172,6 +172,21 @@ byte readEEPROM(int deviceaddress, unsigned int eeaddress )
 }
 
 // ======================================================================================= //
+void checkMIDIusbMode()
+{
+  if (midiUSBmode)
+  {
+    MSerial.begin(115200);
+    digitalWrite(MIDI_ENn,HIGH);  
+  }
+  else
+  {
+    MSerial.begin(31250);
+    digitalWrite(MIDI_ENn,LOW);
+  }  
+}
+
+// ======================================================================================= //
 
 // This is used to delay just a bit
 void volatile nop(void) { asm __volatile__ ("nop"); }

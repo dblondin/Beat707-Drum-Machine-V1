@@ -121,6 +121,8 @@ void saveSetup()
       #if ANALOG_INPUT_A0
       else if (q == 16) value = analogInputMode;
       #endif
+      else if (q == 17) value = midiUSBmode;
+      else if (q == 18) value = externalMIDIportSelector; // slot 18 is used for an external variable: MIDI Out Port - for the USB to MIDI Converter  
       
     Wire.send(value);
   }
@@ -145,6 +147,8 @@ void loadSetup()
   #if ANALOG_INPUT_A0
     analogInputMode = EEPROM_READ(16);
   #endif
+  midiUSBmode = EEPROM_READ(17);
+  externalMIDIportSelector = EEPROM_READ(18); // slot 18 is used for an external variable: MIDI Out Port - for the USB to MIDI Converter  
   
   wireBeginTransmission(prePosLS);
   Wire.endTransmission();
@@ -367,13 +371,41 @@ void songDumpReceive(void)
   uint32_t address = 0;
   wireBufferCounter = 0;
   
+  if (midiClockRunning) goto sysExEnd;
+  
   // First check Manufacturer's ID bytes 1 to 6 and User's ID //
   if (midiInput() != 0x01) goto sysExEnd;
   if (midiInput() != 0x08) goto sysExEnd;
   if (midiInput() != 0x04) goto sysExEnd;
   if (midiInput() != 0x02) goto sysExEnd;
   if (midiInput() != 0x09) goto sysExEnd;
-  if (midiInput() != sysMIDI_ID) goto sysExEnd;
+  if (midiInput() == 100)
+  {
+    if (midiInput() != sysMIDI_ID) goto sysExEnd;
+    
+    // Special USB Check for the USB to MIDI Program //
+    lcd.clear();
+    lcd.setCursor(1,0);
+    lcdPrint(USB_TO_MIDI_OK);
+    #if !MIDIECHO
+      MSerial.write(240);
+    #endif
+    MSerial.write('B'); MSerial.write('7'); MSerial.write('0'); MSerial.write('7'); MSerial.write(EEPROM_READ(18));
+    #if !MIDIECHO
+      MSerial.write(247);
+    #endif
+    delayNI(2000);
+    goto sysExEnd;
+  }
+  else if (incomingByte == 101)
+  {
+    // Stores external selected MIDI Output Port from the USB to MIDI converter program
+    if (midiInput() != sysMIDI_ID) goto sysExEnd;
+    externalMIDIportSelector = midiInput();
+    EEPROM_WRITE(18,externalMIDIportSelector);
+    goto sysExEnd;
+  }
+  else if (incomingByte != sysMIDI_ID) goto sysExEnd;
   
   if (midiClockRunning) MidiClockStop(); // Stop MIDI Clock while receiving SySex Dump //    
   
