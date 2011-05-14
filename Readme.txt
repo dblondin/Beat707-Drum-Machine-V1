@@ -4,6 +4,11 @@ Beat707.com is a joint collaboration between Wusik.com and RuggedCircuits.com, a
 
 --------------------------------------------------------------------------------------------------------
 
+Please, consider making a donation to support continued software development:
+https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=N9S8Y6AWAZQJA
+
+--------------------------------------------------------------------------------------------------------
+
 Latest version direct download link:
 
 https://github.com/Beat707/Beat707-Drum-Machine-V1/archives/master
