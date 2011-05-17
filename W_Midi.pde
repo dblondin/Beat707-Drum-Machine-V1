@@ -298,11 +298,7 @@ void midiInputCheck()
     
     if (incomingByte == 240)
     {
-      #if MIDI_SYSEX_DMP_RC
-        songDumpReceive(); // MIDI SysEx //
-      #else
-        while (incomingByte != 247) { midiInput(); }
-      #endif
+      songDumpReceive(); // MIDI SysEx //
     }
     else if (incomingByte == 0xF8 && midiClockType == 1) { midiTimer(); midiTimer(); }
     else if (incomingByte == 0xFA && midiClockType == 1) MidiClockStart();

@@ -368,50 +368,52 @@ void songSave()
     flashReadFinish();
     MSerial.write(0xF7);
   }
-  
+#endif
+
   // ======================================================================================= //
   
-  void songDumpReceive(void)
+void songDumpReceive(void)
+{
+  uint32_t address = 0;
+  wireBufferCounter = 0;
+  
+  if (midiClockRunning) goto sysExEnd;
+  
+  // First check Manufacturer's ID bytes 1 to 6 and User's ID //
+  if (midiInput() != 0x01) goto sysExEnd;
+  if (midiInput() != 0x08) goto sysExEnd;
+  if (midiInput() != 0x04) goto sysExEnd;
+  if (midiInput() != 0x02) goto sysExEnd;
+  if (midiInput() != 0x09) goto sysExEnd;
+  if (midiInput() == 100)
   {
-    uint32_t address = 0;
-    wireBufferCounter = 0;
+    if (midiInput() != sysMIDI_ID) goto sysExEnd;
     
-    if (midiClockRunning) goto sysExEnd;
-    
-    // First check Manufacturer's ID bytes 1 to 6 and User's ID //
-    if (midiInput() != 0x01) goto sysExEnd;
-    if (midiInput() != 0x08) goto sysExEnd;
-    if (midiInput() != 0x04) goto sysExEnd;
-    if (midiInput() != 0x02) goto sysExEnd;
-    if (midiInput() != 0x09) goto sysExEnd;
-    if (midiInput() == 100)
-    {
-      if (midiInput() != sysMIDI_ID) goto sysExEnd;
-      
-      // Special USB Check for the USB to MIDI Program //
-      lcd.clear();
-      lcd.setCursor(1,0);
-      lcdPrint(USB_TO_MIDI_OK);
-      #if !MIDIECHO
-        MSerial.write(240);
-      #endif
-      MSerial.write('B'); MSerial.write('7'); MSerial.write('0'); MSerial.write('7'); MSerial.write(EEPROM_READ(18));
-      #if !MIDIECHO
-        MSerial.write(247);
-      #endif
-      delayNI(2000);
-      goto sysExEnd;
-    }
-    else if (incomingByte == 101)
-    {
-      // Stores external selected MIDI Output Port from the USB to MIDI converter program
-      if (midiInput() != sysMIDI_ID) goto sysExEnd;
-      externalMIDIportSelector = midiInput();
-      EEPROM_WRITE(18,externalMIDIportSelector);
-      goto sysExEnd;
-    }
-    else if (incomingByte != sysMIDI_ID) goto sysExEnd;
-    
+    // Special USB Check for the USB to MIDI Program //
+    lcd.clear();
+    lcd.setCursor(1,0);
+    lcdPrint(USB_TO_MIDI_OK);
+    #if !MIDIECHO
+      MSerial.write(240);
+    #endif
+    MSerial.write('B'); MSerial.write('7'); MSerial.write('0'); MSerial.write('7'); MSerial.write(EEPROM_READ(18));
+    #if !MIDIECHO
+      MSerial.write(247);
+    #endif
+    delayNI(2000);
+    goto sysExEnd;
+  }
+  else if (incomingByte == 101)
+  {
+    // Stores external selected MIDI Output Port from the USB to MIDI converter program
+    if (midiInput() != sysMIDI_ID) goto sysExEnd;
+    externalMIDIportSelector = midiInput();
+    EEPROM_WRITE(18,externalMIDIportSelector);
+    goto sysExEnd;
+  }
+  else if (incomingByte != sysMIDI_ID) goto sysExEnd;
+  
+  #if MIDI_SYSEX_DMP_RC
     if (midiClockRunning) MidiClockStop(); // Stop MIDI Clock while receiving SySex Dump //    
     
     lcd.clear();
@@ -441,9 +443,9 @@ void songSave()
     lcdOK();
     doLCDupdate = 1;
     return;
-    
-    sysExEnd:
-    while (incomingByte != 247) { midiInput(); }
-    doLCDupdate = 1;
-  }
-#endif
+  #endif
+  
+  sysExEnd:
+  while (incomingByte != 247) { midiInput(); }
+  doLCDupdate = 1;
+}
