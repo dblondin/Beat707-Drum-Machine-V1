@@ -56,8 +56,7 @@ void InterfaceTickPattern()
       {
         shiftMode++;
         if (shiftMode > 7) shiftMode = 0;
-        holdingShiftUsed = 1;
-        showOnlyOnce = 1;
+        holdingShiftUsed = showOnlyOnce = 1;
       }
       else if (curZone == 0)
       {
@@ -381,6 +380,9 @@ void shiftButtonPattern()
         {
             memset(dmSteps,0,sizeof(dmSteps));
             memset(dmSynthTrack,0,sizeof(dmSynthTrack));
+            #if INI_PATT_FULL_ACNT
+              patternAccentInit();
+            #endif
             patternChanged = 1;
             lcdOK();
         }
@@ -459,8 +461,7 @@ void shiftButtonPattern()
           editStepsPos = stepsPos;
           mirrorPatternEdit = !mirrorPatternEdit;
           if (mirrorPatternEdit) enableABpattern = 1;
-          setupChanged = 1;          
-          doLCDupdate = 1;
+          setupChanged = doLCDupdate = 1;
         }
         else
         {
@@ -488,21 +489,27 @@ void LEDsPatternTick() // & Buttons //
 {
   dbStepsCalc();
   
+  if (midiClockDirection == 1) midiClockCounter2 = 15-midiClockCounter;
+    else if (midiClockDirection == 2) midiClockCounter2 = random(0, 15);
+    else midiClockCounter2 = midiClockCounter;
+  
   // Holding SHIFT //
   if (holdingShift && !recordEnabled)
   { 
-    stepLEDs = 0; 
-    if (shiftMode == 0) bitWrite(stepLEDs,currentTrack,1); 
-      else if (shiftMode == 1) stepLEDs = dmMutes;
+    stepLEDs[0] = stepLEDs[1] = stepLEDs[2] = 0;
+    if (shiftMode == 0) bitWrite(stepLEDs[0],currentTrack,1);
+      else if (shiftMode == 1) stepLEDs[0] = dmMutes;
       else if (shiftMode == 2) 
       { 
         if (dmMutes != 0)
         {
-          stepLEDs = dmMutes ^ 65535;
+          stepLEDs[0] = dmMutes ^ 65535;
         }
       }
       
-    if (midiClockRunning && midiClockCounterDivider < (bitRead(stepLEDs,midiClockCounter2) ? 12 : 6)) bitWrite(stepLEDs,midiClockCounter2,!bitRead(stepLEDs,midiClockCounter2));
+    if (midiClockRunning && midiClockCounterDivider < (bitRead(stepLEDs[0],midiClockCounter2) ? 12 : 6)) bitWrite(stepLEDs[0],midiClockCounter2,!bitRead(stepLEDs[0],midiClockCounter2));
+
+    stepLEDs[1] = stepLEDs[2] = stepLEDs[0];
   }
   else  // No Shift LED Updates //
   {
@@ -514,19 +521,19 @@ void LEDsPatternTick() // & Buttons //
     {
       if (currentTrack < DRUMTRACKS) 
       {
-        stepLEDs = dmSteps[patternBufferN][currentTrack+dbSteps];
+        stepLEDs[0] = dmSteps[patternBufferN][currentTrack+dbSteps];
       }
       else if (currentTrack < DRUMTRACKS+2) 
       { 
-        stepLEDs = 0; 
+        stepLEDs[0] = 0; 
         uint8_t dTrack = currentTrack-DRUMTRACKS;
         for (char x=0; x<16; x++) 
         { 
-          if (dmSynthTrack[dTrack][patternBufferN][x+dbStepsS] > 0) bitSet(stepLEDs,x);
+          if (dmSynthTrack[dTrack][patternBufferN][x+dbStepsS] > 0) bitSet(stepLEDs[0],x);
         }
         if (mirrorPatternEdit || dmSynthTrackStepPos[0] == editStepsPos)
         {
-          if (noteStepPositionBlinker < 2) bitWrite(stepLEDs,dmSynthTrackStepPos[1],!bitRead(stepLEDs,dmSynthTrackStepPos[1]));      
+          if (noteStepPositionBlinker < 2) bitWrite(stepLEDs[0],dmSynthTrackStepPos[1],!bitRead(stepLEDs[0],dmSynthTrackStepPos[1]));      
           if (lastMillisStepPosBlinker < millisNI())
           {
             noteStepPositionBlinker++;
@@ -537,13 +544,21 @@ void LEDsPatternTick() // & Buttons //
       }
       else
       {
-        stepLEDs = dmSteps[patternBufferN][currentTrack-2+dbSteps];
+        stepLEDs[0] = dmSteps[patternBufferN][currentTrack-2+dbSteps];
       }
-      
+            
+      stepLEDs[1] = stepLEDs[2] = stepLEDs[0];
+      stepLEDs[1] &= dmSteps[patternBufferN][DRUMTRACKS+dbSteps];
+      stepLEDs[2] &= dmSteps[patternBufferN][DRUMTRACKS+dbSteps];
+      stepLEDs[2] &= dmSteps[patternBufferN][DRUMTRACKS+1+dbSteps];
+
       if (midiClockRunning)
       {
-        if (!autoSteps) { if (editStepsPos == stepsPos && midiClockCounterDivider < (bitRead(stepLEDs,midiClockCounter2) ? 12 : 6)) bitWrite(stepLEDs,midiClockCounter2,!bitRead(stepLEDs,midiClockCounter2)); }
-          else { if (midiClockCounterDivider < (bitRead(stepLEDs,midiClockCounter2) ? 12 : 6)) bitWrite(stepLEDs,midiClockCounter2,!bitRead(stepLEDs,midiClockCounter2)); }
+        for (char q=0; q<3; q++)
+        {
+          if (!autoSteps) { if (editStepsPos == stepsPos && midiClockCounterDivider < (bitRead(stepLEDs[q],midiClockCounter2) ? 12 : 6)) bitWrite(stepLEDs[q],midiClockCounter2,!bitRead(stepLEDs[q],midiClockCounter2)); }
+            else { if (midiClockCounterDivider < (bitRead(stepLEDs[q],midiClockCounter2) ? 12 : 6)) bitWrite(stepLEDs[q],midiClockCounter2,!bitRead(stepLEDs[q],midiClockCounter2)); }
+        }
       }
     }
   }  
@@ -570,9 +585,9 @@ void LEDsPatternTick() // & Buttons //
             }
             else bitWrite(dmSteps[patternBufferN][i+dbSteps],midiClockCounter2,1);
           }
-          sendMidiNoteOn(dmNotes[i],velocity, dmChannel[i]);
-          sendMidiNoteOff(dmNotes[i], dmChannel[i]);
-          bitWrite(stepLEDs,i,1);
+          sendMidiNoteOn(dmNotes[i],velocity, dmChannel[i], 0xFF);
+          sendMidiNoteOff(dmNotes[i], dmChannel[i], 0xFF);
+          for (char q=0; q<3; q++) { bitWrite(stepLEDs[q],i,1); }
         } 
       }
       lastMillisRecButtons = millisNI()+25;
@@ -685,20 +700,35 @@ void LEDsPatternTick() // & Buttons //
 // ======================================================================================= //
 void showLEDsRecOutput()
 {  
-  if (lastMillisRecButtons < millisNI()) stepLEDs = 0;
+  if (lastMillisRecButtons < millisNI()) stepLEDs[0] = stepLEDs[1] = stepLEDs[2] = 0;
   
   if (midiClockRunning)
   {
-    if (midiClockCounterDivider < (bitRead(stepLEDs,midiClockCounter2) ? 12 : 6))
+    if (midiClockCounterDivider < (bitRead(stepLEDs[0],midiClockCounter2) ? 12 : 6))
     {
       for (char i=0; i<DRUMTRACKS; i++)
       {
-        if (!bitRead(dmMutes,i) && bitRead(dmSteps[patternBufferN][i+dbSteps],midiClockCounter2)) bitWrite(stepLEDs,i,1);
+        if (!bitRead(dmMutes,i) && bitRead(dmSteps[patternBufferN][i+dbSteps],midiClockCounter2))
+        {
+          bitWrite(stepLEDs[0],i,1); 
+          if (bitRead(dmSteps[patternBufferN][DRUMTRACKS+dbSteps],midiClockCounter2) || bitRead(dmSteps[patternBufferN][DRUMTRACKS+1+dbSteps],midiClockCounter2)) bitWrite(stepLEDs[1],i,1);
+          if (bitRead(dmSteps[patternBufferN][DRUMTRACKS+dbSteps],midiClockCounter2) && bitRead(dmSteps[patternBufferN][DRUMTRACKS+1+dbSteps],midiClockCounter2)) bitWrite(stepLEDs[2],i,1);
+        }
       }
-      if (dmSynthTrack[0][patternBufferN][midiClockCounter2+dbStepsS] > 1) bitSet(stepLEDs,DRUMTRACKS);
-      if (dmSynthTrack[1][patternBufferN][midiClockCounter2+dbStepsS] > 1) bitSet(stepLEDs,DRUMTRACKS+1);
+      if (dmSynthTrack[0][patternBufferN][midiClockCounter2+dbStepsS] > 1)
+      {
+        bitSet(stepLEDs[0],DRUMTRACKS);
+        if (bitRead(dmSteps[patternBufferN][DRUMTRACKS+dbSteps],midiClockCounter2) || bitRead(dmSteps[patternBufferN][DRUMTRACKS+1+dbSteps],midiClockCounter2)) bitWrite(stepLEDs[1],DRUMTRACKS,1);
+        if (bitRead(dmSteps[patternBufferN][DRUMTRACKS+dbSteps],midiClockCounter2) && bitRead(dmSteps[patternBufferN][DRUMTRACKS+1+dbSteps],midiClockCounter2)) bitWrite(stepLEDs[2],DRUMTRACKS,1);
+      }
+      if (dmSynthTrack[1][patternBufferN][midiClockCounter2+dbStepsS] > 1)
+      {
+        bitSet(stepLEDs[0],DRUMTRACKS+1);
+        if (bitRead(dmSteps[patternBufferN][DRUMTRACKS+dbSteps],midiClockCounter2) || bitRead(dmSteps[patternBufferN][DRUMTRACKS+1+dbSteps],midiClockCounter2)) bitWrite(stepLEDs[1],DRUMTRACKS+1,1);
+        if (bitRead(dmSteps[patternBufferN][DRUMTRACKS+dbSteps],midiClockCounter2) && bitRead(dmSteps[patternBufferN][DRUMTRACKS+1+dbSteps],midiClockCounter2)) bitWrite(stepLEDs[2],DRUMTRACKS+1,1);
+      }
     }
-    
-    if (recordShowCurPos) bitWrite(stepLEDs,midiClockCounter2,!bitRead(stepLEDs,midiClockCounter2));
+        
+    if (recordShowCurPos) bitWrite(stepLEDs[1],midiClockCounter2,!bitRead(stepLEDs[1],midiClockCounter2));
   }
 }

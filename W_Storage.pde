@@ -220,11 +220,13 @@ void storageInit(uint8_t forceInit)
     lcd.setCursor(7,1); lcd.write('1');
 
     flashTotalErase();
+    delayNI(1000);
     
     #if INIT_EMPTY_SONG
+      lcd.setCursor(7,1); lcd.write('0');
       fileSelected = 0;
-      delayNI(10);
       strcpy(fileSongName,"Init Song");
+      delayNI(1000);
       songSave();
     #endif
 
@@ -320,126 +322,128 @@ void songSave()
 
 // ======================================================================================= //
 
-void songDump()
-{
-  // Each Serial TX Print checks if the next buffer is empty, therefore there's no need to check for "buffer-full" when sending data serially
-  
-  MSerial.write(0xF0);   // System Exclusive Data
-  MSerial.write(0x01);   // Manufacturer's ID - 1
-  MSerial.write(0x08);   // Manufacturer's ID - 2
-  MSerial.write(0x04);   // Manufacturer's ID - 3
-  MSerial.write(0x02);   // Manufacturer's ID - 4
-  MSerial.write(0x09);   // Manufacturer's ID - 5
-  MSerial.write(sysMIDI_ID); // User's ID - 6
-  delayNI(10);
-  
-  // Send only 4 bits at a time as numbers can't go above F0 //
-
-  uint8_t xtemp = 0;
-  uint8_t xPerc = 0;
-  flashReadInit(fileSelected*6);
-  for (int q=0; q<14; q++) 
-  { 
-    xtemp = flashReadNext();
-    MSerial.write((xtemp & 0x0F));    // Send 4 LSB's
-    MSerial.write((xtemp>>4) & 0x0F);  // Send 4 MSB's
-    delayNI(1);
-  }    
-  for (int q=0; q<totalSongSize; q++) 
+#if MIDI_SYSEX_DMP_RC
+  void songDump()
   {
-    xPerc++;
-    if (xPerc == 100)
+    // Each Serial TX Print checks if the next buffer is empty, therefore there's no need to check for "buffer-full" when sending data serially
+    
+    MSerial.write(0xF0);   // System Exclusive Data
+    MSerial.write(0x01);   // Manufacturer's ID - 1
+    MSerial.write(0x08);   // Manufacturer's ID - 2
+    MSerial.write(0x04);   // Manufacturer's ID - 3
+    MSerial.write(0x02);   // Manufacturer's ID - 4
+    MSerial.write(0x09);   // Manufacturer's ID - 5
+    MSerial.write(sysMIDI_ID); // User's ID - 6
+    delayNI(10);
+    
+    // Send only 4 bits at a time as numbers can't go above F0 //
+  
+    uint8_t xtemp = 0;
+    uint8_t xPerc = 0;
+    flashReadInit(fileSelected*6);
+    for (int q=0; q<14; q++) 
+    { 
+      xtemp = flashReadNext();
+      MSerial.write((xtemp & 0x0F));    // Send 4 LSB's
+      MSerial.write((xtemp>>4) & 0x0F);  // Send 4 MSB's
+      delayNI(1);
+    }    
+    for (int q=0; q<totalSongSize; q++) 
     {
-      xPerc = 0;
-      lcd.setCursor(4,1);
-      lcdPrintNumber3Dgts(q/512);
-      lcd.write('/');
-      lcdPrintNumber3Dgts(totalSongSize/512);
+      xPerc++;
+      if (xPerc == 100)
+      {
+        xPerc = 0;
+        lcd.setCursor(4,1);
+        lcdPrintNumber3Dgts(q/512);
+        lcd.write('/');
+        lcdPrintNumber3Dgts(totalSongSize/512);
+      }
+      
+      xtemp = flashReadNext();
+      MSerial.write((xtemp & 0x0F));    // Send 4 LSB's
+      MSerial.write((xtemp>>4) & 0x0F);  // Send 4 MSB's
+      delayNI(1);
     }
-    
-    xtemp = flashReadNext();
-    MSerial.write((xtemp & 0x0F));    // Send 4 LSB's
-    MSerial.write((xtemp>>4) & 0x0F);  // Send 4 MSB's
-    delayNI(1);
+    flashReadFinish();
+    MSerial.write(0xF7);
   }
-  flashReadFinish();
-  MSerial.write(0xF7);
-}
-
-// ======================================================================================= //
-
-void songDumpReceive(void)
-{
-  uint32_t address = 0;
-  wireBufferCounter = 0;
   
-  if (midiClockRunning) goto sysExEnd;
+  // ======================================================================================= //
   
-  // First check Manufacturer's ID bytes 1 to 6 and User's ID //
-  if (midiInput() != 0x01) goto sysExEnd;
-  if (midiInput() != 0x08) goto sysExEnd;
-  if (midiInput() != 0x04) goto sysExEnd;
-  if (midiInput() != 0x02) goto sysExEnd;
-  if (midiInput() != 0x09) goto sysExEnd;
-  if (midiInput() == 100)
+  void songDumpReceive(void)
   {
-    if (midiInput() != sysMIDI_ID) goto sysExEnd;
+    uint32_t address = 0;
+    wireBufferCounter = 0;
     
-    // Special USB Check for the USB to MIDI Program //
+    if (midiClockRunning) goto sysExEnd;
+    
+    // First check Manufacturer's ID bytes 1 to 6 and User's ID //
+    if (midiInput() != 0x01) goto sysExEnd;
+    if (midiInput() != 0x08) goto sysExEnd;
+    if (midiInput() != 0x04) goto sysExEnd;
+    if (midiInput() != 0x02) goto sysExEnd;
+    if (midiInput() != 0x09) goto sysExEnd;
+    if (midiInput() == 100)
+    {
+      if (midiInput() != sysMIDI_ID) goto sysExEnd;
+      
+      // Special USB Check for the USB to MIDI Program //
+      lcd.clear();
+      lcd.setCursor(1,0);
+      lcdPrint(USB_TO_MIDI_OK);
+      #if !MIDIECHO
+        MSerial.write(240);
+      #endif
+      MSerial.write('B'); MSerial.write('7'); MSerial.write('0'); MSerial.write('7'); MSerial.write(EEPROM_READ(18));
+      #if !MIDIECHO
+        MSerial.write(247);
+      #endif
+      delayNI(2000);
+      goto sysExEnd;
+    }
+    else if (incomingByte == 101)
+    {
+      // Stores external selected MIDI Output Port from the USB to MIDI converter program
+      if (midiInput() != sysMIDI_ID) goto sysExEnd;
+      externalMIDIportSelector = midiInput();
+      EEPROM_WRITE(18,externalMIDIportSelector);
+      goto sysExEnd;
+    }
+    else if (incomingByte != sysMIDI_ID) goto sysExEnd;
+    
+    if (midiClockRunning) MidiClockStop(); // Stop MIDI Clock while receiving SySex Dump //    
+    
     lcd.clear();
-    lcd.setCursor(1,0);
-    lcdPrint(USB_TO_MIDI_OK);
-    #if !MIDIECHO
-      MSerial.write(240);
-    #endif
-    MSerial.write('B'); MSerial.write('7'); MSerial.write('0'); MSerial.write('7'); MSerial.write(EEPROM_READ(18));
-    #if !MIDIECHO
-      MSerial.write(247);
-    #endif
-    delayNI(2000);
-    goto sysExEnd;
-  }
-  else if (incomingByte == 101)
-  {
-    // Stores external selected MIDI Output Port from the USB to MIDI converter program
-    if (midiInput() != sysMIDI_ID) goto sysExEnd;
-    externalMIDIportSelector = midiInput();
-    EEPROM_WRITE(18,externalMIDIportSelector);
-    goto sysExEnd;
-  }
-  else if (incomingByte != sysMIDI_ID) goto sysExEnd;
-  
-  if (midiClockRunning) MidiClockStop(); // Stop MIDI Clock while receiving SySex Dump //    
-  
-  lcd.clear();
-  lcd.setCursor(2,0);
-  lcdPrint(PROCESSING);
-  lcd.setCursor(1,1);
-  lcdPrint(RECEIVING_SYSEX);
-  
-  while (1)  
-  {
-    uint8_t byte4a = midiInput();
-    if (byte4a == 247) break;
-    uint8_t byte4b = midiInput();
+    lcd.setCursor(2,0);
+    lcdPrint(PROCESSING);
+    lcd.setCursor(1,1);
+    lcdPrint(RECEIVING_SYSEX);
     
-    if (address < 14) fileSongName[address-totalSongSize] = ((byte4b << 4) | byte4a);
-    else
+    while (1)  
     {
-      if (wireBufferCounter == 0) wireBeginTransmission(address-14);
-      Wire.send((byte4b << 4) | byte4a);
-      wireBufferCounter++;
-      wireWrite64check(true);
+      uint8_t byte4a = midiInput();
+      if (byte4a == 247) break;
+      uint8_t byte4b = midiInput();
+      
+      if (address < 14) fileSongName[address-totalSongSize] = ((byte4b << 4) | byte4a);
+      else
+      {
+        if (wireBufferCounter == 0) wireBeginTransmission(address-14);
+        Wire.send((byte4b << 4) | byte4a);
+        wireBufferCounter++;
+        wireWrite64check(true);
+      }
+      address++;
     }
-    address++;
+    wireWrite64check(false);
+    
+    lcdOK();
+    doLCDupdate = 1;
+    return;
+    
+    sysExEnd:
+    while (incomingByte != 247) { midiInput(); }
+    doLCDupdate = 1;
   }
-  wireWrite64check(false);
-  
-  lcdOK();
-  doLCDupdate = 1;
-  return;
-  
-  sysExEnd:
-  while (incomingByte != 247) { midiInput(); }
-  doLCDupdate = 1;
-}
+#endif

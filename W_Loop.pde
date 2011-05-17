@@ -9,14 +9,14 @@
 // ======================================================================================= //
 void loop()
 {
-  midiInputCheck();
+  midiBufferCheck();
+  midiInputCheck();  
   
   // ======================================================================================= //
   if (doLCDupdate || (lastMillisLateLCDupdate > 0 && lastMillisLateLCDupdate < millisNI()))
   {
     // Force the LCD to be Updated Now //
-    doLCDupdate = 0;
-    lastMillisLateLCDupdate = 0;
+    doLCDupdate = lastMillisLateLCDupdate = 0;
     if (curMode == 0) updateLCDPattern(); 
       else if (curMode == 1) updateLCDSong();
       else updateLCDFile();
@@ -38,6 +38,7 @@ void loop()
   else if (curMode == 2)
   {
     // FILE MODE //
+    stepLEDs[0] = stepLEDs[1] = stepLEDs[2] = 0;
     buttonsInputAndLEDsOutput();
     shiftButtonFile();
   }
@@ -72,8 +73,7 @@ void loop()
     {
       if (setupChanged) saveSetup();
       checkPatternLoader();
-      recordEnabled = 0;
-      curZone = curSongPosition = 0;
+      recordEnabled = curZone = curSongPosition = 0;
       loadSongPosition();
     }
     else

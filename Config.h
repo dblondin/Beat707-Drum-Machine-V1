@@ -40,11 +40,18 @@
   // ===================================================================================================================================================================== //
   #define EXTENDED_DRUM_NAMES 1 // Add more GM Drum Note Names to the Track Drum Note Selectors
   #define STORAGE_FORCE_INIT 0  // Force an Initiation of all EEPROM memory during startup 
-  #define SHOWFREEMEM 0         // Outputs free RAM to Serial
+  #define MIDI_SYSEX_DMP_RC 0   // Adds code to Dump and Receive MIDI System Exclusive Data (SysEX) via MIDI
+  #define SHOWFREEMEM 0         // Outputs free RAM to LCD
   #define MSerial Serial        // Used for MIDI Input/Output
   #define INIT_EMPTY_SONG 1     // Determinates if an Empty Song should be saved during Initiation of the EEPROM + Flash
   #define DISABLE_MIDI 0        // Debug Only
   #define DISABLE_STORAGE_CHK 0 // Debug Only
+  #define INI_PATT_FULL_ACNT 0  // During Pattern Initialization both Accents tracks will be set to either full-value or the values set below (depending if you use INI_PATT_USER_V or not)
+    #define INI_PATT_USER_V 0   // If set, instead of setting everything to 1, it will use the values set below
+    #define INI_PATT_FULL_AC_1A "1010101010101010"
+    #define INI_PATT_FULL_AC_1B "1010101010101011"
+    #define INI_PATT_FULL_AC_2A "1000100010001000"
+    #define INI_PATT_FULL_AC_2B "1000100010001011"
   #if ANALOG_INPUT_A0
     #define LAST_PATT_ZONE 16   // The code of the last Pattern Zone. If you add a new option/zone, you will need to update this value.
   #else

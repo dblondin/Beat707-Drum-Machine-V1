@@ -85,3 +85,13 @@ May 14 2011 - Version 1.2.4
 - New Sequencer Direction option: FWR = Forward (Normal) - REV = Reverse (Backwards) - RND = Random
 
 ---------------------------------------------------------------------------------
+
+May 17 2011 - Version 1.3.0
+
+- New LEDs Code - Adds 3 levels of light on each LED, so you can see if the current step velocity is low, medium or high. Internally we used Timer2 to do a fast PWM on all LEDs, and a MIDI Output buffer so any MIDI does not delays the LEDs PWM interrupt; this is done via the bufferMIDI variable.
+- Added MIDI_SYSEX_DMP_RC to Config.h (Off by default) - When enabled, adds code to Dump and Receive MIDI System Exclusive Data (SysEX) via MIDI.
+- Added INI_PATT_FULL_ACNT to Config.h (Off by default) - During Pattern Initialization both Accents tracks will be set to either full-value or the values set below (depending if you use INI_PATT_USER_V or not) Be sure to read the description of the INI_PATT_USER_V option.
+- A few bugs related to the LED Transport were fixed.
+- Several areas of the code were optimized for lower flash-program usage. The resulting code is actually larger, as we need to add more code to accomodate the LED PWM Timer and Interrupts.
+
+---------------------------------------------------------------------------------

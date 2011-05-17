@@ -5,38 +5,73 @@
   Extra Functions and Classes used by this project
   
 */
-uint16_t stepLEDs, stepButtons, stepButtonsTemp, stepButtonsPrev, extraExternal, interfaceButtons = 0;
+
+uint16_t stepButtons, stepButtonsTemp, stepButtonsPrev, extraExternal, interfaceButtons = 0;
+uint16_t stepLEDs[3] = {0,0,0};
 uint16_t stepButtonsPrevHigh = 0xFF;
+uint8_t stepLEDScounter = 0;
 
 // ======================================================================================= //
+
+ISR(TIMER2_COMPA_vect) 
+{ 
+  if (enableButtonsAndLEDs)
+  {
+    // Input Buttons and Output LEDs //
+    digitalWrite(SWITCH_SSn, LOW);  // Enable 74HC165's to drive MISO
+    digitalWrite(LATCHOUT, LOW);    // Take button snapshot
+    digitalWrite(LATCHOUT, HIGH);   // 74HC165 set to shift mode
+  
+    extraExternal     = ~SPI.transfer(0);                        // Read extra external digital inputs
+    interfaceButtons  = ~SPI.transfer(0);                        // Read Multi Interface Button
+    
+    stepLEDScounter++;
+    if (stepLEDScounter > 100) { stepLEDScounter = 0; inOutLEDsAndButtonsPWM(0); }
+      else if (stepLEDScounter > 90) inOutLEDsAndButtonsPWM(1);
+      else inOutLEDsAndButtonsPWM(2);
+  
+    digitalWrite(SWITCH_SSn, HIGH);  // Disable 74HC165's to drive MISO
+    digitalWrite(LATCHOUT, LOW);     // Pulse LED latches
+    digitalWrite(LATCHOUT, HIGH);    // 74HC165 set to shift mode  
+  }
+}
+
+// ======================================================================================= //
+
+void inOutLEDsAndButtonsPWM(uint8_t pos)
+{
+  stepButtonsTemp   = (unsigned int)SPI.transfer((stepLEDs[pos] >> 8) & 0xFFU) << 8;  // Reads 8 x Step Buttons and Writes 8 x Step LEDs
+  stepButtonsTemp  |= (unsigned int)SPI.transfer(stepLEDs[pos] & 0xFFU);              // Reads 8 x Step Buttons and Writes 8 x Step LEDs
+} 
+
+// ======================================================================================= //
+
+void startLEDsAndButtonsTimer()
+{
+  TCCR2A = TCCR2B = 0;
+  bitWrite(TCCR2A, WGM21, 1);
+  bitWrite(TCCR2B, CS20, 1);
+  TCCR2B = 0b011; // 0b011=32_scalar / 0b111=1024_scalar / 0b001=no_scalar;
+  OCR2A = 0x20;
+  bitWrite(TIMSK2, OCIE2A, 1);
+}
+
+// ======================================================================================= //
+
 void buttonsInputAndLEDsOutput()
 {
-  // Input Buttons and Output LEDs //
-  digitalWrite(SWITCH_SSn, LOW);  // Enable 74HC165's to drive MISO
-  digitalWrite(LATCHOUT, LOW);    // Take button snapshot
-  digitalWrite(LATCHOUT, HIGH);   // 74HC165 set to shift mode
-
-  extraExternal     = ~SPI.transfer(0);                        // Read extra external digital inputs
-  interfaceButtons  = ~SPI.transfer(0);                        // Read Multi Interface Button
-  stepButtonsTemp   = (unsigned int)SPI.transfer((stepLEDs >> 8) & 0xFFU) << 8;  // Reads 8 x Step Buttons and Writes 8 x Step LEDs
-  stepButtonsTemp  |= (unsigned int)SPI.transfer(stepLEDs & 0xFFU);              // Reads 8 x Step Buttons and Writes 8 x Step LEDs
-
-  digitalWrite(SWITCH_SSn, HIGH);  // Disable 74HC165's to drive MISO
-  digitalWrite(LATCHOUT, LOW);     // Pulse LED latches
-  digitalWrite(LATCHOUT, HIGH);    // 74HC165 set to shift mode
+  delayNI(15); // Better Debouncing (was 15)
   
-  delayNI(15); // Better Debouncing
-  
+  // ------ Process Interface Buttons ------ //
+  multiButton = tempButton = 99;
+  holdingButton = 0;  
+    
   if (~stepButtonsTemp) holdingStepButton = 1; else holdingStepButton = 0;
   stepButtons = (~stepButtonsTemp) & stepButtonsPrevHigh;
   stepButtonsPrevHigh = stepButtonsTemp;
   if ((stepButtons == 0 && stepButtonsPrev > 0) || (stepButtons > 0 && stepButtonsPrev != stepButtons)) delayNI(10); // Debouncing //
   stepButtonsPrev = stepButtons;
-     
-  // ------ Process Interface Buttons ------ //
-  multiButton = tempButton = 99;
-  holdingButton = 0;
-  
+       
   if ((interfaceButtons & BTN_LEFT) && (interfaceButtons & BTN_RIGHT)) tempButton = 9;   // Left+Right = Cycle Modes
     else if (interfaceButtons & BTN_STOP)  tempButton = 0;   // Stop
     else if (interfaceButtons & BTN_PLAY)  tempButton = 1;   // Play
@@ -129,61 +164,11 @@ void InterfaceButtons()
 }
 
 // ======================================================================================= //
-#define EEPROM_WRITE(a,b) writeEEPROM(0x50,a,b)
-#define EEPROM_READ(a) readEEPROM(0x50,a)
 
-// All the following uses the 2-Wire (TWI) protocol to load/save data from the external EEPROM chips
-
-void EEPROMWriteInt(int p_address, int p_value)
-{
-  byte lowByte = ((p_value >> 0) & 0xFF);
-  byte highByte = ((p_value >> 8) & 0xFF);
-
-  EEPROM_WRITE(p_address, lowByte);
-  EEPROM_WRITE(p_address + 1, highByte);
-}
-
-unsigned int EEPROMReadInt(int p_address)
-{
-  byte lowByte = EEPROM_READ(p_address);
-  byte highByte = EEPROM_READ(p_address + 1);
-
-  return ((lowByte << 0) & 0xFF) + ((highByte << 8) & 0xFF00);
-}
-
-void writeEEPROM(int deviceaddress, unsigned int eeaddress, byte data ) 
-{
-  Wire.beginTransmission(deviceaddress);
-  Wire.send((int)(eeaddress >> 8));   // MSB
-  Wire.send((int)(eeaddress & 0xFF)); // LSB
-  Wire.send(data);
-  wireEndTransmission();
-}
-byte readEEPROM(int deviceaddress, unsigned int eeaddress ) 
-{
-  byte rdata = 0xFF;
-  Wire.beginTransmission(deviceaddress);
-  Wire.send((int)(eeaddress >> 8));   // MSB
-  Wire.send((int)(eeaddress & 0xFF)); // LSB
-  Wire.endTransmission();
-  Wire.requestFrom(deviceaddress,1);
-  if (Wire.available()) rdata = Wire.receive();
-  return rdata;
-}
-
-// ======================================================================================= //
 void checkMIDIusbMode()
 {
-  if (midiUSBmode)
-  {
-    MSerial.begin(115200);
-    digitalWrite(MIDI_ENn,HIGH);  
-  }
-  else
-  {
-    MSerial.begin(31250);
-    digitalWrite(MIDI_ENn,LOW);
-  }  
+  if (midiUSBmode) MSerial.begin(115200); else MSerial.begin(31250); 
+  digitalWrite(MIDI_ENn,midiUSBmode);  
 }
 
 // ======================================================================================= //
@@ -204,12 +189,8 @@ void volatile nop(void) { asm __volatile__ ("nop"); }
   int freeMemory()
   {
     int free_memory;
-  
-    if((int)__brkval == 0)
-       free_memory = ((int)&free_memory) - ((int)&__bss_end);
-    else
-      free_memory = ((int)&free_memory) - ((int)__brkval);
-  
+    if((int)__brkval == 0) free_memory = ((int)&free_memory) - ((int)&__bss_end);
+      else free_memory = ((int)&free_memory) - ((int)__brkval);
     return free_memory;
   }
 #endif
@@ -225,6 +206,33 @@ uint8_t LcdCursors[64] = {
       B00011,    B00011,    B11110,    B10010,    B11110,    B10010,    B10010,    B00000,      
       B00011,    B00011,    B11100,    B10010,    B11100,    B10010,    B11100,    B00000,      
       B11111,    B10101,    B10001,    B10001,    B10001,    B10101,    B11111,    B00000  };
+
+// ======================================================================================= //
+
+#if INI_PATT_FULL_ACNT
+  #if INI_PATT_USER_V
+    char defaultPatternAccent_AC_1A[17] = INI_PATT_FULL_AC_1A;
+    char defaultPatternAccent_AC_1B[17] = INI_PATT_FULL_AC_1B;
+    char defaultPatternAccent_AC_2A[17] = INI_PATT_FULL_AC_2A;
+    char defaultPatternAccent_AC_2B[17] = INI_PATT_FULL_AC_2B;
+    
+    void patternAccentInit()
+    {
+      for (char x=0; x<16; x++)
+      {
+        if (defaultPatternAccent_AC_1A[x] == '1') bitSet(dmSteps[patternBufferN][DRUMTRACKS+((DRUMTRACKS+2)*0)],x);
+        if (defaultPatternAccent_AC_1B[x] == '1') bitSet(dmSteps[patternBufferN][DRUMTRACKS+((DRUMTRACKS+2)*2)],x);
+        if (defaultPatternAccent_AC_2A[x] == '1') bitSet(dmSteps[patternBufferN][DRUMTRACKS+1+((DRUMTRACKS+2)*0)],x);
+        if (defaultPatternAccent_AC_2B[x] == '1') bitSet(dmSteps[patternBufferN][DRUMTRACKS+1+((DRUMTRACKS+2)*2)],x);
+      }
+    }
+  #else
+    void patternAccentInit()
+    {
+      for (int y=0; y<2; y++) { for (int q=0; q<4; q++) { dmSteps[patternBufferN][DRUMTRACKS+y+((DRUMTRACKS+2)*q)] = 0xFFFF; } }
+    }
+  #endif
+#endif
 
 // ======================================================================================= //
 
@@ -338,7 +346,6 @@ void loadNextMode()
   {
     if (songPattEdit && midiClockRunning)
     {
-      songPattEdit = 0;
       curMode = nextMode;
       if (setupChanged) saveSetup();
       if (patternChanged) savePattern(0);
@@ -348,8 +355,7 @@ void loadNextMode()
       patternBufferN = !patternBufferN;
       loadSongNextPosition();
       if (patternSongNext > 1) nextPattern = patternSongNext-2;
-      patternSongRepeatCounter = 0;
-      curZone = 0;
+      songPattEdit = patternSongRepeatCounter = curZone = 0;
       updateLCDSong();
     }
     else
@@ -359,7 +365,7 @@ void loadNextMode()
       if (curMode == 1 && songChanged) saveSongPosition();
       if (curMode == 0 && patternChanged) savePattern(0);
       checkPatternLoader();
-      recordEnabled = editDoubleSteps = shiftClick = stepLEDs = dmMutes = curZone = 0;
+      recordEnabled = editDoubleSteps = shiftClick = stepLEDs[0] = stepLEDs[1] = stepLEDs[2] = dmMutes = curZone = 0;
       curMode = nextMode;
       if (curMode == 0) 
       {
@@ -395,6 +401,26 @@ extern void MidiClockStart(uint8_t restart = true);
 // ======================================================================================= //
 // ======================================================================================= //
 
+#define EEPROM_WRITE(a,b) writeEEPROM(a,b)
+#define EEPROM_READ(a) readEEPROM(a)
+
+void writeEEPROM(unsigned int address, byte data ) 
+{
+  wireBeginTransmission(address);
+  Wire.send(data);
+  wireEndTransmission();
+}
+
+byte readEEPROM(unsigned int address) 
+{
+  byte rdata = 0xFF;
+  wireBeginTransmission(address);
+  Wire.endTransmission();
+  Wire.requestFrom(0x50,1);
+  if (Wire.available()) rdata = Wire.receive();
+  return rdata;
+}
+
 void wireBeginTransmission(uint16_t address)
 {
   Wire.beginTransmission(0x50);
@@ -418,8 +444,8 @@ void wireWrite64check(uint8_t inMiddle)
 // ======================================================================================= //
 // ======================================================================================= //
 
-void flashEnable()    { SPI.setBitOrder(MSBFIRST); nop(); }
-void flashDisable()   { SPI.setBitOrder(LSBFIRST); nop(); }
+void flashEnable()    { enableButtonsAndLEDs = 0; delayNI(10); SPI.setBitOrder(MSBFIRST); nop(); }
+void flashDisable()   { SPI.setBitOrder(LSBFIRST); nop(); enableButtonsAndLEDs = 1; }
 
 // ======================================================================================= //
 

@@ -2,7 +2,7 @@
 
   Created by Beat707 (c) 2011 - http://www.Beat707.com
 
-  Main File for Variable Declaration and Setup - May 14 2011 - Version 1.2.4
+  Main File for Variable Declaration and Setup - May 17 2011 - Version 1.3.0
 
 */
 
@@ -35,7 +35,7 @@ uint8_t numberOfSteps = 16;
 uint8_t doLCDupdate, nextPatternReady, patternBufferN, midiClockRunning, editStepsPos, holdingStepButton,
         shiftClick, holdingShift, holdingShiftUsed, patternChanged, stickyShift, mirrorPatternEdit,
         midiClockProcess, setupChanged, recordEnabled, recordShowCurPos, holdingButton, midiUSBmode,
-        editDoubleSteps, midiClockProcessDoubleSteps, soloCheckerTemp, stepsPos, enableABpattern,
+        editDoubleSteps, midiClockProcessDoubleSteps, soloCheckerTemp, stepsPos, enableABpattern, enableButtonsAndLEDs, 
         showOnlyOnce, lateAutoSave, songChanged, songNextPosition, doPatternLCDupdate = 0;
 
 // Patterns //
@@ -73,6 +73,8 @@ uint8_t wireBufferCounter = 0; // Used with the Wire Library to send 64 bytes of
 extern volatile unsigned long timer0_millis;
 int newNote = 0; // Used by the S1/S2 Up/Down editor
 char externalMIDIportSelector = 0; // from the external USB to MIDI Converter
+uint8_t bufferMIDI[2][(DRUMTRACKS+2)*2*3]; // Number of DrumTracks + S1/S2 Tracks x 2 (noteon/off) x 3 bytes
+uint8_t bufferMIDIpos[2] = {0,0}; 
 
 // Hack & Mods //
 #if ENCODER_INPUT 
@@ -106,6 +108,8 @@ void sysInit()
   memset(dmSynthTrack,0,sizeof(dmSynthTrack));
   memset(fileSongName,0,sizeof(fileSongName));
   memset(midiClockShuffleData,0,sizeof(midiClockShuffleData));
+  memset(bufferMIDI,0,sizeof(bufferMIDI));
+  bufferMIDIpos[0] = bufferMIDIpos[1] = 0;
   
   // GM Note Names //
   dmNotes[0] = 36;
@@ -130,19 +134,17 @@ void sysInit()
   
   midiClockShuffleData[0][0] = 12;
   midiClockShuffleData[1][0] = 6;
+  
+  #if INI_PATT_FULL_ACNT
+    patternAccentInit();
+  #endif
 }
 
 // ======================================================================================= //
 void setup() 
 {
   pinMode(MIDI_ENn,OUTPUT);
-  
-  #if SHOWFREEMEM
-    MSerial.begin(57600);
-    Serial.println(""); Serial.println(""); Serial.print("Free Mem: ");
-    Serial.println(freeMemory()); Serial.println("");
-  #endif
-  
+    
   // Uses the Analog Input for the Random Numbers Seed
   pinMode(A0, INPUT);
   randomSeed(analogRead(0));
@@ -210,6 +212,14 @@ void setup()
     else updateLCDFile();  
   
   sendMidiAllNotesOff();
+  startLEDsAndButtonsTimer();
+  enableButtonsAndLEDs = 1;
+  
+  #if SHOWFREEMEM
+    lcd.clear();
+    lcdPrintString("Free Mem: ");
+    lcdPrintNumber3Dgts(freeMemory());
+  #endif  
 }
 
 // ======================================================================================= //
@@ -221,10 +231,9 @@ void delayNI(unsigned long ms)
   endtime = timer0_millis + ms;
   while (((long)endtime - (long)timer0_millis) > 0)
   {
+    midiBufferCheck();
     #if MIDIECHO || EXTRA_MIDI_IN_HACKS
       midiInputCheck();
-    #else
-    ;
     #endif
   }
 }

@@ -35,7 +35,7 @@ void InterfaceTickSong()
       if (songChanged) saveSongPosition();
       curMode = nextMode = 0;
       songPattEdit = 1;
-      recordEnabled = editDoubleSteps = shiftClick = stepLEDs = dmMutes = curZone = 0;
+      recordEnabled = editDoubleSteps = shiftClick = stepLEDs[0] = stepLEDs[1] = stepLEDs[2] = dmMutes = curZone = 0;
       if (nextPattern != (patternSong-2) || currentPattern != (patternSong-2))
       {
         currentPattern = nextPattern = patternSong-2;
@@ -181,7 +181,7 @@ void shiftButtonSong()
 void LEDsSongTick()
 {
   // Update LEDS //
-  stepLEDs = 0;
+  stepLEDs[0] = stepLEDs[1] = stepLEDs[2] = 0;
   dbStepsCalc();
 
   if (midiClockRunning) showLEDsRecOutput(); // Its in the W_I_Patt File

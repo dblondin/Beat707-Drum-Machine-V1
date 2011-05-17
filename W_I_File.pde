@@ -62,7 +62,11 @@ void InterfaceTickFile()
       else if (curZone == 1)
       {
         fileMode++;
-        if (fileMode > 3) fileMode = 0;
+        #if MIDI_SYSEX_DMP_RC
+          if (fileMode > 3) fileMode = 0;
+        #else
+          if (fileMode > 2) fileMode = 0;
+        #endif
       }
       else if (curZone == 3)
       {
@@ -100,7 +104,11 @@ void InterfaceTickFile()
       else if (curZone == 1)
       {
         fileMode--;
-        if (fileMode == 255) fileMode = 3;
+        #if MIDI_SYSEX_DMP_RC
+          if (fileMode == 255) fileMode = 3;
+        #else
+          if (fileMode == 255) fileMode = 2;
+        #endif
       }
       else if (curZone == 3)
       {
@@ -143,8 +151,7 @@ void shiftButtonFile()
   {
     if (holdingShift)
     {
-      holdingShift = 0;
-      holdingShiftUsed = 0;
+      holdingShift = holdingShiftUsed = 0;
     }
   }
   else
@@ -164,8 +171,7 @@ void shiftButtonFile()
       else
       {
         // Shift was pressed very quickly //
-        holdingShift = 0;
-        holdingShiftUsed = 0;
+        holdingShift = holdingShiftUsed = 0;
         shiftAction();
       }
     }
@@ -204,24 +210,12 @@ void shiftAction()
       lcd.setCursor(2,0);
       lcdPrint(PROCESSING);
       
-      switch (fileMode)
-      {
-        case 0: // Load
-          songLoad();
-          break;
-
-        case 1: // Save
-          songSave();
-          break;
-
-        case 2: // Dump
-          songDump();
-          break;
-
-        case 3: // Erase
-          songErase();
-          break;
-      }
+      if (fileMode == 0) songLoad();
+        else if (fileMode == 1) songSave();
+        else if (fileMode == 2) songErase();
+        #if MIDI_SYSEX_DMP_RC
+          else songDump();
+        #endif
       
       lcdOK();
       loadSongName();

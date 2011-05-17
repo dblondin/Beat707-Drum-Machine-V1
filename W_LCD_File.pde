@@ -29,8 +29,10 @@ void updateLCDFile()
     if (curZone == 1) lcd.write(0); else lcdPrintEmptyChars(1);
     if (fileMode == 0) lcdPrint(LOAD);
       else if (fileMode == 1) lcdPrint(SAVE);
-      else if (fileMode == 2) lcdPrint(DUMP);
-      else if (fileMode == 3) lcdPrint(ERASE);
+      else if (fileMode == 2) lcdPrint(ERASE);
+      #if MIDI_SYSEX_DMP_RC
+        else lcdPrint(DUMP);
+      #endif
     lcdPrintEmptyChars(2);
       
     lcd.setCursor(0,1);
