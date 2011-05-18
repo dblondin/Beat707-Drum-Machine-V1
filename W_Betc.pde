@@ -444,8 +444,8 @@ void wireWrite64check(uint8_t inMiddle)
 // ======================================================================================= //
 // ======================================================================================= //
 
-void flashEnable()    { enableButtonsAndLEDs = 0; delayNI(10); SPI.setBitOrder(MSBFIRST); nop(); }
-void flashDisable()   { SPI.setBitOrder(LSBFIRST); nop(); enableButtonsAndLEDs = 1; }
+void flashEnable()    { enableButtonsAndLEDs = 0; delayNI(1); SPI.setBitOrder(MSBFIRST); nop(); }
+void flashDisable()   { SPI.setBitOrder(LSBFIRST); enableButtonsAndLEDs = 1; nop(); }
 
 // ======================================================================================= //
 
@@ -472,16 +472,17 @@ void flashInit()
   digitalWrite(FLASH_SSn,LOW);
   SPI.transfer(0x50); //enable write status register instruction
   digitalWrite(FLASH_SSn,HIGH);
-  delayNI(50);
+  delayNI(5);
   digitalWrite(FLASH_SSn,LOW);
   SPI.transfer(0x01); //write the status register instruction
   SPI.transfer(0x00); //value to write to register - xx0000xx will remove all block protection
   digitalWrite(FLASH_SSn,HIGH);
-  delayNI(50);
+  delayNI(5);
   digitalWrite(FLASH_SSn,LOW);
   SPI.transfer(0x06); //write enable instruction
   digitalWrite(FLASH_SSn,HIGH);
   flashWaitUntilDone();
+  delayNI(250);
   flashDisable();
 }
 
@@ -500,9 +501,9 @@ void flashTotalErase()
 
 // ======================================================================================= //
 
-void flashSetAddressSector(uint8_t sector, char offset = 0) // offset is used to go back or forward on a sector bytes
-{
-  uint32_t addr = (4096UL*((unsigned long)sector)) + ((long)offset);
+void flashSetAddressSector(uint8_t sector)
+{ 
+  uint32_t addr = (4096UL*((unsigned long)sector));
   (void) SPI.transfer(addr >> 16);
   (void) SPI.transfer(addr >> 8);  
   (void) SPI.transfer(addr);
@@ -510,12 +511,12 @@ void flashSetAddressSector(uint8_t sector, char offset = 0) // offset is used to
 
 // ======================================================================================= //
 
-void flashReadInit(uint8_t sector, char offset = 0) // offset is used to go back or forward on a sector bytes
+void flashReadInit(uint8_t sector)
 {
   flashEnable();
   digitalWrite(FLASH_SSn,LOW);
   (void) SPI.transfer(0x03); // Read Memory - 25/33 Mhz //
-  flashSetAddressSector(sector, offset);
+  flashSetAddressSector(sector);
 }
 
 uint8_t flashReadNext() 
@@ -576,6 +577,6 @@ void flashSectorsErase(uint8_t sector, uint8_t amount)
     flashSetAddressSector(sector+x);
     digitalWrite(FLASH_SSn,HIGH);
     flashWaitUntilDone();
-    flashDisable();
+    flashDisable(); 
   }
 }

@@ -273,7 +273,8 @@ uint8_t checkSong(void)
 {   
   uint8_t chSng = true;
 
-  flashReadInit(fileSelected*6, 14);
+  flashReadInit(fileSelected*6);
+  for (int x=0; x<14; x++) flashReadNext();
   if (flashReadNext() != 'B') chSng = false;
   if (flashReadNext() != '7') chSng = false;
   if (flashReadNext() != '0') chSng = false;
@@ -286,7 +287,7 @@ uint8_t checkSong(void)
 // ======================================================================================= //
 void songErase()
 {
-  flashSectorsErase(fileSelected,6);
+  flashSectorsErase(fileSelected*6,6);
 }
 
 // ======================================================================================= //
@@ -312,7 +313,7 @@ void songLoad()
 
 void songSave()
 {
-  songErase();
+  if (checkSong()) songErase();
   if (!strcmp(fileSongName,"Empty Song")) sprintf(fileSongName, "Song %02d",fileSelected+1);
   flashPageWriteInit(fileSelected*6, fileSongName[0], fileSongName[1]);
   for (int q=2; q<14; q += 2) { flashPageWriteNext(fileSongName[q], fileSongName[q+1]); }
