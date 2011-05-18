@@ -46,6 +46,8 @@
   #define INIT_EMPTY_SONG 1     // Determinates if an Empty Song should be saved during Initiation of the EEPROM + Flash
   #define DISABLE_MIDI 0        // Debug Only
   #define DISABLE_STORAGE_CHK 0 // Debug Only
+  #define LEDS_PWM_A1 100       // The LEDs dim light is controlled by a PWM code, that counts from 0 to LEDS_PWM_A1, while LEDS_PWM_A2 is the near LEDS_PWM_A1 value. So, anything before LEDS_PWM_A1 is the lowest level, going above LEDS_PWM_A2 is the medium level and going over LEDS_PWM_A1 is the highest level.
+  #define LEDS_PWM_A2 90        // The Medium level of the LEDs PWM dim lights.
   #define INI_PATT_FULL_ACNT 0  // During Pattern Initialization both Accents tracks will be set to either full-value or the values set below (depending if you use INI_PATT_USER_V or not)
     #define INI_PATT_USER_V 0   // If set, instead of setting everything to 1, it will use the values set below
     #define INI_PATT_FULL_AC_1A "1010101010101010"

@@ -187,7 +187,7 @@ void sendMidiNoteOn(char note, char velocity, char channel, uint8_t midiBuffer)
 {
   #if !DISABLE_MIDI
     if (midiBuffer != 0xFF)
-    {
+    {     
       bufferMIDI[midiBuffer][bufferMIDIpos[midiBuffer]] = 0x90+channel;
       bufferMIDI[midiBuffer][bufferMIDIpos[midiBuffer]+1] = note;
       bufferMIDI[midiBuffer][bufferMIDIpos[midiBuffer]+2] = velocity;
@@ -217,7 +217,7 @@ void sendMidiNoteOff(char note, char channel, uint8_t midiBuffer)
 {
   #if !DISABLE_MIDI
     if (midiBuffer != 0xFF)
-    {
+    {      
       bufferMIDI[midiBuffer][bufferMIDIpos[midiBuffer]] = 0x80+channel;
       bufferMIDI[midiBuffer][bufferMIDIpos[midiBuffer]+1] = note;
       bufferMIDI[midiBuffer][bufferMIDIpos[midiBuffer]+2] = 0;

@@ -26,8 +26,8 @@ ISR(TIMER2_COMPA_vect)
     interfaceButtons  = ~SPI.transfer(0);                        // Read Multi Interface Button
     
     stepLEDScounter++;
-    if (stepLEDScounter > 100) { stepLEDScounter = 0; inOutLEDsAndButtonsPWM(0); }
-      else if (stepLEDScounter > 90) inOutLEDsAndButtonsPWM(1);
+    if (stepLEDScounter > LEDS_PWM_A1) { stepLEDScounter = 0; inOutLEDsAndButtonsPWM(0); }
+      else if (stepLEDScounter > LEDS_PWM_A2) inOutLEDsAndButtonsPWM(1);
       else inOutLEDsAndButtonsPWM(2);
   
     digitalWrite(SWITCH_SSn, HIGH);  // Disable 74HC165's to drive MISO
