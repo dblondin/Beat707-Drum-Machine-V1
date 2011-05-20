@@ -41,6 +41,7 @@
   #define EXTENDED_DRUM_NAMES 1 // Add more GM Drum Note Names to the Track Drum Note Selectors
   #define STORAGE_FORCE_INIT 0  // Force an Initiation of all EEPROM memory during startup 
   #define MIDI_SYSEX_DMP_RC 0   // Adds code to Dump and Receive MIDI System Exclusive Data (SysEX) via MIDI
+  #define MANAGER_DUMP_RECV 1   // Adds extra code to be used with the Beat707 Manager program in order to Dump and Receive complete machine data
   #define SHOWFREEMEM 0         // Outputs free RAM to LCD
   #define MSerial Serial        // Used for MIDI Input/Output
   #define INIT_EMPTY_SONG 1     // Determinates if an Empty Song should be saved during Initiation of the EEPROM + Flash

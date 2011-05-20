@@ -1,1 +1,0 @@
-This is just a copy of the original LiquidCrystal library that comes with the Arduino IDE but with a reduced size.

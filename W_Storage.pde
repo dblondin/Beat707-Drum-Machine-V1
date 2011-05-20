@@ -412,6 +412,29 @@ void songDumpReceive(void)
     EEPROM_WRITE(18,externalMIDIportSelector);
     goto sysExEnd;
   }
+  #if MANAGER_DUMP_RECV
+    else if (incomingByte == 102)
+    {
+      lcd.clear();
+      lcd.setCursor(2,0);
+      lcdPrint(PROCESSING);
+      
+      // Selects Beat707 Manager Dump Mode - Dumps via Serial all Machine Data for Backup on a Computer (both EEPROM and Nand Flash)
+      MSerial.write(240);
+      delayNI(1);
+      for (unsigned long q=0; q<32768; q++) { MSerial.write(EEPROM_READ(q)); delayNI(1); }
+      //flashReadInit(0);
+      //for (unsigned long q=0; q<524288; q++) { MSerial.write(flashReadNext()); }
+      //flashReadFinish();
+      #if !MIDIECHO
+        MSerial.write(247);
+      #endif
+      
+      lcdOK();
+      doLCDupdate = 1;
+      goto sysExEnd;
+    }
+  #endif
   else if (incomingByte != sysMIDI_ID) goto sysExEnd;
   
   #if MIDI_SYSEX_DMP_RC

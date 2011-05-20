@@ -2,13 +2,12 @@
 
   Created by Beat707 (c) 2011 - http://www.Beat707.com
 
-  Main File for Variable Declaration and Setup - May 18 2011 - Version 1.3.0
+  Main File for Variable Declaration and Setup - May 20 2011 - Version 1.3.0
 
 */
 
 #include "Config.h"  // Where all PIN settings are stored
-#include <WLCD.h>    // Modified LCD Lib - The LCD Display Library
-#include <WWire.h>   // Modified Wire Lib - For the Patterns external Storage (EEPROM) - See W_Storage
+#include "Library.h"
 #include <SPI.h>     // Reads the external FLASH NAND memory and also all buttons and leds
 
 // Multi Button //
