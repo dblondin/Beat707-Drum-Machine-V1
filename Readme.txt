@@ -93,6 +93,6 @@ May 20 2011 - Version 1.3.0
 - Added INI_PATT_FULL_ACNT to Config.h (Off by default) - During Pattern Initialization both Accents tracks will be set to either full-value or the values set via the INI_PATT_USER_V option. (be sure to read the description of the INI_PATT_USER_V)
 - A few bugs related to the LED Transport and Song Saving/Erasing were fixed.
 - Several areas of the code were optimized for lower flash-program usage. The resulting code is actually larger, as we need to add more code to accomodate the LED PWM Timer and Interrupts.
-- All extra library files are now included with the source-files, no need to update any library-folders anymore.
+- All extra library files are now included in the Library.h file, no need to update any library-folders anymore.
 
 ---------------------------------------------------------------------------------
