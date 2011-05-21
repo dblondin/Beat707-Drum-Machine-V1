@@ -101,7 +101,7 @@ void InterfaceTickPattern()
             if (newNote > 255) newNote = 255;
             dmSynthTrack[dTrack][patternBufferN][dmSynthTrackStepPos[1]+(16*editDoubleSteps)] = (uint8_t)newNote;
             dmSynthTrack[dTrack][patternBufferN][dmSynthTrackStepPos[1]+(16*editDoubleSteps)+32] = dmSynthTrack[dTrack][patternBufferN][dmSynthTrackStepPos[1]+(16*editDoubleSteps)];
-            if (dmSynthTrack[dTrack][patternBufferN][dmSynthTrackStepPos[1]+(16*editDoubleSteps)] > 1) dmSynthTrackLastNoteEdit[dTrack] = dmSynthTrack[dTrack][patternBufferN][dmSynthTrackStepPos[1]+(16*editDoubleSteps)]-((dmSynthTrack[dTrack][patternBufferN][dmSynthTrackStepPos[1]+(16*editDoubleSteps)]<128) ? 0 : 128);
+            if (dmSynthTrack[dTrack][patternBufferN][dmSynthTrackStepPos[1]+(16*editDoubleSteps)] > 1) dmSynthTrackLastNoteEdit[dTrack] = dmSynthTrack[dTrack][patternBufferN][dmSynthTrackStepPos[1]+(16*editDoubleSteps)]-((dmSynthTrack[dTrack][patternBufferN][dmSynthTrackStepPos[1]+(16*editDoubleSteps)]<128) ? 0 : 127);
           }
           else
           {
@@ -109,7 +109,7 @@ void InterfaceTickPattern()
             if (holdingStepButton && newNote == 0) newNote = 13; else newNote += ((holdingStepButton) ? 12 : 1);
             if (newNote > 255) newNote = 255;            
             dmSynthTrack[dTrack][patternBufferN][dbStepsSpos] = (uint8_t)newNote;
-            if (dmSynthTrack[dTrack][patternBufferN][dbStepsSpos] > 1) dmSynthTrackLastNoteEdit[dTrack] = dmSynthTrack[dTrack][patternBufferN][dbStepsSpos]-((dmSynthTrack[dTrack][patternBufferN][dbStepsSpos]<128) ? 0 : 128);
+            if (dmSynthTrack[dTrack][patternBufferN][dbStepsSpos] > 1) dmSynthTrackLastNoteEdit[dTrack] = dmSynthTrack[dTrack][patternBufferN][dbStepsSpos]-((dmSynthTrack[dTrack][patternBufferN][dbStepsSpos]<128) ? 0 : 127);
           }
           patternChanged = 1;
         }
@@ -245,14 +245,14 @@ void InterfaceTickPattern()
             if (newNote < 0) newNote = 0;
             dmSynthTrack[dTrack][patternBufferN][dmSynthTrackStepPos[1]+(16*editDoubleSteps)] = (uint8_t)newNote;
             dmSynthTrack[dTrack][patternBufferN][dmSynthTrackStepPos[1]+(16*editDoubleSteps)+32] = dmSynthTrack[dTrack][patternBufferN][dmSynthTrackStepPos[1]+(16*editDoubleSteps)];
-            if (dmSynthTrack[dTrack][patternBufferN][dmSynthTrackStepPos[1]+(16*editDoubleSteps)] > 1) dmSynthTrackLastNoteEdit[dTrack] = dmSynthTrack[dTrack][patternBufferN][dmSynthTrackStepPos[1]+(16*editDoubleSteps)]-((dmSynthTrack[dTrack][patternBufferN][dmSynthTrackStepPos[1]+(16*editDoubleSteps)]<128) ? 0 : 128);
+            if (dmSynthTrack[dTrack][patternBufferN][dmSynthTrackStepPos[1]+(16*editDoubleSteps)] > 1) dmSynthTrackLastNoteEdit[dTrack] = dmSynthTrack[dTrack][patternBufferN][dmSynthTrackStepPos[1]+(16*editDoubleSteps)]-((dmSynthTrack[dTrack][patternBufferN][dmSynthTrackStepPos[1]+(16*editDoubleSteps)]<128) ? 0 : 127);
           }
           else
           {          
             newNote = dmSynthTrack[dTrack][patternBufferN][dbStepsSpos] - ((holdingStepButton) ? 12 : 1);
             if (newNote < 0) newNote = 0;            
             dmSynthTrack[dTrack][patternBufferN][dbStepsSpos] = (uint8_t)newNote;
-            if (dmSynthTrack[dTrack][patternBufferN][dbStepsSpos] > 1) dmSynthTrackLastNoteEdit[dTrack] = dmSynthTrack[dTrack][patternBufferN][dbStepsSpos]-((dmSynthTrack[dTrack][patternBufferN][dbStepsSpos] < 128) ? 0 : 128);
+            if (dmSynthTrack[dTrack][patternBufferN][dbStepsSpos] > 1) dmSynthTrackLastNoteEdit[dTrack] = dmSynthTrack[dTrack][patternBufferN][dbStepsSpos]-((dmSynthTrack[dTrack][patternBufferN][dbStepsSpos] < 128) ? 0 : 127);
           }
           patternChanged = 1;
         }        
@@ -674,7 +674,9 @@ void LEDsPatternTick() // & Buttons //
                   if (dmSynthTrack[dTrack][patternBufferN][i+(16*editDoubleSteps)+32] == 1) dmSynthTrack[dTrack][patternBufferN][i+(16*editDoubleSteps)+32] = 0;
                   else if (dmSynthTrack[dTrack][patternBufferN][i+(16*editDoubleSteps)+32] > 128) dmSynthTrack[dTrack][patternBufferN][i+(16*editDoubleSteps)+32] = 1;
                   else if (dmSynthTrack[dTrack][patternBufferN][i+(16*editDoubleSteps)+32] > 0) dmSynthTrack[dTrack][patternBufferN][i+(16*editDoubleSteps)+32] += 127;
-                    else dmSynthTrack[dTrack][patternBufferN][i+(16*editDoubleSteps)+32] = dmSynthTrackLastNoteEdit[dTrack];                  
+                    else dmSynthTrack[dTrack][patternBufferN][i+(16*editDoubleSteps)+32] = dmSynthTrackLastNoteEdit[dTrack];
+                    
+                  if (dmSynthTrack[dTrack][patternBufferN][i+(16*editDoubleSteps)] > 1) dmSynthTrackLastNoteEdit[dTrack] = dmSynthTrack[dTrack][patternBufferN][i+(16*editDoubleSteps)]-((dmSynthTrack[dTrack][patternBufferN][i+(16*editDoubleSteps)] < 128) ? 0 : 127);
                 }
                 else
                 {
@@ -682,6 +684,8 @@ void LEDsPatternTick() // & Buttons //
                   else if (dmSynthTrack[dTrack][patternBufferN][i+dbStepsS] > 128) dmSynthTrack[dTrack][patternBufferN][i+dbStepsS] = 1;
                   else if (dmSynthTrack[dTrack][patternBufferN][i+dbStepsS] > 0) dmSynthTrack[dTrack][patternBufferN][i+dbStepsS] += 127;
                     else dmSynthTrack[dTrack][patternBufferN][i+dbStepsS] = dmSynthTrackLastNoteEdit[dTrack];
+                    
+                  if (dmSynthTrack[dTrack][patternBufferN][i+dbStepsS] > 1) dmSynthTrackLastNoteEdit[dTrack] = dmSynthTrack[dTrack][patternBufferN][i+dbStepsS]-((dmSynthTrack[dTrack][patternBufferN][i+dbStepsS]<128) ? 0 : 127);
                 }
                   
                patternChanged = 1;
