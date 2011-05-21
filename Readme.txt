@@ -86,7 +86,7 @@ May 14 2011 - Version 1.2.4
 
 ---------------------------------------------------------------------------------
 
-May 20 2011 - Version 1.3.0
+May 21 2011 - Version 1.3.0
 
 - New LEDs Code - Adds 3 levels of light on each LED, so you can see if the current step velocity is low, medium or high. Internally we used Timer2 to do a fast PWM on all LEDs, and a MIDI Output buffer so any MIDI does not delays the LEDs PWM interrupt; this is done via the bufferMIDI variable. Be sure to read the description of LEDS_PWM_A1 and LEDS_PWM_A2 in the Config.h file, as those two values determinates how the LED PWM code works.
 - Added MIDI_SYSEX_DMP_RC to Config.h (Off by default) - When enabled, adds code to Dump and Receive MIDI System Exclusive Data (SysEX) via MIDI.
@@ -94,5 +94,7 @@ May 20 2011 - Version 1.3.0
 - A few bugs related to the LED Transport and Song Saving/Erasing were fixed.
 - Several areas of the code were optimized for lower flash-program usage. The resulting code is actually larger, as we need to add more code to accomodate the LED PWM Timer and Interrupts.
 - All extra library files are now included in the Library.h file, no need to update any library-folders anymore.
+- Fixed a bug related to S1/S2 Tracks note editing.
+- Updated: S1/S2 Tracks note editing - clicking on a step will rotate the following notes: None, Last-Edited-Note, Current-Note-Slide, Note-off.
 
 ---------------------------------------------------------------------------------
