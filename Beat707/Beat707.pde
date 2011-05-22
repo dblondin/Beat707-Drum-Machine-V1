@@ -96,10 +96,17 @@ uint8_t bufferMIDIpos[2] = {0,0};
 #if GATE_OUTS
   unsigned long gateOutDelay[3] = {0,0,0};
 #endif
+#if ANALOG_16_IN
+  uint8_t analog16multiplex = 0;
+  uint8_t trackVelocity[16];
+#endif
 
 // ======================================================================================= //
 void sysInit()
 {
+  #if ANALOG_16_IN
+    memset(trackVelocity,127,sizeof(trackVelocity));
+  #endif
   memset(dmSteps,0,sizeof(dmSteps));
   memset(dmChannel,9,sizeof(dmChannel));  
   dmChannel[DRUMTRACKS] = 0;
@@ -155,7 +162,6 @@ void setup()
       digitalWrite(2, HIGH);
     #endif
   #endif
-  
   #if GATE_OUTS
     pinMode(A0, OUTPUT);
     pinMode(2, OUTPUT);
@@ -164,7 +170,6 @@ void setup()
     digitalWrite(2, LOW);
     digitalWrite(3, LOW);
   #endif
-  
   #if ENCODER_INPUT
     pinMode(2, INPUT);
     pinMode(3, INPUT);
@@ -172,6 +177,10 @@ void setup()
     digitalWrite(3, HIGH);
     attachInterrupt(0, EncoderChange, CHANGE);
     attachInterrupt(1, EncoderChange, CHANGE);
+  #endif
+  #if ANALOG_16_IN
+    pinMode(2, OUTPUT);
+    digitalWrite(2, LOW);
   #endif
   
   pinMode(LATCHOUT, OUTPUT);  digitalWrite(LATCHOUT, LOW);

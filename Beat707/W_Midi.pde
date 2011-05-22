@@ -29,6 +29,9 @@ void midiTimer()
     uint8_t dBB = (((DRUMTRACKS+2)*midiClockProcessDoubleSteps)+(((DRUMTRACKS+2)*2)*stepsPos));
     uint8_t dBBs = ((16*midiClockProcessDoubleSteps)+(32*stepsPos));    
     uint8_t velocity = 87+(bitRead(dmSteps[patternBufferN][DRUMTRACKS+dBB],midiClockCounter2)*20)+(bitRead(dmSteps[patternBufferN][DRUMTRACKS+1+dBB],midiClockCounter2)*20);
+    #if ANALOG_16_IN
+      uint8_t velocity2 = velocity;
+    #endif
     
     char midiBuffer = 0;
     if (bufferMIDIpos[0] != 0) midiBuffer = 1;
@@ -37,6 +40,10 @@ void midiTimer()
     {
       if (bitRead(dmSteps[patternBufferN][xdtm+dBB],midiClockCounter2) && !bitRead(dmMutes,xdtm))
       {
+        #if ANALOG_16_IN
+          if (trackVelocity[xdtm] > velocity2) velocity = 0; else velocity = velocity2 - trackVelocity[xdtm];
+        #endif
+        
         #if GATE_OUTS
           Gate_Outs_Midi(xdtm, velocity);
         #else
@@ -50,6 +57,10 @@ void midiTimer()
     {
       if (!bitRead(dmMutes,DRUMTRACKS+xdtm))
       {
+        #if ANALOG_16_IN
+          if (trackVelocity[DRUMTRACKS+xdtm] > velocity2) velocity = 0; else velocity = velocity2 - trackVelocity[DRUMTRACKS+xdtm];
+        #endif
+        
         if (dmSynthTrack[xdtm][patternBufferN][midiClockCounter2+dBBs] == 1)
         {
           sendMidiNoteOff(dmSynthTrackPrevNote[xdtm], dmChannel[DRUMTRACKS+xdtm], midiBuffer);

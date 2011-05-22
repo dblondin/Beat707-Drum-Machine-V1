@@ -33,6 +33,35 @@ ISR(TIMER2_COMPA_vect)
     digitalWrite(SWITCH_SSn, HIGH);  // Disable 74HC165's to drive MISO
     digitalWrite(LATCHOUT, LOW);     // Pulse LED latches
     digitalWrite(LATCHOUT, HIGH);    // 74HC165 set to shift mode
+    
+    #if ANALOG_16_IN
+      // Do this last so LED PWM doesn't slow-down //
+      // We read only one value at a time //
+      digitalWrite(2, LOW);
+      (void)SPI.transfer(analog16multiplex);
+      digitalWrite(2, HIGH);
+      (void)SPI.transfer(0);
+      (void)SPI.transfer(0);
+      nop();
+      trackVelocity[analog16multiplex] = 127-((uint8_t)(analogRead(A0)/8));
+      static int xC = 0;
+      if (false)
+      {
+        if (analog16multiplex <= 3)
+        {
+          xC++;
+          if (xC > 100)
+          {
+            if (analog16multiplex == 3) xC = 0;
+            MSerial.print(analog16multiplex,DEC);
+            MSerial.print(": ");
+            MSerial.println(trackVelocity[analog16multiplex], DEC);
+          }
+        }
+      }
+      analog16multiplex++;
+      if (analog16multiplex == 16) analog16multiplex = 0;
+    #endif
   }
 }
 
