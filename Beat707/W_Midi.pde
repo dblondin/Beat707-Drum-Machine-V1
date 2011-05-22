@@ -261,10 +261,13 @@ uint8_t midiInput(void)
   while (MSerial.available() == 0) nop();
   incomingByte = MSerial.read();
 
-  while (incomingByte >= 0xF8)
+  if (!rawMIDImode)
   {
-    while (MSerial.available() == 0) nop();
-    incomingByte = MSerial.read();
+    while (incomingByte >= 0xF8)
+    {
+      while (MSerial.available() == 0) nop();
+      incomingByte = MSerial.read();
+    }
   }
 
   return incomingByte;

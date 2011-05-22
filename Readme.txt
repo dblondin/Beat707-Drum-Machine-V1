@@ -86,7 +86,7 @@ May 14 2011 - Version 1.2.4
 
 ---------------------------------------------------------------------------------
 
-May 21 2011 - Version 1.3.0
+May 22 2011 - Version 1.3.0
 
 - New LEDs Code - Adds 3 levels of light on each LED, so you can see if the current step velocity is low, medium or high. Internally we used Timer2 to do a fast PWM on all LEDs, and a MIDI Output buffer so any MIDI does not delays the LEDs PWM interrupt; this is done via the bufferMIDI variable. Be sure to read the description of LEDS_PWM_A1 and LEDS_PWM_A2 in the Config.h file, as those two values determinates how the LED PWM code works.
 - Added MIDI_SYSEX_DMP_RC to Config.h (Off by default) - When enabled, adds code to Dump and Receive MIDI System Exclusive Data (SysEX) via MIDI.

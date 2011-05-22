@@ -428,23 +428,57 @@ void songDumpReceive(void)
     else if (incomingByte == 103)
     {
       if (midiInput() != sysMIDI_ID) goto sysExEnd;
-      
+      uint8_t procSongsToo = 0;
+      if (midiInput() == 0x01) procSongsToo = 1;
       lcd.clear();
       lcd.setCursor(2,0);
-      lcdPrint(PROCESSING);
-      
+      lcdPrint(PROCESSING);      
       // Selects Beat707 Manager Dump Mode - Dumps via Serial all Machine Data for Backup on a Computer (both EEPROM and Nand Flash)
       #if !MIDIECHO
         MSerial.write(240);
       #endif
       delayNI(10);      
       for (unsigned int q=0; q<32768; q++) { MSerial.write(EEPROM_READ(q)); }
-      flashReadInit(0);
-      for (unsigned long q=0; q<524288; q++) { MSerial.write(flashReadNext()); }
-      flashReadFinish();
+      if (procSongsToo == 1)
+      {
+        flashReadInit(0);
+        for (unsigned long q=0; q<524288; q++) { MSerial.write(flashReadNext()); }
+        flashReadFinish();
+      }
       MSerial.write(247);
-      
       lcdOK();
+      doLCDupdate = 1;
+      return;
+    }
+    else if (incomingByte == 104)
+    {
+      if (midiInput() != sysMIDI_ID) goto sysExEnd;
+      uint8_t procSongsToo = 0;
+      if (midiInput() == 0x01) procSongsToo = 1;
+      rawMIDImode = 1;
+      lcd.clear();
+      lcd.setCursor(2,0);
+      lcdPrint(PROCESSING);
+      #if !MIDIECHO
+        MSerial.write(240);
+      #endif
+      // Selects Beat707 Manager Receive Mode - Receives via Serial all Machine Data for Backup from a Computer (both EEPROM and Nand Flash)
+      while (address < 32768)  
+      {
+        // First EEPROM //
+        midiInput();
+        if (wireBufferCounter == 0) wireBeginTransmission(address);
+        Wire.send(incomingByte);
+        wireBufferCounter++;
+        wireWrite64check(true);
+        address++;
+        MSerial.write(incomingByte);
+      }
+      wireWrite64check(false);
+      // End //
+      MSerial.write(247);
+      lcdOK();
+      rawMIDImode = 0;
       doLCDupdate = 1;
       return;
     }

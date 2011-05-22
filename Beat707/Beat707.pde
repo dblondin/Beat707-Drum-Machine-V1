@@ -2,7 +2,7 @@
 
   Created by Beat707 (c) 2011 - http://www.Beat707.com
 
-  Main File for Variable Declaration and Setup - May 21 2011 - Version 1.3.0
+  Main File for Variable Declaration and Setup - May 22 2011 - Version 1.3.0
 
 */
 
@@ -33,7 +33,7 @@ uint8_t numberOfSteps = 16;
 // Boolean Variables //
 uint8_t doLCDupdate, nextPatternReady, patternBufferN, midiClockRunning, editStepsPos, holdingStepButton,
         shiftClick, holdingShift, holdingShiftUsed, patternChanged, stickyShift, mirrorPatternEdit,
-        midiClockProcess, setupChanged, recordEnabled, recordShowCurPos, holdingButton, midiUSBmode,
+        midiClockProcess, setupChanged, recordEnabled, recordShowCurPos, holdingButton, midiUSBmode, rawMIDImode,
         editDoubleSteps, midiClockProcessDoubleSteps, soloCheckerTemp, stepsPos, enableABpattern, enableButtonsAndLEDs, 
         showOnlyOnce, lateAutoSave, songChanged, songNextPosition, doPatternLCDupdate = 0;
 

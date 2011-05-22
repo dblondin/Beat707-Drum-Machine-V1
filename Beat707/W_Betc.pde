@@ -32,7 +32,7 @@ ISR(TIMER2_COMPA_vect)
   
     digitalWrite(SWITCH_SSn, HIGH);  // Disable 74HC165's to drive MISO
     digitalWrite(LATCHOUT, LOW);     // Pulse LED latches
-    digitalWrite(LATCHOUT, HIGH);    // 74HC165 set to shift mode  
+    digitalWrite(LATCHOUT, HIGH);    // 74HC165 set to shift mode
   }
 }
 
@@ -48,11 +48,12 @@ void inOutLEDsAndButtonsPWM(uint8_t pos)
 
 void startLEDsAndButtonsTimer()
 {
+  
   TCCR2A = TCCR2B = 0;
   bitWrite(TCCR2A, WGM21, 1);
   bitWrite(TCCR2B, CS20, 1);
-  TCCR2B = 0b011; // 0b011=32_scalar / 0b111=1024_scalar / 0b001=no_scalar;
-  OCR2A = 0x20;
+  TCCR2B = 0b111; // 0b011=32_scalar / 0b111=1024_scalar / 0b001=no_scalar;
+  OCR2A = 0x4;
   bitWrite(TIMSK2, OCIE2A, 1);
 }
 
@@ -167,7 +168,7 @@ void InterfaceButtons()
 
 void checkMIDIusbMode()
 {
-  if (midiUSBmode) MSerial.begin(115200); else MSerial.begin(31250); 
+  if (midiUSBmode) MSerial.begin(115200); else MSerial.begin(31250);
   digitalWrite(MIDI_ENn,midiUSBmode);  
 }
 
