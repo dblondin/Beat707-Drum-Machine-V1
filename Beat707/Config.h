@@ -30,8 +30,8 @@
     #define ENCODER_SPEED 0     // When set, it will detect the speed of the encoder movement and apply changes faster or slower
   #define ANALOG_16_IN 0        // Ads extra code that reads 16 Analog Pots/Faders for each Track Volume - this setup uses SPI, a Multiplexer and a special hardware configuration
   #define EXTRA_8_BUTTONS 0     // Will use the extra 8 buttons input header to read 8 inputs (no need for pull-up/down resistors, the hardware already has it) and call user-code that can be written on the W_Hacks tab. By default, J1 is for sequencer play / stop.
-  #define MIDI_INPUT_REC 1      // Adds extra code for when Record is pressed in Pattern Mode - Input MIDI Notes will be added to the current playing steps. (Omni MIDI Channel)
-  #define MIDI_INPUT_ST 1       // Midi Note Input to Tracks S1/S2 - this allows you to manipulate the 2x synth tracks directly from a Midi Keyboard (Omni MIDI Channel)
+  #define MIDI_INPUT_REC 0      // Adds extra code for when Record is pressed in Pattern Mode - Input MIDI Notes will be added to the current playing steps. (Omni MIDI Channel)
+  #define MIDI_INPUT_ST 0       // Midi Note Input to Tracks S1/S2 - this allows you to manipulate the 2x synth tracks directly from a Midi Keyboard (Omni MIDI Channel)
     #define MIDI_INPUT_AUTO 1   // Auto-Step - When activated and a new note is hit, the current editing step will move to the next one
     #define MIDI_INPUT_AUTO_N 1 // Used by the Auto-Step - number of steps to move when a new note is hit
     #define MIDI_INPUT_AUTO_V 1 // When set, a low-velocity note will set an empty note (velocity < 40)

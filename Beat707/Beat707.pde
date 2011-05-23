@@ -97,7 +97,7 @@ uint8_t bufferMIDIpos[2] = {0,0};
   unsigned long gateOutDelay[3] = {0,0,0};
 #endif
 #if ANALOG_16_IN
-  uint8_t analog16multiplex = 0;
+  uint8_t analog16multiplex[2] = {0,0};
   uint8_t trackVelocity[16];
 #endif
 
@@ -106,6 +106,9 @@ void sysInit()
 {
   #if ANALOG_16_IN
     memset(trackVelocity,127,sizeof(trackVelocity));
+    analog16multiplex[0] = analog16multiplex[1] = 0;
+    bitSet(analog16multiplex[1],3);
+    bitClear(analog16multiplex[1],4);
   #endif
   memset(dmSteps,0,sizeof(dmSteps));
   memset(dmChannel,9,sizeof(dmChannel));  

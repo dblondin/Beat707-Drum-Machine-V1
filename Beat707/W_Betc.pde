@@ -38,29 +38,41 @@ ISR(TIMER2_COMPA_vect)
       // Do this last so LED PWM doesn't slow-down //
       // We read only one value at a time //
       digitalWrite(2, LOW);
-      (void)SPI.transfer(analog16multiplex);
+      (void)SPI.transfer(analog16multiplex[1]);
       digitalWrite(2, HIGH);
       (void)SPI.transfer(0);
       (void)SPI.transfer(0);
       nop();
-      trackVelocity[analog16multiplex] = 127-((uint8_t)(analogRead(A0)/8));
+      trackVelocity[analog16multiplex[0]] = 127-((uint8_t)(analogRead(A0)/8));
       static int xC = 0;
       if (false)
       {
-        if (analog16multiplex <= 3)
+        if (analog16multiplex[0] <= 3)
         {
           xC++;
           if (xC > 100)
           {
-            if (analog16multiplex == 3) xC = 0;
-            MSerial.print(analog16multiplex,DEC);
+            if (analog16multiplex[0] == 3) xC = 0;
+            MSerial.print(analog16multiplex[0],DEC);
             MSerial.print(": ");
-            MSerial.println(trackVelocity[analog16multiplex], DEC);
+            MSerial.println(trackVelocity[analog16multiplex[0]], DEC);
           }
         }
       }
-      analog16multiplex++;
-      if (analog16multiplex == 16) analog16multiplex = 0;
+      analog16multiplex[0]++;
+      if (analog16multiplex[0] == 16) analog16multiplex[0] = 0;
+      if (analog16multiplex[0] >= 8)
+      {
+        analog16multiplex[1] = analog16multiplex[0]-8;
+        bitClear(analog16multiplex[1],3);
+        bitSet(analog16multiplex[1],4);
+      }
+      else
+      {
+        analog16multiplex[1] = analog16multiplex[0];
+        bitSet(analog16multiplex[1],3);
+        bitClear(analog16multiplex[1],4);
+      }
     #endif
   }
 }
