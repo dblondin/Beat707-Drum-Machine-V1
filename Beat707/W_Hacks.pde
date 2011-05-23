@@ -14,8 +14,8 @@ void Hack_and_Mods_Loop()
   // ------------------------------------------------------------------------------------- //
   #if ANALOG_INPUT_A0
     #if ANALOG_INPUT_BT
-    if (digitalRead(2) == HIGH) prevAnalogButtonCheckState = HIGH;
-    if (curMode != 2 && analogInputModeNewDelay < millisNI() && digitalRead(2) == LOW)
+    if (digitalReadW(2) == HIGH) prevAnalogButtonCheckState = HIGH;
+    if (curMode != 2 && analogInputModeNewDelay < millisNI() && digitalReadW(2) == LOW)
     #else
     if (curMode != 2 && !holdingShift && analogInputModeNewDelay < millisNI())
     #endif
@@ -78,19 +78,15 @@ void Hack_and_Mods_Loop()
         switch (gx)
         {
           case 0:
-            digitalWrite(A0, LOW);
+            digitalWriteW(A0, LOW);
             break;
             
           case 1:
-            digitalWrite(2, LOW);
+            digitalWriteW(2, LOW);
             break;
             
           case 2:
-            #if GATE_OUTS_VEL_D3
-              analogWrite(3, 0);
-            #else
-              digitalWrite(3, LOW);
-            #endif
+            digitalWriteW(3, LOW);
             break;
         }
       }
@@ -120,19 +116,15 @@ void Hack_and_Mods_Loop()
       switch (xdtm)
       {
         case 0:
-          digitalWrite(A0, HIGH);
+          digitalWriteW(A0, HIGH);
           break;
           
         case 1:
-          digitalWrite(2, HIGH);
+          digitalWriteW(2, HIGH);
           break;
           
         case 2:
-          #if GATE_OUTS_VEL_D3
-            analogWrite(3, velocity*8);
-          #else
-            digitalWrite(3, HIGH);
-          #endif
+          digitalWriteW(3, HIGH);
           break;
       }
       gateOutDelay[xdtm] = millisNI()+GATE_OUTS_TIME;            
@@ -270,8 +262,8 @@ void Hack_and_Mods_Loop()
 #if ENCODER_INPUT
   void EncoderChange()
   {
-    enCval1 = digitalRead(2);
-    enCval2 = digitalRead(3);
+    enCval1 = digitalReadW(2);
+    enCval2 = digitalReadW(3);
     
       // Detect changes
     if (enCval1 != enColdVal1 || enCval2 != enColdVal2) 

@@ -2,17 +2,58 @@
 
   Created by Beat707 (c) 2011 - http://www.Beat707.com
   
-  LCD and 2-Wire Library (in a single file)
+  All Extra Libraries: LCD, SPI and TWI (2-Wire) (we had to make small changes to each library, therefore, we are no longer using the default ones)
   
 */
+
+// ======================================================================================= //
+
+#ifndef WDEXTRA_h
+#define WDEXTRA_h
+
+  #include "WProgram.h"
+  #include <inttypes.h>
+  #include "pins_arduino.h"
+  #include <math.h>
+  #include <stdlib.h>
+  #include <avr/io.h>
+  #include <avr/interrupt.h>
+  #include <compat/twi.h>
+  #include <stdio.h>
+  
+  // Here we are using our own digitalRead/Write/pinMode code as we don't need to worry about Interrupts - this also uses less Flash space and RAM
+  void digitalWriteW(uint8_t pin, uint8_t val)
+  {
+    volatile uint8_t *out = portOutputRegister(digitalPinToPort(pin));
+    if (val == LOW) *out &= ~digitalPinToBitMask(pin); else *out |= digitalPinToBitMask(pin);
+  }
+  
+  int digitalReadW(uint8_t pin)
+  {
+    if (*portInputRegister(digitalPinToPort(pin)) & digitalPinToBitMask(pin)) return HIGH;
+    return LOW;
+  }
+  
+  void pinModeW(uint8_t pin, uint8_t mode)
+  {
+    volatile uint8_t *reg = portModeRegister(digitalPinToPort(pin));
+    if (mode == INPUT) *reg &= ~digitalPinToBitMask(pin); else *reg |= digitalPinToBitMask(pin);
+  }
+  
+#endif
+
+// ======================================================================================= //
 
 #ifndef WLCD_h
 #define WLCD_h
 
-#include <inttypes.h>
-#include "Print.h"
+#define _rs_pin 9
+#define _enable_pin 10
+#define DP1 4
+#define DP2 5
+#define DP3 6
+#define DP4 7
 
-// commands
 #define LCD_CLEARDISPLAY 0x01
 #define LCD_ENTRYMODESET 0x04
 #define LCD_DISPLAYCONTROL 0x08
@@ -20,28 +61,20 @@
 #define LCD_FUNCTIONSET 0x20
 #define LCD_SETCGRAMADDR 0x40
 #define LCD_SETDDRAMADDR 0x80
-
-// flags for display entry mode
 #define LCD_ENTRYRIGHT 0x00
 #define LCD_ENTRYLEFT 0x02
 #define LCD_ENTRYSHIFTINCREMENT 0x01
 #define LCD_ENTRYSHIFTDECREMENT 0x00
-
-// flags for display on/off control
 #define LCD_DISPLAYON 0x04
 #define LCD_DISPLAYOFF 0x00
 #define LCD_CURSORON 0x02
 #define LCD_CURSOROFF 0x00
 #define LCD_BLINKON 0x01
 #define LCD_BLINKOFF 0x00
-
-// flags for display/cursor shift
 #define LCD_DISPLAYMOVE 0x08
 #define LCD_CURSORMOVE 0x00
 #define LCD_MOVERIGHT 0x04
 #define LCD_MOVELEFT 0x00
-
-// flags for function set
 #define LCD_8BITMODE 0x10
 #define LCD_4BITMODE 0x00
 #define LCD_2LINE 0x08
@@ -49,12 +82,14 @@
 #define LCD_5x10DOTS 0x04
 #define LCD_5x8DOTS 0x00
 
+// ======================================================================================= //
+
 class WLCD 
 {
 public:
   WLCD();
 
-  void begin();//uint8_t cols, uint8_t rows, uint8_t charsize = LCD_5x8DOTS);
+  void begin();
   void clear();
   void noBlink();
   void blink();
@@ -76,29 +111,129 @@ private:
 
 #endif
 
+// ======================================================================================= //
+
+WLCD::WLCD()
+{
+  pinModeW(_rs_pin, OUTPUT);
+  pinModeW(_enable_pin, OUTPUT);
+  pinModeW(DP1, OUTPUT);
+  pinModeW(DP2, OUTPUT);
+  pinModeW(DP3, OUTPUT);
+  pinModeW(DP4, OUTPUT);
+  
+  _displayfunction = LCD_4BITMODE | LCD_1LINE | LCD_5x8DOTS;
+}
+
+void WLCD::begin()
+{
+  _displayfunction |= LCD_2LINE;
+  delayMicroseconds(50000); 
+  digitalWriteW(_rs_pin, LOW);
+  digitalWriteW(_enable_pin, LOW);
+  
+	write4bits(0x03);
+	delayMicroseconds(4500); // wait min 4.1ms
+	write4bits(0x03);
+	delayMicroseconds(4500); // wait min 4.1ms
+	write4bits(0x03); 
+	delayMicroseconds(150);
+	write4bits(0x02); 
+
+  command(LCD_FUNCTIONSET | _displayfunction);  
+
+  _displaycontrol = LCD_DISPLAYON | LCD_CURSOROFF | LCD_BLINKOFF;  
+  command(LCD_DISPLAYCONTROL | _displaycontrol);
+  clear();
+  _displaymode = LCD_ENTRYLEFT | LCD_ENTRYSHIFTDECREMENT;
+  command(LCD_ENTRYMODESET | _displaymode);
+
+}
+
+void WLCD::clear()
+{
+  command(LCD_CLEARDISPLAY);  // clear display, set cursor position to zero
+  delayMicroseconds(2000);  // this command takes a long time!
+}
+
+void WLCD::setCursor(uint8_t col, uint8_t row)
+{
+  command(LCD_SETDDRAMADDR | (col + (row*0x40)));
+}
+
+// Turns the underline cursor on/off
+void WLCD::noCursor() {
+  _displaycontrol &= ~LCD_CURSORON;
+  command(LCD_DISPLAYCONTROL | _displaycontrol);
+}
+void WLCD::cursor() {
+  _displaycontrol |= LCD_CURSORON;
+  command(LCD_DISPLAYCONTROL | _displaycontrol);
+}
+
+// Turn on and off the blinking cursor
+void WLCD::noBlink() {
+  _displaycontrol &= ~LCD_BLINKON;
+  command(LCD_DISPLAYCONTROL | _displaycontrol);
+}
+void WLCD::blink() {
+  _displaycontrol |= LCD_BLINKON;
+  command(LCD_DISPLAYCONTROL | _displaycontrol);
+}
+
+void WLCD::createChar(uint8_t* charmap) 
+{
+  for (int location=0; location<8; location++)
+  {
+	command(LCD_SETCGRAMADDR | (location << 3));
+	for (int i=0; i<8; i++) 
+	{
+	    write(charmap[(location*8)+i]);
+	}
+  }
+}
+
+inline void WLCD::command(uint8_t value) {
+  send(value, LOW);
+}
+
+inline void WLCD::write(uint8_t value) {
+  send(value, HIGH);
+}
+
+// write either command or data, with automatic 4/8-bit selection
+void WLCD::send(uint8_t value, uint8_t mode) {
+  digitalWriteW(_rs_pin, mode);
+  write4bits(value>>4);
+  write4bits(value);
+}
+
+void WLCD::pulseEnable(void) {
+  digitalWriteW(_enable_pin, LOW);
+  delayMicroseconds(1);    
+  digitalWriteW(_enable_pin, HIGH);
+  delayMicroseconds(1);    // enable pulse must be >450ns
+  digitalWriteW(_enable_pin, LOW);
+  delayMicroseconds(100);   // commands need > 37us to settle
+}
+
+void WLCD::write4bits(uint8_t value) {
+  digitalWriteW(DP1, (value >> 0) & 0x01);
+  digitalWriteW(DP2, (value >> 1) & 0x01);
+  digitalWriteW(DP3, (value >> 2) & 0x01);
+  digitalWriteW(DP4, (value >> 3) & 0x01);
+
+  pulseEnable();
+}
+
+// ======================================================================================= //
+
 /*
-  TwoWire.h - TWI/I2C library for Arduino & Wiring
-  Copyright (c) 2006 Nicholas Zambetti.  All right reserved.
-
-  This library is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Lesser General Public
-  License as published by the Free Software Foundation; either
-  version 2.1 of the License, or (at your option) any later version.
-
-  This library is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Lesser General Public License for more details.
-
-  You should have received a copy of the GNU Lesser General Public
-  License along with this library; if not, write to the Free Software
-  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+  TWI/I2C library for Arduino & Wiring - Copyright (c) 2006 Nicholas Zambetti.  All right reserved.
 */
 
 #ifndef TwoWire_h
 #define TwoWire_h
-
-#include <inttypes.h>
 
 #define BUFFER_LENGTH 132
 
@@ -143,31 +278,10 @@ extern TwoWire Wire;
 
 #endif
 
-/*
-  twi.h - TWI/I2C library for Wiring & Arduino
-  Copyright (c) 2006 Nicholas Zambetti.  All right reserved.
-
-  This library is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Lesser General Public
-  License as published by the Free Software Foundation; either
-  version 2.1 of the License, or (at your option) any later version.
-
-  This library is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Lesser General Public License for more details.
-
-  You should have received a copy of the GNU Lesser General Public
-  License along with this library; if not, write to the Free Software
-  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+// ======================================================================================= //
 
 #ifndef twi_h
 #define twi_h
-
-  #include <inttypes.h>
-
-  //#define ATMEGA8
 
   #ifndef CPU_FREQ
   #define CPU_FREQ 16000000L
@@ -200,167 +314,7 @@ extern TwoWire Wire;
 
 #endif
 
-/*
-
-  Created by Beat707 (c) 2011 - http://www.Beat707.com
-  
-  Library files for LCD and 2-Wire
-  
-*/
-
-#include "WProgram.h"
-
-#define _rs_pin 9
-#define _enable_pin 10
-#define DP1 4
-#define DP2 5
-#define DP3 6
-#define DP4 7
-
-WLCD::WLCD()
-{
-  pinMode(_rs_pin, OUTPUT);
-  pinMode(_enable_pin, OUTPUT);
-  pinMode(DP1, OUTPUT);
-  pinMode(DP2, OUTPUT);
-  pinMode(DP3, OUTPUT);
-  pinMode(DP4, OUTPUT);
-  
-  _displayfunction = LCD_4BITMODE | LCD_1LINE | LCD_5x8DOTS;
-}
-
-void WLCD::begin()
-{
-  _displayfunction |= LCD_2LINE;
-  delayMicroseconds(50000); 
-  digitalWrite(_rs_pin, LOW);
-  digitalWrite(_enable_pin, LOW);
-  
-	write4bits(0x03);
-	delayMicroseconds(4500); // wait min 4.1ms
-	write4bits(0x03);
-	delayMicroseconds(4500); // wait min 4.1ms
-	write4bits(0x03); 
-	delayMicroseconds(150);
-	write4bits(0x02); 
-
-  command(LCD_FUNCTIONSET | _displayfunction);  
-
-  _displaycontrol = LCD_DISPLAYON | LCD_CURSOROFF | LCD_BLINKOFF;  
-  command(LCD_DISPLAYCONTROL | _displaycontrol);
-  clear();
-  _displaymode = LCD_ENTRYLEFT | LCD_ENTRYSHIFTDECREMENT;
-  command(LCD_ENTRYMODESET | _displaymode);
-
-}
-
-/********** high level commands, for the user! */
-void WLCD::clear()
-{
-  command(LCD_CLEARDISPLAY);  // clear display, set cursor position to zero
-  delayMicroseconds(2000);  // this command takes a long time!
-}
-
-void WLCD::setCursor(uint8_t col, uint8_t row)
-{
-  command(LCD_SETDDRAMADDR | (col + (row*0x40)));
-}
-
-// Turns the underline cursor on/off
-void WLCD::noCursor() {
-  _displaycontrol &= ~LCD_CURSORON;
-  command(LCD_DISPLAYCONTROL | _displaycontrol);
-}
-void WLCD::cursor() {
-  _displaycontrol |= LCD_CURSORON;
-  command(LCD_DISPLAYCONTROL | _displaycontrol);
-}
-
-// Turn on and off the blinking cursor
-void WLCD::noBlink() {
-  _displaycontrol &= ~LCD_BLINKON;
-  command(LCD_DISPLAYCONTROL | _displaycontrol);
-}
-void WLCD::blink() {
-  _displaycontrol |= LCD_BLINKON;
-  command(LCD_DISPLAYCONTROL | _displaycontrol);
-}
-
-void WLCD::createChar(uint8_t* charmap) 
-{
-  for (int location=0; location<8; location++)
-  {
-	command(LCD_SETCGRAMADDR | (location << 3));
-	for (int i=0; i<8; i++) 
-	{
-	    write(charmap[(location*8)+i]);
-	}
-  }
-}
-
-/*********** mid level commands, for sending data/cmds */
-
-inline void WLCD::command(uint8_t value) {
-  send(value, LOW);
-}
-
-inline void WLCD::write(uint8_t value) {
-  send(value, HIGH);
-}
-
-/************ low level data pushing commands **********/
-
-// write either command or data, with automatic 4/8-bit selection
-void WLCD::send(uint8_t value, uint8_t mode) {
-  digitalWrite(_rs_pin, mode);
-  write4bits(value>>4);
-  write4bits(value);
-}
-
-void WLCD::pulseEnable(void) {
-  digitalWrite(_enable_pin, LOW);
-  delayMicroseconds(1);    
-  digitalWrite(_enable_pin, HIGH);
-  delayMicroseconds(1);    // enable pulse must be >450ns
-  digitalWrite(_enable_pin, LOW);
-  delayMicroseconds(100);   // commands need > 37us to settle
-}
-
-void WLCD::write4bits(uint8_t value) {
-  digitalWrite(DP1, (value >> 0) & 0x01);
-  digitalWrite(DP2, (value >> 1) & 0x01);
-  digitalWrite(DP3, (value >> 2) & 0x01);
-  digitalWrite(DP4, (value >> 3) & 0x01);
-
-  pulseEnable();
-}
-
-/*
-  TwoWire.cpp - TWI/I2C library for Wiring & Arduino
-  Copyright (c) 2006 Nicholas Zambetti.  All right reserved.
-
-  This library is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Lesser General Public
-  License as published by the Free Software Foundation; either
-  version 2.1 of the License, or (at your option) any later version.
-
-  This library is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Lesser General Public License for more details.
-
-  You should have received a copy of the GNU Lesser General Public
-  License along with this library; if not, write to the Free Software
-  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
-
-extern "C" {
-  #include <stdlib.h>
-  #include <string.h>
-  #include <inttypes.h>
-}
-
-// Initialize Class Variables //////////////////////////////////////////////////
+// ======================================================================================= //
 
 uint8_t TwoWire::rxBuffer[BUFFER_LENGTH];
 uint8_t TwoWire::rxBufferIndex = 0;
@@ -375,13 +329,7 @@ uint8_t TwoWire::transmitting = 0;
 void (*TwoWire::user_onRequest)(void);
 void (*TwoWire::user_onReceive)(int);
 
-// Constructors ////////////////////////////////////////////////////////////////
-
-TwoWire::TwoWire()
-{
-}
-
-// Public Methods //////////////////////////////////////////////////////////////
+TwoWire::TwoWire() { }
 
 void TwoWire::begin(void)
 {
@@ -589,35 +537,7 @@ void TwoWire::onRequest( void (*function)(void) )
   user_onRequest = function;
 }
 
-// Preinstantiate Objects //////////////////////////////////////////////////////
-
 TwoWire Wire = TwoWire();
-
-/*
-  twi.c - TWI/I2C library for Wiring & Arduino
-  Copyright (c) 2006 Nicholas Zambetti.  All right reserved.
-
-  This library is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Lesser General Public
-  License as published by the Free Software Foundation; either
-  version 2.1 of the License, or (at your option) any later version.
-
-  This library is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Lesser General Public License for more details.
-
-  You should have received a copy of the GNU Lesser General Public
-  License along with this library; if not, write to the Free Software
-  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
-
-#include <math.h>
-#include <stdlib.h>
-#include <inttypes.h>
-#include <avr/io.h>
-#include <avr/interrupt.h>
-#include <compat/twi.h>
 
 #ifndef cbi
 #define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
@@ -1066,3 +986,116 @@ SIGNAL(TWI_vect)
       break;
   }
 }
+
+// ======================================================================================= //
+
+/*
+  Copyright (c) 2010 by Cristian Maglie <c.maglie@bug.st> - SPI Master library for arduino.
+*/
+
+#ifndef _SPI_H_INCLUDED
+#define _SPI_H_INCLUDED
+
+#define SPI_CLOCK_DIV4 0x00
+#define SPI_CLOCK_DIV16 0x01
+#define SPI_CLOCK_DIV64 0x02
+#define SPI_CLOCK_DIV128 0x03
+#define SPI_CLOCK_DIV2 0x04
+#define SPI_CLOCK_DIV8 0x05
+#define SPI_CLOCK_DIV32 0x06
+#define SPI_CLOCK_DIV64 0x07
+
+#define SPI_MODE0 0x00
+#define SPI_MODE1 0x04
+#define SPI_MODE2 0x08
+#define SPI_MODE3 0x0C
+
+#define SPI_MODE_MASK 0x0C  // CPOL = bit 3, CPHA = bit 2 on SPCR
+#define SPI_CLOCK_MASK 0x03  // SPR1 = bit 1, SPR0 = bit 0 on SPCR
+#define SPI_2XCLOCK_MASK 0x01  // SPI2X = bit 0 on SPSR
+
+class SPIClass {
+public:
+  inline static byte transfer(byte _data);
+
+  // SPI Configuration methods
+
+  inline static void attachInterrupt();
+  inline static void detachInterrupt(); // Default
+
+  static void begin(); // Default
+  static void end();
+
+  static void setBitOrder(uint8_t);
+  static void setDataMode(uint8_t);
+  static void setClockDivider(uint8_t);
+};
+
+extern SPIClass SPI;
+
+byte SPIClass::transfer(byte _data) {
+  SPDR = _data;
+  while (!(SPSR & _BV(SPIF)))
+    ;
+  return SPDR;
+}
+
+void SPIClass::attachInterrupt() {
+  SPCR |= _BV(SPIE);
+}
+
+void SPIClass::detachInterrupt() {
+  SPCR &= ~_BV(SPIE);
+}
+
+#endif
+
+SPIClass SPI;
+
+void SPIClass::begin() {
+  // Set direction register for SCK and MOSI pin.
+  // MISO pin automatically overrides to INPUT.
+  // When the SS pin is set as OUTPUT, it can be used as
+  // a general purpose output port (it doesn't influence
+  // SPI operations).
+
+  pinModeW(SCK, OUTPUT);
+  pinModeW(MOSI, OUTPUT);
+  pinModeW(SS, OUTPUT);
+  
+  digitalWriteW(SCK, LOW);
+  digitalWriteW(MOSI, LOW);
+  digitalWriteW(SS, HIGH);
+
+  // Warning: if the SS pin ever becomes a LOW INPUT then SPI 
+  // automatically switches to Slave, so the data direction of 
+  // the SS pin MUST be kept as OUTPUT.
+  SPCR |= _BV(MSTR);
+  SPCR |= _BV(SPE);
+}
+
+void SPIClass::end() {
+  SPCR &= ~_BV(SPE);
+}
+
+void SPIClass::setBitOrder(uint8_t bitOrder)
+{
+  if(bitOrder == LSBFIRST) {
+    SPCR |= _BV(DORD);
+  } else {
+    SPCR &= ~(_BV(DORD));
+  }
+}
+
+void SPIClass::setDataMode(uint8_t mode)
+{
+  SPCR = (SPCR & ~SPI_MODE_MASK) | mode;
+}
+
+void SPIClass::setClockDivider(uint8_t rate)
+{
+  SPCR = (SPCR & ~SPI_CLOCK_MASK) | (rate & SPI_CLOCK_MASK);
+  SPSR = (SPSR & ~SPI_2XCLOCK_MASK) | ((rate >> 2) & SPI_2XCLOCK_MASK);
+}
+
+// ======================================================================================= //

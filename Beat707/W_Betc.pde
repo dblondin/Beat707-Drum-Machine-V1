@@ -18,9 +18,9 @@ ISR(TIMER2_COMPA_vect)
   if (enableButtonsAndLEDs)
   {
     // Input Buttons and Output LEDs //
-    digitalWrite(SWITCH_SSn, LOW);  // Enable 74HC165's to drive MISO
-    digitalWrite(LATCHOUT, LOW);    // Take button snapshot
-    digitalWrite(LATCHOUT, HIGH);   // 74HC165 set to shift mode
+    digitalWriteW(SWITCH_SSn, LOW);  // Enable 74HC165's to drive MISO
+    digitalWriteW(LATCHOUT, LOW);    // Take button snapshot
+    digitalWriteW(LATCHOUT, HIGH);   // 74HC165 set to shift mode
   
     extraExternal     = ~SPI.transfer(0);                        // Read extra external digital inputs
     interfaceButtons  = ~SPI.transfer(0);                        // Read Multi Interface Button
@@ -30,16 +30,16 @@ ISR(TIMER2_COMPA_vect)
       else if (stepLEDScounter > LEDS_PWM_A2) inOutLEDsAndButtonsPWM(1);
       else inOutLEDsAndButtonsPWM(2);
   
-    digitalWrite(SWITCH_SSn, HIGH);  // Disable 74HC165's to drive MISO
-    digitalWrite(LATCHOUT, LOW);     // Pulse LED latches
-    digitalWrite(LATCHOUT, HIGH);    // 74HC165 set to shift mode
+    digitalWriteW(SWITCH_SSn, HIGH);  // Disable 74HC165's to drive MISO
+    digitalWriteW(LATCHOUT, LOW);     // Pulse LED latches
+    digitalWriteW(LATCHOUT, HIGH);    // 74HC165 set to shift mode
     
     #if ANALOG_16_IN
       // Do this last so LED PWM doesn't slow-down //
       // We read only one value at a time //
-      digitalWrite(2, LOW);
+      digitalWriteW(2, LOW);
       (void)SPI.transfer(analog16multiplex[1]);
-      digitalWrite(2, HIGH);
+      digitalWriteW(2, HIGH);
       (void)SPI.transfer(0);
       (void)SPI.transfer(0);
       nop();
@@ -210,7 +210,7 @@ void InterfaceButtons()
 void checkMIDIusbMode()
 {
   if (midiUSBmode) MSerial.begin(115200); else MSerial.begin(31250);
-  digitalWrite(MIDI_ENn,midiUSBmode);  
+  digitalWriteW(MIDI_ENn,midiUSBmode);  
 }
 
 // ======================================================================================= //
@@ -497,10 +497,10 @@ void flashWaitUntilDone()
   while (1)
   {
     nop();
-    digitalWrite(FLASH_SSn,LOW);
+    digitalWriteW(FLASH_SSn,LOW);
     (void) SPI.transfer(0x05);
     data = SPI.transfer(0);
-    digitalWrite(FLASH_SSn,HIGH);
+    digitalWriteW(FLASH_SSn,HIGH);
     nop();
     if (!bitRead(data,0)) break;
   }
@@ -511,18 +511,18 @@ void flashWaitUntilDone()
 void flashInit()
 {
   flashEnable();
-  digitalWrite(FLASH_SSn,LOW);
+  digitalWriteW(FLASH_SSn,LOW);
   SPI.transfer(0x50); //enable write status register instruction
-  digitalWrite(FLASH_SSn,HIGH);
+  digitalWriteW(FLASH_SSn,HIGH);
   delayNI(5);
-  digitalWrite(FLASH_SSn,LOW);
+  digitalWriteW(FLASH_SSn,LOW);
   SPI.transfer(0x01); //write the status register instruction
   SPI.transfer(0x00); //value to write to register - xx0000xx will remove all block protection
-  digitalWrite(FLASH_SSn,HIGH);
+  digitalWriteW(FLASH_SSn,HIGH);
   delayNI(5);
-  digitalWrite(FLASH_SSn,LOW);
+  digitalWriteW(FLASH_SSn,LOW);
   SPI.transfer(0x06); //write enable instruction
-  digitalWrite(FLASH_SSn,HIGH);
+  digitalWriteW(FLASH_SSn,HIGH);
   flashWaitUntilDone();
   delayNI(250);
   flashDisable();
@@ -534,9 +534,9 @@ void flashTotalErase()
 {
   flashInit();
   flashEnable();
-  digitalWrite(FLASH_SSn, LOW); 
+  digitalWriteW(FLASH_SSn, LOW); 
   (void) SPI.transfer(0x60); // Erase Chip //
-  digitalWrite(FLASH_SSn, HIGH);
+  digitalWriteW(FLASH_SSn, HIGH);
   flashWaitUntilDone();
   flashDisable();
 }
@@ -556,7 +556,7 @@ void flashSetAddressSector(uint8_t sector)
 void flashReadInit(uint8_t sector)
 {
   flashEnable();
-  digitalWrite(FLASH_SSn,LOW);
+  digitalWriteW(FLASH_SSn,LOW);
   (void) SPI.transfer(0x03); // Read Memory - 25/33 Mhz //
   flashSetAddressSector(sector);
 }
@@ -568,7 +568,7 @@ uint8_t flashReadNext()
 
 void flashReadFinish()
 {
-  digitalWrite(FLASH_SSn,HIGH);
+  digitalWriteW(FLASH_SSn,HIGH);
   flashDisable();
 }
 
@@ -578,30 +578,30 @@ void flashPageWriteInit(uint8_t sector, uint8_t byte1, uint8_t byte2)
 {
   flashInit();
   flashEnable();
-  digitalWrite(FLASH_SSn,LOW);
+  digitalWriteW(FLASH_SSn,LOW);
   SPI.transfer(0xAD); // AAI Word Program (Page Write)
   flashSetAddressSector(sector);
   SPI.transfer(byte1);
   SPI.transfer(byte2);
-  digitalWrite(FLASH_SSn,HIGH);
+  digitalWriteW(FLASH_SSn,HIGH);
   flashWaitUntilDone();
 }
 
 void flashPageWriteNext(uint8_t byte1, uint8_t byte2)
 { 
-  digitalWrite(FLASH_SSn,LOW);
+  digitalWriteW(FLASH_SSn,LOW);
   SPI.transfer(0xAD); // AAI Word Program (Page Write)
   SPI.transfer(byte1);
   SPI.transfer(byte2);
-  digitalWrite(FLASH_SSn,HIGH);
+  digitalWriteW(FLASH_SSn,HIGH);
   flashWaitUntilDone();
 }
 
 void flashPageWriteFinish()
 {
-  digitalWrite(FLASH_SSn,LOW);
+  digitalWriteW(FLASH_SSn,LOW);
   SPI.transfer(0x04); //write disable instruction
-  digitalWrite(FLASH_SSn,HIGH);
+  digitalWriteW(FLASH_SSn,HIGH);
   flashWaitUntilDone();
   flashDisable();
 }
@@ -614,10 +614,10 @@ void flashSectorsErase(uint8_t sector, uint8_t amount)
   {
     flashInit();
     flashEnable();
-    digitalWrite(FLASH_SSn,LOW);
+    digitalWriteW(FLASH_SSn,LOW);
     (void) SPI.transfer(0x20); // Erase 4KB Sector //
     flashSetAddressSector(sector+x);
-    digitalWrite(FLASH_SSn,HIGH);
+    digitalWriteW(FLASH_SSn,HIGH);
     flashWaitUntilDone();
     flashDisable(); 
   }

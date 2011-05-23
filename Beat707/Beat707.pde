@@ -3,12 +3,14 @@
   Created by Beat707 (c) 2011 - http://www.Beat707.com
 
   Main File for Variable Declaration and Setup - May 23 2011 - Version 1.3.0
+  
+  Flash 27240 / 27118 / 27096
+  
 
 */
 
 #include "Config.h"  // Where all PIN settings are stored
 #include "Library.h"
-#include <SPI.h>     // Reads the external FLASH NAND memory and also all buttons and leds
 
 // Multi Button //
 uint8_t prevbutton, multiButton, tempButton = 99;
@@ -152,46 +154,46 @@ void sysInit()
 // ======================================================================================= //
 void setup() 
 {
-  pinMode(MIDI_ENn,OUTPUT);
+  pinModeW(MIDI_ENn,OUTPUT);
     
   // Uses the Analog Input for the Random Numbers Seed
-  pinMode(A0, INPUT);
+  pinModeW(A0, INPUT);
   randomSeed(analogRead(0));
   
   #if ANALOG_INPUT_A0
-    pinMode(A0, INPUT);
+    pinModeW(A0, INPUT);
     #if ANALOG_INPUT_BT
-      pinMode(2, INPUT);
-      digitalWrite(2, HIGH);
+      pinModeW(2, INPUT);
+      digitalWriteW(2, HIGH);
     #endif
   #endif
   #if GATE_OUTS
-    pinMode(A0, OUTPUT);
-    pinMode(2, OUTPUT);
-    pinMode(3, OUTPUT);
-    digitalWrite(A0, LOW);
-    digitalWrite(2, LOW);
-    digitalWrite(3, LOW);
+    pinModeW(A0, OUTPUT);
+    pinModeW(2, OUTPUT);
+    pinModeW(3, OUTPUT);
+    digitalWriteW(A0, LOW);
+    digitalWriteW(2, LOW);
+    digitalWriteW(3, LOW);
   #endif
   #if ENCODER_INPUT
-    pinMode(2, INPUT);
-    pinMode(3, INPUT);
-    digitalWrite(2, HIGH);
-    digitalWrite(3, HIGH);
+    pinModeW(2, INPUT);
+    pinModeW(3, INPUT);
+    digitalWriteW(2, HIGH);
+    digitalWriteW(3, HIGH);
     attachInterrupt(0, EncoderChange, CHANGE);
     attachInterrupt(1, EncoderChange, CHANGE);
   #endif
   #if ANALOG_16_IN
-    pinMode(2, OUTPUT);
-    digitalWrite(2, LOW);
+    pinModeW(2, OUTPUT);
+    digitalWriteW(2, LOW);
   #endif
   
-  pinMode(LATCHOUT, OUTPUT);  digitalWrite(LATCHOUT, LOW);
-  pinMode(FLASH_SSn, OUTPUT);
-  pinMode(SWITCH_SSn, OUTPUT); digitalWrite(SWITCH_SSn, HIGH);
+  pinModeW(LATCHOUT, OUTPUT);  digitalWriteW(LATCHOUT, LOW);
+  pinModeW(FLASH_SSn, OUTPUT);
+  pinModeW(SWITCH_SSn, OUTPUT); digitalWriteW(SWITCH_SSn, HIGH);
   #if defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
-    pinMode(11, INPUT); // Conflicts with SPI MOSI...do not use
-    pinMode(13, INPUT); // Conflicts with SPI CLOCK...do not use
+    pinModeW(11, INPUT); // Conflicts with SPI MOSI...do not use
+    pinModeW(13, INPUT); // Conflicts with SPI CLOCK...do not use
   #endif
    
   SPI.begin();

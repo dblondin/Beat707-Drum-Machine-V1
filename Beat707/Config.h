@@ -25,7 +25,6 @@
     #define ANALOG_MDLY 100     // If Analog Input is enabled, the delay for when a new mode is selected (in ms) or, if ANALOG_INPUT_BT is enabled, the time to pause when the button is pressed 
   #define GATE_OUTS 0           // When enabled adds 3 Gate Outputs on pins A0, D2 and D3. (check the Board Details PDF file for headers information - should be SV2 and SV3) Gates are fixed for Tracks 1, 2 and 3. (MIDI is disabled on those tracks)
     #define GATE_OUTS_TIME 15   // Time of the Gate Trig (from High to Low)
-    #define GATE_OUTS_VEL_D3 0  // Add Velocity (PWM) on Digital Pin 3 (D3)
   #define ENCODER_INPUT 0       // When set, it will setup and read an endless encoder on pins D2 and D3. (see Header SV3) The encoder will act as an Up and Down button, therefore, working on anywhere in the interface where Up and Down strokes can be used to tweak values. Currently speed is not been detected, but this could change in the future
     #define ENCODER_SPEED 0     // When set, it will detect the speed of the encoder movement and apply changes faster or slower
   #define ANALOG_16_IN 0        // Ads extra code that reads 16 Analog Pots/Faders for each Track Volume - this setup uses SPI, a Multiplexer and a special hardware configuration

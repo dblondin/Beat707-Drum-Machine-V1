@@ -54,6 +54,8 @@
   prog_char string_15[] PROGMEM  = "Crash";
 #endif
 
+// ======================================================================================= //
+
 prog_char empty_Str[] PROGMEM  = ""; 
 #define EMPTY_STR 0
 
@@ -203,6 +205,8 @@ prog_char myStrings_072[] PROGMEM  = "Rev";
 #define REV 111
 prog_char myStrings_073[] PROGMEM  = "Rnd";
 #define RND 112
+
+// ======================================================================================= //
 
 PROGMEM const char *stringlist[] = { empty_Str, 
 #if EXTENDED_DRUM_NAMES
