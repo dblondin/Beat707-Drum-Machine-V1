@@ -2,7 +2,7 @@
 
   Created by Beat707 (c) 2011 - http://www.Beat707.com
   
-  Pinage Configration File
+  Pinage Configuration File
   
 */
 
@@ -26,8 +26,10 @@
   #define GATE_OUTS 0           // When enabled adds 3 Gate Outputs on pins A0, D2 and D3. (check the Board Details PDF file for headers information - should be SV2 and SV3) Gates are fixed for Tracks 1, 2 and 3. (MIDI is disabled on those tracks)
     #define GATE_OUTS_TIME 15   // Time of the Gate Trig (from High to Low)
   #define ENCODER_INPUT 0       // When set, it will setup and read an endless encoder on pins D2 and D3. (see Header SV3) The encoder will act as an Up and Down button, therefore, working on anywhere in the interface where Up and Down strokes can be used to tweak values. Currently speed is not been detected, but this could change in the future
-    #define ENCODER_SPEED 0     // When set, it will detect the speed of the encoder movement and apply changes faster or slower
-  #define ANALOG_16_IN 0        // Ads extra code that reads 16 Analog Pots/Faders for each Track Volume - this setup uses SPI, a Multiplexer and a special hardware configuration
+    #define ENCODER_SPEED 1     // When set, it will detect the speed of the encoder movement and apply changes faster or slower
+  #define ANALOG_16_IN 0        // Ads extra code that reads 16 Analog Pots/Faders for each Track Volume - this setup uses SPI, a Multiplexer and a special hardware configuration. Note that by using this feature, you won't be able to use analogRead() in any part of the code, as this is hardcoded to pin A0 in the Timer2 process.
+    #define ANALOG_16_SENS 4    // Analog Input Sensitivity (0 for high, 2 for medium, 4 for normal, 8 for normal, 12 for low, 20 for very low) This determinates how much you need to move a Fader or Potentiometer before the code will use the new value.
+    #define ANALOG_16_LAG 2     // Increasing this will reduce CPU usage but will add latency to any analog input. Value 2 should be the min.
   #define EXTRA_8_BUTTONS 0     // Will use the extra 8 buttons input header to read 8 inputs (no need for pull-up/down resistors, the hardware already has it) and call user-code that can be written on the W_Hacks tab. By default, J1 is for sequencer play / stop.
   #define MIDI_INPUT_REC 0      // Adds extra code for when Record is pressed in Pattern Mode - Input MIDI Notes will be added to the current playing steps. (Omni MIDI Channel)
   #define MIDI_INPUT_ST 0       // Midi Note Input to Tracks S1/S2 - this allows you to manipulate the 2x synth tracks directly from a Midi Keyboard (Omni MIDI Channel)
@@ -41,16 +43,17 @@
   #define EXTENDED_DRUM_NAMES 1 // Add more GM Drum Note Names to the Track Drum Note Selectors
   #define STORAGE_FORCE_INIT 0  // Force an Initiation of all EEPROM memory during startup 
   #define MIDI_SYSEX_DMP_RC 0   // Adds code to Dump and Receive MIDI System Exclusive Data (SysEX) via MIDI
-  #define MANAGER_DUMP_RECV 0   // Adds extra code to be used with the Beat707 Manager program in order to Dump and Receive complete machine data
+  #define MANAGER_DUMP_RECV 1   // Adds extra code to be used with the Beat707 Manager program in order to Dump and Receive complete machine data
   #define SHOWFREEMEM 0         // Outputs free RAM to LCD
   #define MSerial Serial        // Used for MIDI Input/Output
   #define INIT_EMPTY_SONG 1     // Determinates if an Empty Song should be saved during Initiation of the EEPROM + Flash
   #define DISABLE_MIDI 0        // Debug Only
   #define DISABLE_STORAGE_CHK 0 // Debug Only
-  #define LEDS_PWM_A1 50       // The LEDs dim light is controlled by a PWM code, that counts from 0 to LEDS_PWM_A1, while LEDS_PWM_A2 is the near LEDS_PWM_A1 value. So, anything before LEDS_PWM_A1 is the lowest level, going above LEDS_PWM_A2 is the medium level and going over LEDS_PWM_A1 is the highest level.
+  #define CHECK_CPU_USAGE 0     // Debug Only - Checks CPU usage (uses special macros: CHECK_CPU_START and CHECK_CPU_END)
+  #define LEDS_PWM_A1 50        // The LEDs dim light is controlled by a PWM code, that counts from 0 to LEDS_PWM_A1, while LEDS_PWM_A2 is the near LEDS_PWM_A1 value. So, anything before LEDS_PWM_A1 is the lowest level, going above LEDS_PWM_A2 is the medium level and going over LEDS_PWM_A1 is the highest level.
   #define LEDS_PWM_A2 40        // The Medium level of the LEDs PWM dim lights.
-  #define INI_PATT_FULL_ACNT 0  // During Pattern Initialization both Accents tracks will be set to either full-value or the values set below (depending if you use INI_PATT_USER_V or not)
-    #define INI_PATT_USER_V 0   // If set, instead of setting everything to 1, it will use the values set below
+  #define INI_PATT_FULL_ACNT 1  // During Pattern Initialization both Accents tracks will be set to either full-value or the values set below (depending if you use INI_PATT_USER_V or not)
+    #define INI_PATT_USER_V 1   // If set, instead of setting everything to 1, it will use the values set below
     #define INI_PATT_FULL_AC_1A "1010101010101010"
     #define INI_PATT_FULL_AC_1B "1010101010101011"
     #define INI_PATT_FULL_AC_2A "1000100010001000"
@@ -63,6 +66,7 @@
   
   // ===================================================================================================================================================================== //  
   // Buttons and LEDs using C165 and C595 Shifters //
+  // An Important Note - since the latest version the following pins can't be changed anymore: LATCHOUT and SWITCH_SSn
   #define LATCHOUT 8
   #if defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
     #define FLASH_SSn 55

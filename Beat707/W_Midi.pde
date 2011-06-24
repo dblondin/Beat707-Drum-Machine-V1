@@ -1,4 +1,4 @@
-/*
+  /*
 
   Created by Beat707 (c) 2011 - http://www.Beat707.com
   
@@ -21,7 +21,7 @@ void midiTimer()
   }
   
   if (midiClockProcess || midiClockProcessDoubleSteps)
-  {
+  {    
     if (midiClockDirection == 1) midiClockCounter2 = 15-midiClockCounter;
       else if (midiClockDirection == 2) midiClockCounter2 = random(0, 15);
         else midiClockCounter2 = midiClockCounter;        
@@ -33,22 +33,24 @@ void midiTimer()
       uint8_t velocity2 = velocity;
     #endif
     
-    char midiBuffer = 0;
-    if (bufferMIDIpos[0] != 0) midiBuffer = 1;
+    char midiBuffer = 0xFF;
+    if (bufferMIDIpos[0] == 0) midiBuffer = 0;
+      else if (bufferMIDIpos[1] == 0) midiBuffer = 1;
     
     for (char xdtm=0; xdtm<DRUMTRACKS; xdtm++)
     {
       if (bitRead(dmSteps[patternBufferN][xdtm+dBB],midiClockCounter2) && !bitRead(dmMutes,xdtm))
       {
         #if ANALOG_16_IN
-          if (trackVelocity[xdtm] > velocity2) velocity = 0; else velocity = velocity2 - trackVelocity[xdtm];
+          if (trackVelocity[xdtm] > 120) velocity = 127-trackVelocity[xdtm];
+          else if (trackVelocity[xdtm] >= velocity2) velocity = 7; else velocity = velocity2 - trackVelocity[xdtm];
         #endif
         
         #if GATE_OUTS
           Gate_Outs_Midi(xdtm, velocity);
         #else
-          sendMidiNoteOff(dmNotes[xdtm], dmChannel[xdtm], midiBuffer);
-          sendMidiNoteOn(dmNotes[xdtm],velocity, dmChannel[xdtm], midiBuffer);
+        sendMidiNoteOff(dmNotes[xdtm], dmChannel[xdtm], midiBuffer);
+        sendMidiNoteOn(dmNotes[xdtm],velocity, dmChannel[xdtm], midiBuffer);
         #endif
       }
     }
@@ -58,34 +60,33 @@ void midiTimer()
       if (!bitRead(dmMutes,DRUMTRACKS+xdtm))
       {
         #if ANALOG_16_IN
-          if (trackVelocity[DRUMTRACKS+xdtm] > velocity2) velocity = 0; else velocity = velocity2 - trackVelocity[DRUMTRACKS+xdtm];
+          if (trackVelocity[DRUMTRACKS+xdtm] > 120) velocity = 127-trackVelocity[DRUMTRACKS+xdtm];
+          else if (trackVelocity[DRUMTRACKS+xdtm] >= velocity2) velocity = 1; else velocity = velocity2 - trackVelocity[DRUMTRACKS+xdtm];
         #endif
         
         if (dmSynthTrack[xdtm][patternBufferN][midiClockCounter2+dBBs] == 1)
         {
-          sendMidiNoteOff(dmSynthTrackPrevNote[xdtm], dmChannel[DRUMTRACKS+xdtm], midiBuffer);
-          dmSynthTrackPrevNote[xdtm] = 0;
+          if (dmSynthTrackPrevNote[0][xdtm] > 0) sendMidiNoteOff(dmSynthTrackPrevNote[0][xdtm], dmChannel[DRUMTRACKS+xdtm], midiBuffer);
+          if (dmSynthTrackPrevNote[1][xdtm] > 0) sendMidiNoteOff(dmSynthTrackPrevNote[1][xdtm], dmChannel[DRUMTRACKS+xdtm], midiBuffer);
+          dmSynthTrackPrevNote[0][xdtm] = dmSynthTrackPrevNote[1][xdtm] = 0;
         }
         else if (dmSynthTrack[xdtm][patternBufferN][midiClockCounter2+dBBs] > 1)
         {
           if (dmSynthTrack[xdtm][patternBufferN][midiClockCounter2+dBBs] < 128)
           {
-            if (dmSynthTrackPrevNote[xdtm] > 0) sendMidiNoteOff(dmSynthTrackPrevNote[xdtm], dmChannel[DRUMTRACKS+xdtm], midiBuffer);
+            if (dmSynthTrackPrevNote[0][xdtm] > 0) sendMidiNoteOff(dmSynthTrackPrevNote[0][xdtm], dmChannel[DRUMTRACKS+xdtm], midiBuffer);
+            if (dmSynthTrackPrevNote[1][xdtm] > 0) sendMidiNoteOff(dmSynthTrackPrevNote[1][xdtm], dmChannel[DRUMTRACKS+xdtm], midiBuffer);
             sendMidiNoteOn(dmSynthTrack[xdtm][patternBufferN][midiClockCounter2+dBBs]-1,velocity, dmChannel[DRUMTRACKS+xdtm], midiBuffer);
-            dmSynthTrackPrevNote[xdtm] = dmSynthTrack[xdtm][patternBufferN][midiClockCounter2+dBBs]-1;
+            dmSynthTrackPrevNote[0][xdtm] = dmSynthTrack[xdtm][patternBufferN][midiClockCounter2+dBBs]-1;
+            dmSynthTrackPrevNote[1][xdtm] = 0;
           }
           else
           {
+            if (dmSynthTrackPrevNote[1][xdtm] > 0) sendMidiNoteOff(dmSynthTrackPrevNote[1][xdtm], dmChannel[DRUMTRACKS+xdtm], midiBuffer);
             sendMidiNoteOn(dmSynthTrack[xdtm][patternBufferN][midiClockCounter2+dBBs]-1-127,velocity, dmChannel[DRUMTRACKS+xdtm], midiBuffer);
-            if (dmSynthTrackPrevNote[xdtm] > 0) sendMidiNoteOff(dmSynthTrackPrevNote[xdtm], dmChannel[DRUMTRACKS+xdtm], midiBuffer);
-            dmSynthTrackPrevNote[xdtm] = dmSynthTrack[xdtm][patternBufferN][midiClockCounter2+dBBs]-1-127;
+            dmSynthTrackPrevNote[1][xdtm] = dmSynthTrack[xdtm][patternBufferN][midiClockCounter2+dBBs]-1-127;
           }
         }
-      }
-      else if (dmSynthTrackPrevNote[xdtm] > 0) 
-      {
-        sendMidiNoteOff(dmSynthTrackPrevNote[xdtm], dmChannel[DRUMTRACKS+xdtm], midiBuffer);
-        dmSynthTrackPrevNote[xdtm] = 0;
       }
     }
     
@@ -256,13 +257,15 @@ void sendMidiAllNotesOff()
       MSerial.write((byte)0x00);
     }
 
-    if (dmSynthTrackPrevNote[0] > 0) sendMidiNoteOff(dmSynthTrackPrevNote[0], dmChannel[DRUMTRACKS], 0xFF);
-    if (dmSynthTrackPrevNote[1] > 0) sendMidiNoteOff(dmSynthTrackPrevNote[1], dmChannel[DRUMTRACKS+1], 0xFF);
+    if (dmSynthTrackPrevNote[0][0] > 0) sendMidiNoteOff(dmSynthTrackPrevNote[0][0], dmChannel[DRUMTRACKS], 0xFF);
+    if (dmSynthTrackPrevNote[1][0] > 0) sendMidiNoteOff(dmSynthTrackPrevNote[1][0], dmChannel[DRUMTRACKS], 0xFF);
+    if (dmSynthTrackPrevNote[0][1] > 0) sendMidiNoteOff(dmSynthTrackPrevNote[0][1], dmChannel[DRUMTRACKS+1], 0xFF);
+    if (dmSynthTrackPrevNote[1][1] > 0) sendMidiNoteOff(dmSynthTrackPrevNote[1][1], dmChannel[DRUMTRACKS+1], 0xFF);
     
     MSerial.write(0xB0+dmChannel[DRUMTRACKS]); MSerial.write(0x7B); MSerial.write((byte)0x00);
     MSerial.write(0xB0+dmChannel[DRUMTRACKS+1]); MSerial.write(0x7B); MSerial.write((byte)0x00);
     
-    dmSynthTrackPrevNote[0] = dmSynthTrackPrevNote[1] = 0;
+    memset(dmSynthTrackPrevNote,0,sizeof(dmSynthTrackPrevNote));
   #endif
 }
 
@@ -286,12 +289,12 @@ uint8_t midiInput(void)
 
 // ======================================================================================= //
 void midiBufferCheck()
-{
+{ 
   char midiBuffer = -1;
   if (bufferMIDIpos[0] > 0) midiBuffer = 0; else if (bufferMIDIpos[1] > 0) midiBuffer = 1;
   
   if (midiBuffer != -1)
-  {
+  {    
     for (uint8_t bufferOut=0; bufferOut<bufferMIDIpos[midiBuffer]; bufferOut++)
     {
       MSerial.write(bufferMIDI[midiBuffer][bufferOut]);
@@ -308,7 +311,7 @@ void midiInputCheck()
     incomingByte = MSerial.read();
     #if MIDIECHO && !MIDIECHO_BYTRACK
       MSerial.write(incomingByte);
-    #endif 
+    #endif
     
     if (incomingByte == 240)
     {

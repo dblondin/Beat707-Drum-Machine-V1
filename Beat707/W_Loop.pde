@@ -9,8 +9,22 @@
 // ======================================================================================= //
 void loop()
 {
+  #if CHECK_CPU_USAGE
+    checkCPUusage();
+  #endif
+  
+  /*static uint8_t xCCC = 0;
+  xCCC++;
+  if (xCCC > 10)
+  {
+    xCCC = 0;
+    MSerial.print(analog16buttons[0],BIN);
+    MSerial.print(" - ");
+    MSerial.println(analog16buttons[1],BIN);
+  }*/
+    
   midiBufferCheck();
-  midiInputCheck();  
+  midiInputCheck();
   
   // ======================================================================================= //
   if (doLCDupdate || (lastMillisLateLCDupdate > 0 && lastMillisLateLCDupdate < millisNI()))

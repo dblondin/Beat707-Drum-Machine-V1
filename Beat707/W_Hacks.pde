@@ -105,6 +105,20 @@ void Hack_and_Mods_Loop()
       }
     }
   #endif
+  
+  // ======================================================================================= //    
+  #if ANALOG_16_IN
+    for (char x=0; x<2; x++)
+    {
+      while (globalEncoder[0][x] > 0)
+      {
+        multiButton = 3+x;
+        globalEncoder[0][x]--;
+        InterfaceButtons();
+      }
+    }
+  #endif
+  
 }
 
 // ======================================================================================= //    
@@ -137,7 +151,19 @@ void Hack_and_Mods_Loop()
   }
 #endif
 
+
 #if EXTRA_8_BUTTONS
+  #if ANALOG_16_IN
+    uint8_t doclearupPrevAV = 0;
+    void clearupPrevAnalogValues()
+    {
+      if (doclearupPrevAV == 1)
+      {
+        doclearupPrevAV = 0;
+        memset(prevAnalogValues,-2,sizeof(prevAnalogValues));
+      }
+    }
+  #endif
   // ======================================================================================= //
   /*
     Extra 8 Buttons User Interface (only used if EXTRA_8_BUTTONS is set to 1)
@@ -150,28 +176,63 @@ void Hack_and_Mods_Loop()
     {  
       // ------------------------------- Button 1 ------------------------------- //
       case 21:
-        if (!holdingButton)
-        {
-          if (midiClockRunning) multiButton = 0; // Stop //
-            else multiButton = 1; // Play //
-        
-          InterfaceButtons();
-        }
+        #if ANALOG_16_IN
+          if (!holdingButton)
+          {
+            if (analog16mode[0] == B10000000) { doclearupPrevAV = 1; currentTrack = 0; }
+            analog16mode[0] = B10000000;
+            doLCDupdate = 1;
+            clearupPrevAnalogValues();
+          }
+        #endif
       break;
       
       // ------------------------------- Button 2 ------------------------------- //
       case 22:
-        // User Code Here //
+        #if ANALOG_16_IN
+          if (!holdingButton)
+          {
+            if (analog16mode[0] == B01000000) doclearupPrevAV = 1;
+            currentTrack = DRUMTRACKS;
+            analog16mode[0] = B01000000;
+            doLCDupdate = 1;
+            clearupPrevAnalogValues();
+          }
+        #endif
       break;
       
       // ------------------------------- Button 3 ------------------------------- //
       case 23:
-        // User Code Here //
+        #if ANALOG_16_IN
+          if (!holdingButton)
+          {
+            if (analog16mode[0] == B00100000) doclearupPrevAV = 1;
+            currentTrack = DRUMTRACKS+1;
+            analog16mode[0] = B00100000;
+            doLCDupdate = 1;
+            clearupPrevAnalogValues();
+          }
+        #endif
       break;
       
       // ------------------------------- Button 4 ------------------------------- //
       case 24:
-        // User Code Here //
+        #if ANALOG_16_IN
+          if (!holdingButton)
+          {
+            if (analog16Octave == 36)
+            {
+              analog16Octave = 60; 
+              analog16mode[1] = B00010000;
+            }
+            else
+            {
+              analog16Octave = 36;
+              analog16mode[1] = B00000000;
+            }
+            doLCDupdate = 1;
+          }
+        #endif
       break;
       
       // ------------------------------- Button 5 ------------------------------- //

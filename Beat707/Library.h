@@ -27,7 +27,7 @@
     volatile uint8_t *out = portOutputRegister(digitalPinToPort(pin));
     if (val == LOW) *out &= ~digitalPinToBitMask(pin); else *out |= digitalPinToBitMask(pin);
   }
-  
+    
   int digitalReadW(uint8_t pin)
   {
     if (*portInputRegister(digitalPinToPort(pin)) & digitalPinToBitMask(pin)) return HIGH;
@@ -40,6 +40,63 @@
     if (mode == INPUT) *reg &= ~digitalPinToBitMask(pin); else *reg |= digitalPinToBitMask(pin);
   }
   
+   // Digital Pin 8 //  
+  #if defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
+    #define setLatchHigh() PORTH |= B00100000
+    #define setLatchLow() PORTH &= B11011111
+  #else
+    #define setLatchHigh() PORTB |= B00000001
+    #define setLatchLow() PORTB &= B11111110
+  #endif
+  
+   // Digital Pin 2 //  
+  #if defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
+    #define setFadersLatchHigh() PORTE |= B00010000
+    #define setFadersLatchLow() PORTE &= B11101111
+  #else
+    #define setFadersLatchHigh() PORTD |= B00000100
+    #define setFadersLatchLow() PORTD &= B11111011
+  #endif
+  
+  // Digital Pin 16 (Arduino Mega = 56) //
+  #if defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
+    #define setSwitchHigh() PORTF |= B00000100
+    #define setSwitchLow() PORTF &= B11111011
+  #else
+    #define setSwitchHigh() PORTC |= B00000100
+    #define setSwitchLow() PORTC &= B11111011
+  #endif
+  
+  // ======================================================================================= //
+  // The Following is to implement millis() and delay() without messing up with the midi clock interrupt calls //
+  extern volatile unsigned long timer0_millis;
+  unsigned long millisNI(void) { return timer0_millis; }
+  extern void midiBufferCheck();
+  extern void midiInputCheck();
+  void delayNI(unsigned long ms) 
+  {
+    unsigned long endtime;
+    endtime = timer0_millis + ms;
+    while (((long)endtime - (long)timer0_millis) > 0)
+    {
+      midiBufferCheck();
+      #if MIDIECHO || EXTRA_MIDI_IN_HACKS
+        midiInputCheck();
+      #endif
+    }
+  }
+  
+  // ======================================================================================= //
+  #if ANALOG_16_IN
+    #define analogReadA0Start() (_SFR_BYTE(ADCSRA) |= _BV(ADSC)) // start the conversion   
+    uint8_t low, high = 0;
+    int analogReadCheck()
+    {
+      if (bit_is_set(ADCSRA, ADSC)) return -1;  
+      low = ADCL; high = ADCH;
+      return (high << 8) | low;
+    }
+  #endif  
 #endif
 
 // ======================================================================================= //
@@ -235,11 +292,11 @@ void WLCD::write4bits(uint8_t value) {
 #ifndef TwoWire_h
 #define TwoWire_h
 
-#define BUFFER_LENGTH 132
+#define BUFFER_LENGTH 69
 
 class TwoWire
 {
-  private:
+  public:
     static uint8_t rxBuffer[];
     static uint8_t rxBufferIndex;
     static uint8_t rxBufferLength;
@@ -254,7 +311,7 @@ class TwoWire
     static void (*user_onReceive)(int);
     static void onRequestService(void);
     static void onReceiveService(uint8_t*, int);
-  public:
+
     TwoWire();
     void begin();
     void begin(uint8_t);
@@ -292,7 +349,7 @@ extern TwoWire Wire;
   #endif
 
   #ifndef TWI_BUFFER_LENGTH
-  #define TWI_BUFFER_LENGTH 132
+  #define TWI_BUFFER_LENGTH 69
   #endif
 
   #define TWI_READY 0
@@ -1099,3 +1156,50 @@ void SPIClass::setClockDivider(uint8_t rate)
 }
 
 // ======================================================================================= //
+
+#ifndef WDEXTRATWO_h
+#define WDEXTRATWO_h
+  #if CHECK_CPU_USAGE
+    unsigned long xCPUusageCounter[2] = {0,0};
+    unsigned long xCPUusageTotal = 999;
+    unsigned long xCPUusageMillS = 0;  
+    extern WLCD lcd;
+    extern void lcdPrintString(char* string);
+    extern void lcdPrintNumber3Dgts(uint8_t number);
+    void checkCPUusage()
+    {
+      if (xCPUusageMillS != 0 && (millisNI()-xCPUusageMillS) >= 1000)
+      {
+        unsigned long xTot = xCPUusageTotal;
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcdPrintString("CPU: ");
+        float xCPU = float(xTot)/10000.0f;
+        uint8_t xCPUint = (uint8_t)xCPU;
+        uint8_t xCPUfrac = (uint8_t)((xCPU-float(xCPUint))*1000.0f);
+        lcdPrintNumber3Dgts(xCPUint);
+        lcdPrintString(".");
+        lcdPrintNumber3Dgts(xCPUfrac);
+        lcdPrintString("%");
+        xCPUusageMillS = 0;
+        delayNI(1000);
+      }
+    }
+    #define CHECK_CPU_START if (xCPUusageMillS == 0 && xCPUusageTotal == 0) xCPUusageMillS = millisNI(); xCPUusageCounter[0] = microsNI();
+    #define CHECK_CPU_END xCPUusageCounter[1] = microsNI(); xCPUusageTotal += xCPUusageCounter[1]-xCPUusageCounter[0];
+    
+    extern unsigned long timer0_overflow_count;
+    unsigned long microsNI() 
+    {
+      unsigned long m;
+      m = timer0_overflow_count;
+      uint8_t t = TCNT0;
+      #ifdef TIFR0
+      	if ((TIFR0 & _BV(TOV0)) && (t < 255)) m++;
+      #else
+      	if ((TIFR & _BV(TOV0)) && (t < 255)) m++;
+      #endif	
+      return ((m << 8) + t) * (64 / clockCyclesPerMicrosecond());
+    }
+  #endif  
+#endif

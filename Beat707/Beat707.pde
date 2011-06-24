@@ -2,10 +2,7 @@
 
   Created by Beat707 (c) 2011 - http://www.Beat707.com
 
-  Main File for Variable Declaration and Setup - May 23 2011 - Version 1.3.0
-  
-  Flash 27240 / 27118 / 27096
-  
+  Main File for Variable Declaration and Setup - June 23 2011 - Version 1.4.2
 
 */
 
@@ -47,7 +44,7 @@ unsigned int dmSteps[2][(DRUMTRACKS+2)*4]; // [currentPattern/nextPattern][track
 unsigned int dmMutes;
 uint8_t dmSynthTrack[2][2][64]; // [track#][pattern_loaded/loading][steps]
 uint8_t dmSynthTrackStepPos[2] = {0,0}; // Pattern A|B / Position - as in [0] = 0~1 - [1] = 0~15
-uint8_t dmSynthTrackPrevNote[2] = {0,0};
+uint8_t dmSynthTrackPrevNote[2][2] = { {0,0} , {0,0} };
 uint8_t dmSynthTrackLastNoteEdit[2] = {61,61};
 
 // Song //
@@ -71,11 +68,13 @@ uint8_t nextMode = 0; // Used by the interface when selecting a new mode
 
 // Other Variables //
 uint8_t wireBufferCounter = 0; // Used with the Wire Library to send 64 bytes of data at once to the EEPROM
-extern volatile unsigned long timer0_millis;
 int newNote = 0; // Used by the S1/S2 Up/Down editor
 char externalMIDIportSelector = 0; // from the external USB to MIDI Converter
 uint8_t bufferMIDI[2][(DRUMTRACKS+2)*2*3]; // Number of DrumTracks + S1/S2 Tracks x 2 (noteon/off) x 3 bytes
-uint8_t bufferMIDIpos[2] = {0,0}; 
+uint8_t bufferMIDIpos[2] = {0,0};
+#if MANAGER_DUMP_RECV
+  uint8_t numerOfSongsOnFlashMemory = 0;
+#endif
 
 // Hack & Mods //
 #if ENCODER_INPUT 
@@ -99,18 +98,27 @@ uint8_t bufferMIDIpos[2] = {0,0};
   unsigned long gateOutDelay[3] = {0,0,0};
 #endif
 #if ANALOG_16_IN
-  uint8_t analog16multiplex[2] = {0,0};
+  uint8_t analog16multiplex, analog16Counter, readAnalogValueMode = 0; 
   uint8_t trackVelocity[16];
+  uint8_t analog16mode[2], analog16Octave;
+  int analogValue;
+  int prevAnalogValues[16];
+  unsigned long encoderMillis[6] = {0,0,0,0,0,0};
+  char globalEncoder[6][2] = {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}};
+  char analog16PrevEnc[6] = {0,0,0,0,0,0};
+  uint8_t analog16buttons[2] = {0,0};
 #endif
 
 // ======================================================================================= //
 void sysInit()
 {
   #if ANALOG_16_IN
-    memset(trackVelocity,127,sizeof(trackVelocity));
-    analog16multiplex[0] = analog16multiplex[1] = 0;
-    bitSet(analog16multiplex[1],3);
-    bitClear(analog16multiplex[1],4);
+    memset(trackVelocity,0,sizeof(trackVelocity));
+    memset(prevAnalogValues,-1,sizeof(prevAnalogValues));
+    analog16multiplex = analogValue = 0;
+    analog16mode[0] = B10000000;
+    analog16mode[1] = B00000000;
+    analog16Octave = 36;
   #endif
   memset(dmSteps,0,sizeof(dmSteps));
   memset(dmChannel,9,sizeof(dmChannel));  
@@ -153,7 +161,7 @@ void sysInit()
 
 // ======================================================================================= //
 void setup() 
-{
+{  
   pinModeW(MIDI_ENn,OUTPUT);
     
   // Uses the Analog Input for the Random Numbers Seed
@@ -185,7 +193,9 @@ void setup()
   #endif
   #if ANALOG_16_IN
     pinModeW(2, OUTPUT);
+    pinModeW(3, OUTPUT);
     digitalWriteW(2, LOW);
+    digitalWriteW(3, HIGH);
   #endif
   
   pinModeW(LATCHOUT, OUTPUT);  digitalWriteW(LATCHOUT, LOW);
@@ -198,13 +208,18 @@ void setup()
    
   SPI.begin();
   SPI.setDataMode(SPI_MODE0);
+  SPI.setClockDivider(SPI_CLOCK_DIV8);
   Wire.begin();
     
   lcd.begin();
   lcd.createChar(LcdCursors);
 
-  flashInit();  
+  flashInit();
   sysInit();
+
+  startLEDsAndButtonsTimer();
+  enableButtonsAndLEDs = 1;
+  
   storageInit(0);
   loadSetup();
   if (curMode == 0) loadPattern(0); else if (curMode == 1) loadSongPosition();
@@ -225,28 +240,19 @@ void setup()
     else updateLCDFile();  
   
   sendMidiAllNotesOff();
-  startLEDsAndButtonsTimer();
-  enableButtonsAndLEDs = 1;
   
   #if SHOWFREEMEM
     lcd.clear();
     lcdPrintString("Free Mem: ");
     lcdPrintNumber3Dgts(freeMemory());
-  #endif  
-}
-
-// ======================================================================================= //
-// The Following is to implement millis() and delay() without messing up with the midi clock interrupt calls //
-unsigned long millisNI(void) { return timer0_millis; }
-void delayNI(unsigned long ms) 
-{
-  unsigned long endtime;
-  endtime = timer0_millis + ms;
-  while (((long)endtime - (long)timer0_millis) > 0)
-  {
-    midiBufferCheck();
-    #if MIDIECHO || EXTRA_MIDI_IN_HACKS
-      midiInputCheck();
-    #endif
-  }
+  #endif
+  
+  #if MANAGER_DUMP_RECV
+    for (char xs=0; xs<MAXSONGSFILE; xs++)
+    {
+      fileSelected = xs;
+      if (checkSong()) numerOfSongsOnFlashMemory++;
+    }
+    fileSelected = 0;
+  #endif
 }

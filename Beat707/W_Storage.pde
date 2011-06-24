@@ -418,7 +418,7 @@ void songDumpReceive(void)
       #if !MIDIECHO
         MSerial.write(240);
       #endif
-      MSerial.write('B'); MSerial.write('7'); MSerial.write('0'); MSerial.write('7');
+      MSerial.write('B'); MSerial.write('7'); MSerial.write('0'); MSerial.write('7'); MSerial.write(numerOfSongsOnFlashMemory);
       #if !MIDIECHO
         MSerial.write(247);
       #endif
@@ -432,21 +432,79 @@ void songDumpReceive(void)
       if (midiInput() == 0x01) procSongsToo = 1;
       lcd.clear();
       lcd.setCursor(2,0);
-      lcdPrint(PROCESSING);      
+      lcdPrint(PROCESSING);
+      stepLEDs[0] = stepLEDs[1] = stepLEDs[2] = 0;
       // Selects Beat707 Manager Dump Mode - Dumps via Serial all Machine Data for Backup on a Computer (both EEPROM and Nand Flash)
       #if !MIDIECHO
         MSerial.write(240);
       #endif
-      delayNI(10);      
-      for (unsigned int q=0; q<32768; q++) { MSerial.write(EEPROM_READ(q)); }
+      delayNI(10);
+      rawMIDImode = 1;
+      uint16_t checkData = 0;
+      uint8_t tempData = 0;
+      // Send EEPROM Data First //
+      for (unsigned int q=0; q<23296; q += 64) 
+      { 
+        checkData = 0;
+        wireBeginTransmission(q);
+        Wire.endTransmission();
+        Wire.requestFrom(0x50,64);
+        for (char q=0; q<64; q++) 
+        { 
+          tempData = Wire.receive();
+          MSerial.write(tempData);
+          checkData += tempData;
+        }
+        MSerial.write((checkData/64));
+        if (midiInput() != 0x00)
+        {
+          MSerial.write(247);
+          rawMIDImode = 0;
+          doLCDupdate = 1;
+          return;            
+        }
+      }
+      
+      // Now, if asked for, send Flash Data //
       if (procSongsToo == 1)
       {
-        flashReadInit(0);
-        for (unsigned long q=0; q<524288; q++) { MSerial.write(flashReadNext()); }
-        flashReadFinish();
+        for (char xs=0; xs<MAXSONGSFILE; xs++)
+        {
+          fileSelected = xs;
+          if (checkSong())
+          {
+            flashReadInit(fileSelected*6);
+            MSerial.write(0xFF); // New Song Data
+            midiInput(); // Wait
+            for (char x=0; x<14; x++) { MSerial.write(flashReadNext()); }
+            midiInput(); // Wait
+            for (unsigned long q=0; q<23296; q += 64)
+            {
+              checkData = 0;
+              for (char x=0; x<64; x++)
+              {
+                tempData = flashReadNext();
+                MSerial.write(tempData);
+                checkData += tempData;
+              }
+              MSerial.write((checkData/64));
+              if (midiInput() != 0x00)
+              {
+                MSerial.write(247);
+                rawMIDImode = 0;
+                doLCDupdate = 1;
+                return;            
+              }              
+            }
+            flashReadFinish();
+          }
+        }
+        fileSelected = 0;
+        MSerial.write(0x25); // End Songs
       }
+      
+      rawMIDImode = 0;
       MSerial.write(247);
-      lcdOK();
       doLCDupdate = 1;
       return;
     }
@@ -459,26 +517,90 @@ void songDumpReceive(void)
       lcd.clear();
       lcd.setCursor(2,0);
       lcdPrint(PROCESSING);
+      stepLEDs[0] = stepLEDs[1] = stepLEDs[2] = 0;
       #if !MIDIECHO
         MSerial.write(240);
       #endif
       // Selects Beat707 Manager Receive Mode - Receives via Serial all Machine Data for Backup from a Computer (both EEPROM and Nand Flash)
-      while (address < 32768)  
+      uint16_t checkData = 0;
+      while (address < 23296)
       {
         // First EEPROM //
         midiInput();
         if (wireBufferCounter == 0) wireBeginTransmission(address);
         Wire.send(incomingByte);
         wireBufferCounter++;
-        wireWrite64check(true);
+        checkData += incomingByte;
+        if (wireBufferCounter == 64)
+        {
+          wireWrite64check(true);
+          MSerial.write(checkData/64);
+          checkData = 0;
+        }
         address++;
-        MSerial.write(incomingByte);
       }
       wireWrite64check(false);
+            
+      if (procSongsToo == 1)
+      {
+        wireBufferCounter = 0;
+        uint8_t startFirst = 1;
+        uint8_t fileCounter = 0;
+        checkData = 0;
+        
+        if (midiInput() == 0x00)
+        {
+          flashTotalErase();
+          delayNI(1000);
+          MSerial.write((byte)0x00);
+          
+          while (1)
+          {
+            fileSelected = fileCounter;
+            address = 0;
+            wireBufferCounter = 0;
+            while (1)
+            {
+              TwoWire::rxBuffer[wireBufferCounter] = midiInput();
+              wireBufferCounter++;
+              if (wireBufferCounter == 14)
+              {
+                flashPageWriteInit(fileSelected*6, TwoWire::rxBuffer[0], TwoWire::rxBuffer[1]);
+                for (char x=0; x<12; x+=2) flashPageWriteNext(TwoWire::rxBuffer[x+2], TwoWire::rxBuffer[x+3]);
+                MSerial.write((byte)0x00);
+                break;
+              }
+            }
+            wireBufferCounter = 0;
+            while (1)
+            {
+              TwoWire::rxBuffer[wireBufferCounter] = midiInput(); // here we re-used the 2Wire buffer to keep memory usage lower
+              checkData += incomingByte;
+              wireBufferCounter++;
+              if (wireBufferCounter == 64)
+              {
+                for (char x=0; x<64; x+=2) { flashPageWriteNext(TwoWire::rxBuffer[x], TwoWire::rxBuffer[x+1]); }
+                MSerial.write(checkData/64);
+                checkData = 0;
+                address += 64;
+                wireBufferCounter = 0;
+                if (address == 23296) break;
+              }
+            }
+            flashPageWriteFinish();
+            fileCounter++;
+            if (midiInput() == 0xFF) break;
+          }
+          fileSelected = 0;
+        }
+      }
+      
       // End //
       MSerial.write(247);
-      lcdOK();
       rawMIDImode = 0;
+      currentPattern = 0;
+      loadPattern(false);
+      patternBufferN = !patternBufferN;      
       doLCDupdate = 1;
       return;
     }

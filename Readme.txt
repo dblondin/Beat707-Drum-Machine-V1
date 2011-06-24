@@ -98,3 +98,11 @@ May 23 2011 - Version 1.3.0
 - Added ANALOG_16_IN to Config.h (Off by Default) - Ads extra code that reads 16 Analog Pots/Faders for each Track Volume - this setup uses SPI, a Multiplexer and a special hardware configuration. (schematics will be released soon)
 
 ---------------------------------------------------------------------------------
+
+June 23 2011 - Version 1.4.2
+
+- New Beat707 Manager code, to be used with an extra application made with Processing
+- Updated SPI speed to DIV8
+- NEw ANALOG_16_IN code for the future Beat707 XT project
+
+---------------------------------------------------------------------------------
