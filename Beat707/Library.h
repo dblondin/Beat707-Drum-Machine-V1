@@ -292,7 +292,7 @@ void WLCD::write4bits(uint8_t value) {
 #ifndef TwoWire_h
 #define TwoWire_h
 
-#define BUFFER_LENGTH 69
+#define BUFFER_LENGTH 132
 
 class TwoWire
 {
@@ -349,7 +349,7 @@ extern TwoWire Wire;
   #endif
 
   #ifndef TWI_BUFFER_LENGTH
-  #define TWI_BUFFER_LENGTH 69
+  #define TWI_BUFFER_LENGTH 132
   #endif
 
   #define TWI_READY 0
