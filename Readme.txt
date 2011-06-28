@@ -88,7 +88,6 @@ May 14 2011 - Version 1.2.4
 May 23 2011 - Version 1.3.0
 
 - New LEDs Code - Adds 3 levels of light on each LED, so you can see if the current step velocity is low, medium or high. Internally we used Timer2 to do a fast PWM on all LEDs, and a MIDI Output buffer so any MIDI does not delays the LEDs PWM interrupt; this is done via the bufferMIDI variable. Be sure to read the description of LEDS_PWM_A1 and LEDS_PWM_A2 in the Config.h file, as those two values determinates how the LED PWM code works.
-- Added MIDI_SYSEX_DMP_RC to Config.h - When enabled, adds code to Dump and Receive MIDI System Exclusive Data (SysEX) via MIDI.
 - Added INI_PATT_FULL_ACNT to Config.h - During Pattern Initialization both Accents tracks will be set to either full-value or the values set via the INI_PATT_USER_V option. (be sure to read the description of the INI_PATT_USER_V)
 - A few bugs related to the LED Transport and Song Saving/Erasing were fixed.
 - Several areas of the code were optimized for lower flash-program usage. The resulting code is actually larger, as we need to add more code to accomodate the LED PWM Timer and Interrupts.
@@ -100,7 +99,7 @@ May 23 2011 - Version 1.3.0
 
 June 28 2011 - Version 1.4.2
 
-- New Beat707 Manager code, to be used with an extra application made with Processing
+- New Beat707 Manager code, to be used with an extra application made with Processing (this replaces all previous SysEx Dump/Receive)
 - Added a new option to Config.h - #define SPI_CLOCK_SPEED - SPI Clock Speed - usually 0x00 (DIV4), but some Arduino boards may only work at 0x05 (DIV8)
 
 ---------------------------------------------------------------------------------

@@ -62,11 +62,7 @@ void InterfaceTickFile()
       else if (curZone == 1)
       {
         fileMode++;
-        #if MIDI_SYSEX_DMP_RC
-          if (fileMode > 3) fileMode = 0;
-        #else
-          if (fileMode > 2) fileMode = 0;
-        #endif
+        if (fileMode > 2) fileMode = 0;
       }
       else if (curZone == 3)
       {
@@ -104,11 +100,7 @@ void InterfaceTickFile()
       else if (curZone == 1)
       {
         fileMode--;
-        #if MIDI_SYSEX_DMP_RC
-          if (fileMode == 255) fileMode = 3;
-        #else
-          if (fileMode == 255) fileMode = 2;
-        #endif
+        if (fileMode == 255) fileMode = 2;
       }
       else if (curZone == 3)
       {
@@ -213,9 +205,6 @@ void shiftAction()
       if (fileMode == 0) songLoad();
         else if (fileMode == 1) songSave();
         else if (fileMode == 2) songErase();
-        #if MIDI_SYSEX_DMP_RC
-          else songDump();
-        #endif
       
       lcdOK();
       loadSongName();

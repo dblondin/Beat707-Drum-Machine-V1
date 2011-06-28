@@ -30,9 +30,6 @@ void updateLCDFile()
     if (fileMode == 0) lcdPrint(LOAD);
       else if (fileMode == 1) lcdPrint(SAVE);
       else if (fileMode == 2) lcdPrint(ERASE);
-      #if MIDI_SYSEX_DMP_RC
-        else lcdPrint(DUMP);
-      #endif
     lcdPrintEmptyChars(2);
       
     lcd.setCursor(0,1);
