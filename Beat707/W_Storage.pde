@@ -220,14 +220,9 @@ void storageInit(uint8_t forceInit)
     lcd.setCursor(0,0);
     lcdPrint(INIT_STARTING);
     lcd.setCursor(7,1); lcd.write('3');
-  
-    // Init Storage //   
-    for (char q=0; q<prePosLS; q++) { EEPROM_WRITE(q,0); }
-    EEPROM_WRITE(0,'B');
-    EEPROM_WRITE(0,'7');
-    EEPROM_WRITE(0,'0');
-    EEPROM_WRITE(0,'7');
-    EEPROM_WRITE(7,SONG_VERSION);
+    
+    // Init Variables //
+    sysInit();
 
     // Save Setup //
     saveSetup();

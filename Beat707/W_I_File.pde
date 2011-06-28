@@ -175,7 +175,7 @@ void shiftButtonFile()
 void shiftAction()
 {
   if (curZone == 5) loadNextMode();
-  else if (curZone == 4) { sysInit(); storageInit(true); curZone = curMode = nextMode = 0; doLCDupdate = 1; }
+  else if (curZone == 4) { storageInit(true); curZone = curMode = nextMode = 0; doLCDupdate = 1; }
   else if (curZone == 2) { curZone = 10; lcd.cursor(); updateLCDFile(); }
   else if (curZone == 10)
   { 
