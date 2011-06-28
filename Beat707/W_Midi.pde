@@ -29,9 +29,6 @@ void midiTimer()
     uint8_t dBB = (((DRUMTRACKS+2)*midiClockProcessDoubleSteps)+(((DRUMTRACKS+2)*2)*stepsPos));
     uint8_t dBBs = ((16*midiClockProcessDoubleSteps)+(32*stepsPos));    
     uint8_t velocity = 87+(bitRead(dmSteps[patternBufferN][DRUMTRACKS+dBB],midiClockCounter2)*20)+(bitRead(dmSteps[patternBufferN][DRUMTRACKS+1+dBB],midiClockCounter2)*20);
-    #if ANALOG_16_IN
-      uint8_t velocity2 = velocity;
-    #endif
     
     char midiBuffer = 0xFF;
     if (bufferMIDIpos[0] == 0) midiBuffer = 0;
@@ -40,12 +37,7 @@ void midiTimer()
     for (char xdtm=0; xdtm<DRUMTRACKS; xdtm++)
     {
       if (bitRead(dmSteps[patternBufferN][xdtm+dBB],midiClockCounter2) && !bitRead(dmMutes,xdtm))
-      {
-        #if ANALOG_16_IN
-          if (trackVelocity[xdtm] > 120) velocity = 127-trackVelocity[xdtm];
-          else if (trackVelocity[xdtm] >= velocity2) velocity = 7; else velocity = velocity2 - trackVelocity[xdtm];
-        #endif
-        
+      {        
         #if GATE_OUTS
           Gate_Outs_Midi(xdtm, velocity);
         #else
@@ -58,12 +50,7 @@ void midiTimer()
     for (char xdtm=0; xdtm<2; xdtm++)
     {
       if (!bitRead(dmMutes,DRUMTRACKS+xdtm))
-      {
-        #if ANALOG_16_IN
-          if (trackVelocity[DRUMTRACKS+xdtm] > 120) velocity = 127-trackVelocity[DRUMTRACKS+xdtm];
-          else if (trackVelocity[DRUMTRACKS+xdtm] >= velocity2) velocity = 1; else velocity = velocity2 - trackVelocity[DRUMTRACKS+xdtm];
-        #endif
-        
+      {        
         if (dmSynthTrack[xdtm][patternBufferN][midiClockCounter2+dBBs] == 1)
         {
           if (dmSynthTrackPrevNote[0][xdtm] > 0) sendMidiNoteOff(dmSynthTrackPrevNote[0][xdtm], dmChannel[DRUMTRACKS+xdtm], midiBuffer);

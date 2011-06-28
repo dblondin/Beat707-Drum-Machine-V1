@@ -49,15 +49,6 @@
     #define setLatchLow() PORTB &= B11111110
   #endif
   
-   // Digital Pin 2 //  
-  #if defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
-    #define setFadersLatchHigh() PORTE |= B00010000
-    #define setFadersLatchLow() PORTE &= B11101111
-  #else
-    #define setFadersLatchHigh() PORTD |= B00000100
-    #define setFadersLatchLow() PORTD &= B11111011
-  #endif
-  
   // Digital Pin 16 (Arduino Mega = 56) //
   #if defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
     #define setSwitchHigh() PORTF |= B00000100
@@ -85,18 +76,6 @@
       #endif
     }
   }
-  
-  // ======================================================================================= //
-  #if ANALOG_16_IN
-    #define analogReadA0Start() (_SFR_BYTE(ADCSRA) |= _BV(ADSC)) // start the conversion   
-    uint8_t low, high = 0;
-    int analogReadCheck()
-    {
-      if (bit_is_set(ADCSRA, ADSC)) return -1;  
-      low = ADCL; high = ADCH;
-      return (high << 8) | low;
-    }
-  #endif  
 #endif
 
 // ======================================================================================= //

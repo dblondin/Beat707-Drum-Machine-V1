@@ -2,7 +2,7 @@
 
   Created by Beat707 (c) 2011 - http://www.Beat707.com
 
-  Main File for Variable Declaration and Setup - June 23 2011 - Version 1.4.2
+  Main File for Variable Declaration and Setup - June 28 2011 - Version 1.4.2
 
 */
 
@@ -77,7 +77,7 @@ uint8_t bufferMIDIpos[2] = {0,0};
 #endif
 
 // Hack & Mods //
-#if ENCODER_INPUT 
+#if ENCODER_INPUT
   void EncoderChange();
   char globalEncoder[2] = {0,0};
   char enCval1,enCval2,enColdVal1,enColdVal2=1;
@@ -97,29 +97,10 @@ uint8_t bufferMIDIpos[2] = {0,0};
 #if GATE_OUTS
   unsigned long gateOutDelay[3] = {0,0,0};
 #endif
-#if ANALOG_16_IN
-  uint8_t analog16multiplex, analog16Counter, readAnalogValueMode = 0; 
-  uint8_t trackVelocity[16];
-  uint8_t analog16mode[2], analog16Octave;
-  int analogValue;
-  int prevAnalogValues[16];
-  unsigned long encoderMillis[6] = {0,0,0,0,0,0};
-  char globalEncoder[6][2] = {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}};
-  char analog16PrevEnc[6] = {0,0,0,0,0,0};
-  uint8_t analog16buttons[2] = {0,0};
-#endif
 
 // ======================================================================================= //
 void sysInit()
 {
-  #if ANALOG_16_IN
-    memset(trackVelocity,0,sizeof(trackVelocity));
-    memset(prevAnalogValues,-1,sizeof(prevAnalogValues));
-    analog16multiplex = analogValue = 0;
-    analog16mode[0] = B10000000;
-    analog16mode[1] = B00000000;
-    analog16Octave = 36;
-  #endif
   memset(dmSteps,0,sizeof(dmSteps));
   memset(dmChannel,9,sizeof(dmChannel));  
   dmChannel[DRUMTRACKS] = 0;
@@ -189,13 +170,7 @@ void setup()
     digitalWriteW(2, HIGH);
     digitalWriteW(3, HIGH);
     attachInterrupt(0, EncoderChange, CHANGE);
-    attachInterrupt(1, EncoderChange, CHANGE);
-  #endif
-  #if ANALOG_16_IN
-    pinModeW(2, OUTPUT);
-    pinModeW(3, OUTPUT);
-    digitalWriteW(2, LOW);
-    digitalWriteW(3, HIGH);
+    attachInterrupt(1, EncoderChange, CHANGE);    
   #endif
   
   pinModeW(LATCHOUT, OUTPUT);  digitalWriteW(LATCHOUT, LOW);
@@ -208,7 +183,7 @@ void setup()
    
   SPI.begin();
   SPI.setDataMode(SPI_MODE0);
-  SPI.setClockDivider(SPI_CLOCK_DIV8);
+  SPI.setClockDivider(SPI_CLOCK_SPEED);
   Wire.begin();
     
   lcd.begin();

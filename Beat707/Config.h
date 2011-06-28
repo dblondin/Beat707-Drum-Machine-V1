@@ -13,11 +13,11 @@
   #define MAXSONGPOS 99         // By changing any of those 2 settings you will need to re-do the Storage code sizes definitions for patterns, setup and song storage
   #define MAXSPATTERNS 90       // Check W_Storage to see the size of each pattern, so you know how many patterns you can store on an EEPROM chip
   #define MAXSONGSFILE 21       // Used by the Flash Storage, to determinate how many songs the Flash memory can hold (see W_Storage)
-  #define MIDIECHO 1            // Copies all Midi Input to the Midi Output
+  #define MIDIECHO 0            // Copies all Midi Input to the Midi Output
     #define MIDIECHO_BYTRACK 0  // If set in conjunction with MIDIECHO, notes will be translated to the current selected track channel
 
   // ===================================================================================================================================================================== // 
-  // List of possible Hacks and Mods - Note: ANALOG_INPUT_A0, GATE_OUTS, ANALOG_16_IN and ENCODER_INPUT can be used only one at a time (as they use the same pins)
+  // List of possible Hacks and Mods - Note: ANALOG_INPUT_A0, GATE_OUTS and ENCODER_INPUT can be used only one at a time (as they use the same pins)
   // Most functions are set in the W_Hacks Tab and used in the W_Loop and W_Midi Tabs
   #define ANALOG_INPUT_A0 0     // Reads the analog input A0 (D14 on the Beat707 SV2 Headers) for multiple options (also uses ANALOG_PATT_MAX and ANALOG_MDLY below)
     #define ANALOG_INPUT_BT 0   // When Enabled in conjunction with ANALOG_INPUT_A0, it will only work if a button is attached and pressed on Digital Pin 2 (S2 on Beat707 SV3 Headers) Pull-Up Resistors internally used, so all you need to do is attach a regular button to the port and connect the button to ground.
@@ -27,17 +27,14 @@
     #define GATE_OUTS_TIME 15   // Time of the Gate Trig (from High to Low)
   #define ENCODER_INPUT 0       // When set, it will setup and read an endless encoder on pins D2 and D3. (see Header SV3) The encoder will act as an Up and Down button, therefore, working on anywhere in the interface where Up and Down strokes can be used to tweak values. Currently speed is not been detected, but this could change in the future
     #define ENCODER_SPEED 1     // When set, it will detect the speed of the encoder movement and apply changes faster or slower
-  #define ANALOG_16_IN 0        // Ads extra code that reads 16 Analog Pots/Faders for each Track Volume - this setup uses SPI, a Multiplexer and a special hardware configuration. Note that by using this feature, you won't be able to use analogRead() in any part of the code, as this is hardcoded to pin A0 in the Timer2 process.
-    #define ANALOG_16_SENS 4    // Analog Input Sensitivity (0 for high, 2 for medium, 4 for normal, 8 for normal, 12 for low, 20 for very low) This determinates how much you need to move a Fader or Potentiometer before the code will use the new value.
-    #define ANALOG_16_LAG 2     // Increasing this will reduce CPU usage but will add latency to any analog input. Value 2 should be the min.
   #define EXTRA_8_BUTTONS 0     // Will use the extra 8 buttons input header to read 8 inputs (no need for pull-up/down resistors, the hardware already has it) and call user-code that can be written on the W_Hacks tab. By default, J1 is for sequencer play / stop.
-  #define MIDI_INPUT_REC 0      // Adds extra code for when Record is pressed in Pattern Mode - Input MIDI Notes will be added to the current playing steps. (Omni MIDI Channel)
-  #define MIDI_INPUT_ST 0       // Midi Note Input to Tracks S1/S2 - this allows you to manipulate the 2x synth tracks directly from a Midi Keyboard (Omni MIDI Channel)
+  #define MIDI_INPUT_REC 1      // Adds extra code for when Record is pressed in Pattern Mode - Input MIDI Notes will be added to the current playing steps. (Omni MIDI Channel)
+  #define MIDI_INPUT_ST 1       // Midi Note Input to Tracks S1/S2 - this allows you to manipulate the 2x synth tracks directly from a Midi Keyboard (Omni MIDI Channel)
     #define MIDI_INPUT_AUTO 1   // Auto-Step - When activated and a new note is hit, the current editing step will move to the next one
     #define MIDI_INPUT_AUTO_N 1 // Used by the Auto-Step - number of steps to move when a new note is hit
     #define MIDI_INPUT_AUTO_V 1 // When set, a low-velocity note will set an empty note (velocity < 40)
     #define MIDI_INPUT_AU_LW 24 // When set, a lower-octave note will set an empty note (note < MIDI_INPUT_AU_LW)
-  #define EXTRA_MIDI_IN_HACKS 0 // When set, will call midiInputHacks() in the W_Hacks Tab for any new Midi Input Data - It includes the following code: Program Change to Pattern Selection, Modulation Wheel to BPM Tempo, CC #2 to Number of Steps, Drums/S1/S2-Tracks KeyZone Split and Pitch Wheel (Bend) to Sequence Stop/Play
+  #define EXTRA_MIDI_IN_HACKS 1 // When set, will call midiInputHacks() in the W_Hacks Tab for any new Midi Input Data - It includes the following code: Program Change to Pattern Selection, Modulation Wheel to BPM Tempo, CC #2 to Number of Steps, Drums/S1/S2-Tracks KeyZone Split and Pitch Wheel (Bend) to Sequence Stop/Play
     
   // ===================================================================================================================================================================== //
   #define EXTENDED_DRUM_NAMES 1 // Add more GM Drum Note Names to the Track Drum Note Selectors
@@ -46,6 +43,7 @@
   #define MANAGER_DUMP_RECV 1   // Adds extra code to be used with the Beat707 Manager program in order to Dump and Receive complete machine data
   #define SHOWFREEMEM 0         // Outputs free RAM to LCD
   #define MSerial Serial        // Used for MIDI Input/Output
+  #define SPI_CLOCK_SPEED 0x00  // SPI Clock Speed - usually 0x00 (DIV4), but some Arduino boards may only work at 0x05 (DIV8)
   #define INIT_EMPTY_SONG 1     // Determinates if an Empty Song should be saved during Initiation of the EEPROM + Flash
   #define DISABLE_MIDI 0        // Debug Only
   #define DISABLE_STORAGE_CHK 0 // Debug Only

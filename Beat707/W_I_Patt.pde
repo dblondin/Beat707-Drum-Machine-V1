@@ -572,9 +572,6 @@ void LEDsPatternTick() // & Buttons //
     {
       uint8_t velocity = 120;
       if (midiClockRunning) velocity = 87+(bitRead(dmSteps[patternBufferN][DRUMTRACKS],midiClockCounter2)*20)+(bitRead(dmSteps[patternBufferN][DRUMTRACKS+1],midiClockCounter2)*20);
-      #if ANALOG_16_IN
-        uint8_t velocity2 = velocity;
-      #endif
       for (char i=0; i<DRUMTRACKS; i++)
       { 
         if (bitRead(stepButtons,i))
@@ -588,9 +585,6 @@ void LEDsPatternTick() // & Buttons //
             }
             else bitWrite(dmSteps[patternBufferN][i+dbSteps],midiClockCounter2,1);
           }
-          #if ANALOG_16_IN
-            if (trackVelocity[i] > velocity2) velocity = 0; else velocity = velocity2 - trackVelocity[i];
-          #endif          
           sendMidiNoteOn(dmNotes[i],velocity, dmChannel[i], 0xFF);
           sendMidiNoteOff(dmNotes[i], dmChannel[i], 0xFF);
           for (char q=0; q<3; q++) { bitWrite(stepLEDs[q],i,1); }

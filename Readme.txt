@@ -95,14 +95,12 @@ May 23 2011 - Version 1.3.0
 - All extra library files are now included in the Library.h file, no need to update any library-folders anymore.
 - Fixed a bug related to S1/S2 Tracks note editing.
 - Updated: S1/S2 Tracks note editing - clicking on a step will rotate the following notes: None, Last-Edited-Note, Current-Note-Slide, Note-off.
-- Added ANALOG_16_IN to Config.h (Off by Default) - Ads extra code that reads 16 Analog Pots/Faders for each Track Volume - this setup uses SPI, a Multiplexer and a special hardware configuration. (schematics will be released soon)
 
 ---------------------------------------------------------------------------------
 
-June 23 2011 - Version 1.4.2
+June 28 2011 - Version 1.4.2
 
 - New Beat707 Manager code, to be used with an extra application made with Processing
-- Updated SPI speed to DIV8
-- NEw ANALOG_16_IN code for the future Beat707 XT project
+- Added a new option to Config.h - #define SPI_CLOCK_SPEED - SPI Clock Speed - usually 0x00 (DIV4), but some Arduino boards may only work at 0x05 (DIV8)
 
 ---------------------------------------------------------------------------------

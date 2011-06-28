@@ -11,22 +11,6 @@ uint16_t stepLEDs[3] = {0,0,0};
 uint16_t stepButtonsPrevHigh = 0xFF;
 uint8_t stepLEDScounter, extraExternal, interfaceButtons = 0;
 
-#if ANALOG_16_IN
-  void readEncoder(uint8_t pos, uint8_t varpos, uint8_t bit1, uint8_t bit2)
-  {
-    if (bitRead(analog16buttons[varpos],bit2) == 1 && bitRead(analog16buttons[varpos],bit1) == 1) analog16PrevEnc[pos] = 0;
-    else if (bitRead(analog16buttons[varpos],bit2) == 0 && bitRead(analog16buttons[varpos],bit1) == 1 && analog16PrevEnc[pos] == 0) analog16PrevEnc[pos] = +1;
-    else if (bitRead(analog16buttons[varpos],bit2) == 1 && bitRead(analog16buttons[varpos],bit1) == 0 && analog16PrevEnc[pos] == 0) analog16PrevEnc[pos] = -1;
-    else if (bitRead(analog16buttons[varpos],bit2) == 0 && bitRead(analog16buttons[varpos],bit1) == 0 && (analog16PrevEnc[pos] == 1 || analog16PrevEnc[pos] == -1))
-    {
-      if (analog16PrevEnc[pos] > 0) { if ((millisNI()-encoderMillis[pos]) < 25) globalEncoder[pos][0] += 4; else globalEncoder[pos][0]++; }
-        else { if ((millisNI()-encoderMillis[pos]) < 25) globalEncoder[pos][1] += 4; else globalEncoder[pos][1]++; }
-      encoderMillis[pos] = millisNI();
-      analog16PrevEnc[pos] = -2;
-    }
-  }
-#endif
-
 // ======================================================================================= //
 ISR(TIMER2_COMPA_vect) 
 { 
@@ -47,83 +31,7 @@ ISR(TIMER2_COMPA_vect)
   
     setSwitchHigh();  // Disable 74HC165's to drive MISO
     setLatchLow();    // Pulse LED latches
-    setLatchHigh();   // 74HC165 set to shift mode
-    
-    // ------------------------------------------------------------------------------------ //
-        
-    #if ANALOG_16_IN    
-      // FIRST - Clear up LEDs as they share the same SPI pins
-      (void)SPI.transfer(0);
-             
-      analog16Counter = 0;
-      setFadersLatchLow();
-      setFadersLatchHigh();
-              
-      analog16buttons[0] = ~SPI.transfer(0);
-      analog16buttons[1] = ~SPI.transfer(analog16multiplex | analog16mode[0] | analog16mode[1]);
-      
-      setFadersLatchLow();
-      setFadersLatchHigh();
-              
-      // LAST - Clear up LEDs as they share the same SPI pins
-      (void)SPI.transfer(0);
-      (void)SPI.transfer(0);
-      
-      // 00000000 - 00001100 - Encoder 1
-      // 00000000 - 00000011 - Encoder 2
-      // 00000000 - 11110000 - buttons 4321....
-      
-      readEncoder(0,1,2,3);
-      readEncoder(1,1,0,1);
-      readEncoder(2,0,0,0);
-      readEncoder(3,0,0,0);
-      readEncoder(4,0,0,0);
-      readEncoder(5,0,0,0);
-    
-      analog16Counter++;
-      if (analog16Counter >= ANALOG_16_LAG)
-      {                
-        // Read Analog Input A0
-        if (readAnalogValueMode == 0)
-        {
-          analogReadA0Start();
-          readAnalogValueMode = 1;        
-        }
-        else
-        {
-          analogValue = analogReadCheck();
-          if (analogValue != -1)
-          {
-            if (prevAnalogValues[analog16multiplex] == -1) prevAnalogValues[analog16multiplex] = analogValue;
-            else if (analogValue > (prevAnalogValues[analog16multiplex]+ANALOG_16_SENS) || analogValue < (prevAnalogValues[analog16multiplex]-ANALOG_16_SENS))
-            {
-              prevAnalogValues[analog16multiplex] = analogValue;
-              if (analog16mode[0] == B10000000) // Mixer
-              {
-                trackVelocity[analog16multiplex] = 127-((uint8_t)(analogValue/8));
-              }
-              else if (analog16mode[0] == B01000000 || analog16mode[0] == B00100000) // S1 Editor
-              {
-                uint8_t dSeq = 0;
-                if (analog16mode[0] == B00100000) dSeq = 1;
-                
-                if (analogValue < ANALOG_16_SENS) dmSynthTrack[dSeq][patternBufferN][analog16multiplex+(16*editDoubleSteps)] = 0;
-                  else if (analogValue > (1023-ANALOG_16_SENS)) dmSynthTrack[dSeq][patternBufferN][analog16multiplex+(16*editDoubleSteps)] = 127+analog16Octave+((uint8_t)(1023/40));
-                  else if (dmSynthTrack[dSeq][patternBufferN][analog16multiplex+(16*editDoubleSteps)] > 128) dmSynthTrack[dSeq][patternBufferN][analog16multiplex+(16*editDoubleSteps)] = 127+analog16Octave+((uint8_t)(analogValue/40));
-                  else dmSynthTrack[dSeq][patternBufferN][analog16multiplex+(16*editDoubleSteps)] = analog16Octave+((uint8_t)(analogValue/40));
-                if (mirrorPatternEdit) dmSynthTrack[dSeq][patternBufferN][analog16multiplex+(16*editDoubleSteps)+32] = dmSynthTrack[dSeq][patternBufferN][analog16multiplex+(16*editDoubleSteps)];
-                dmSynthTrackStepPos[0] = ((mirrorPatternEdit) ? 0 : editStepsPos);
-                dmSynthTrackStepPos[1] = analog16multiplex;
-                doLCDupdate = 1;
-              }
-            }
-            analog16multiplex++;
-            if (analog16multiplex == 16) analog16multiplex = 0;
-            readAnalogValueMode = 0;       
-          }
-        }
-      }
-    #endif
+    setLatchHigh();   // 74HC165 set to shift mode        
   }
 }
 
@@ -541,8 +449,8 @@ void wireWrite64check(uint8_t inMiddle)
 // ======================================================================================= //
 // ======================================================================================= //
 
-void flashEnable()    { enableButtonsAndLEDs = 0; delayNI(1); SPI.setClockDivider(SPI_CLOCK_DIV8); SPI.setBitOrder(MSBFIRST); nop(); }
-void flashDisable()   { SPI.setClockDivider(SPI_CLOCK_DIV8); SPI.setBitOrder(LSBFIRST); enableButtonsAndLEDs = 1; nop(); }
+void flashEnable()    { enableButtonsAndLEDs = 0; delayNI(1); SPI.setBitOrder(MSBFIRST); nop(); }
+void flashDisable()   { SPI.setBitOrder(LSBFIRST); nop(); enableButtonsAndLEDs = 1; nop(); }
 
 // ======================================================================================= //
 
