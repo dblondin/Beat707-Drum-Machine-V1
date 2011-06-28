@@ -97,9 +97,16 @@ May 23 2011 - Version 1.3.0
 
 ---------------------------------------------------------------------------------
 
-June 28 2011 - Version 1.4.2
+June 27 2011 - Version 1.4.2
 
 - New Beat707 Manager code, to be used with an extra application made with Processing (this replaces all previous SysEx Dump/Receive)
 - Added a new option to Config.h - #define SPI_CLOCK_SPEED - SPI Clock Speed - usually 0x00 (DIV4), but some Arduino boards may only work at 0x05 (DIV8)
+
+---------------------------------------------------------------------------------
+
+June 28 2011 - Version 1.4.4
+
+- Fixed: Note-Numbers display were 1 note above what it should be.
+- Fixed: Song-Mode code was saving the first 2 pattern-positions on the wrong EEPROM location.
 
 ---------------------------------------------------------------------------------

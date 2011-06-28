@@ -13,6 +13,36 @@
 #define totalSongSize prePos+(patternSizeBytes*MAXSPATTERNS)  // 23296 bytes (99 SongsPos + 90 Patterns) + 14 bytes for the song name = 23310 (6 sectors of Flash has 24576 of space)
                                                               // A special note about totalSongSize, the flash code writes in pairs of 2 bytes, (to speed up) so the song size should be a multiple of 2
 
+/*
+
+  Organization of the data
+  
+  Byte = Data
+  0000 = B (Header)
+  0001 = 7 (Header)
+  0002 = 0 (Header)
+  0003 = 7 (Header)
+  0004 = (Reserved)
+  0005 = (Reserved)
+  0006 = MidiClockType
+  0007 = Song Version #
+  0008 = Time Scale (1/16 or 1/32)
+  0009 = Midi Clock BPM Tempo
+  0010 = Unit ID (SysEx)
+  0011 = Auto Steps
+  0012 = Mirror Pattern Edit
+  0013 = Midi Clock Shuffle
+  0014 = Number of Steps per Pattern (Global)
+  0015 = Enable A/B Patterns
+  0016 = Analog Input Mode (when #define ANALOG_INPUT_A0 is set)
+  0017 = Midi USB Mode
+  0018 = External MIDI PortSelector - used by the USB to MIDI Converter  
+  0019 = Midi Clock Direction
+  ....
+  0028 = End of the generic header
+  
+*/
+
 // ======================================================================================= //
 void savePattern(uint8_t saveAccentsOnly)
 {
@@ -64,25 +94,25 @@ void loadSongPosition()
 {
   if (curSongPosition < 0) curSongPosition = 0;
   
-  patternSong = EEPROM_READ((prePosLS+(DRUMTRACKS*2))+curSongPosition);
-  patternSongRepeat = EEPROM_READ((prePosLS+(DRUMTRACKS*2)+MAXSONGPOS)+curSongPosition);
+  patternSong = EEPROM_READ((prePosLS+(DRUMTRACKS*2)+2)+curSongPosition);
+  patternSongRepeat = EEPROM_READ((prePosLS+(DRUMTRACKS*2)+2+MAXSONGPOS)+curSongPosition);
 }
 
 // ======================================================================================= //
 void loadSongNextPosition()
 {
-  if ((curSongPosition+1) < MAXSONGPOS) patternSongNext = EEPROM_READ((prePosLS+(DRUMTRACKS*2))+(curSongPosition+1)); else patternSongNext = patternSong;
+  if ((curSongPosition+1) < MAXSONGPOS) patternSongNext = EEPROM_READ((prePosLS+(DRUMTRACKS*2)+2)+(curSongPosition+1)); else patternSongNext = patternSong;
     
   if (patternSongNext == 1) 
   {
-    patternSongNext = EEPROM_READ((prePosLS+(DRUMTRACKS*2))); 
-    patternSongRepeatNext = EEPROM_READ((prePosLS+(DRUMTRACKS*2)+MAXSONGPOS));
+    patternSongNext = EEPROM_READ((prePosLS+(DRUMTRACKS*2)+2)); 
+    patternSongRepeatNext = EEPROM_READ((prePosLS+(DRUMTRACKS*2)+2+MAXSONGPOS));
     songLoopPos = curSongPosition;
     curSongPosition = -1; 
   }
   else
   {
-    patternSongRepeatNext = EEPROM_READ((prePosLS+(DRUMTRACKS*2)+MAXSONGPOS)+curSongPosition+1);
+    patternSongRepeatNext = EEPROM_READ((prePosLS+(DRUMTRACKS*2)+2+MAXSONGPOS)+curSongPosition+1);
   }
 }
 
@@ -91,8 +121,8 @@ void saveSongPosition()
 {
   songChanged = 0;
   
-  EEPROM_WRITE((prePosLS+(DRUMTRACKS*2))+curSongPosition,patternSong);
-  EEPROM_WRITE((prePosLS+(DRUMTRACKS*2)+MAXSONGPOS)+curSongPosition,patternSongRepeat);
+  EEPROM_WRITE((prePosLS+(DRUMTRACKS*2)+2)+curSongPosition,patternSong);
+  EEPROM_WRITE((prePosLS+(DRUMTRACKS*2)+2+MAXSONGPOS)+curSongPosition,patternSongRepeat);
 }
 
 // ======================================================================================= //
@@ -203,10 +233,10 @@ void storageInit(uint8_t forceInit)
     saveSetup();
     for (int q=0; q<MAXSONGPOS; q++)
     {
-      EEPROM_WRITE((prePosLS+(DRUMTRACKS*2))+q,0);
-      EEPROM_WRITE((prePosLS+(DRUMTRACKS*2)+MAXSONGPOS)+q,0);
+      EEPROM_WRITE((prePosLS+(DRUMTRACKS*2)+2)+q,0);
+      EEPROM_WRITE((prePosLS+(DRUMTRACKS*2)+2+MAXSONGPOS)+q,0);
     }
-    EEPROM_WRITE((prePosLS+(DRUMTRACKS*2)),2); // So the song is not empty //
+    EEPROM_WRITE((prePosLS+(DRUMTRACKS*2)+2),2); // So the song is not empty //
     
     lcd.setCursor(7,1); lcd.write('2');
     
