@@ -173,7 +173,7 @@ void updateLCDPattern()
       if (currentTrack < DRUMTRACKS) 
       {
         if (curZone == 3) printCursor(); else lcdPrintEmptyChars(1);
-        lcdPrintNumber3Dgts((dmNotes[currentTrack]+1)); 
+        lcdPrintNumber3Dgts((dmNotes[currentTrack]));
       }
       else if (currentTrack < (DRUMTRACKS+2))
       {
