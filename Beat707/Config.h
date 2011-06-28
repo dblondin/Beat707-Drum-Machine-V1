@@ -13,7 +13,7 @@
   #define MAXSONGPOS 99         // By changing any of those 2 settings you will need to re-do the Storage code sizes definitions for patterns, setup and song storage
   #define MAXSPATTERNS 90       // Check W_Storage to see the size of each pattern, so you know how many patterns you can store on an EEPROM chip
   #define MAXSONGSFILE 21       // Used by the Flash Storage, to determinate how many songs the Flash memory can hold (see W_Storage)
-  #define MIDIECHO 0            // Copies all Midi Input to the Midi Output
+  #define MIDIECHO 0            // Copies all Midi Input to the Midi Output (check EXTRA_MIDI_IN_HACKS below, as when its on, by default it will split the keyboard into 3 zones: Drums/S1/S2)
     #define MIDIECHO_BYTRACK 0  // If set in conjunction with MIDIECHO, notes will be translated to the current selected track channel
 
   // ===================================================================================================================================================================== // 

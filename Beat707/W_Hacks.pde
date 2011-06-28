@@ -151,7 +151,13 @@ void Hack_and_Mods_Loop()
     {  
       // ------------------------------- Button 1 ------------------------------- //
       case 21:
-        // User Code Here //
+        if (!holdingButton)
+        {
+          if (midiClockRunning) multiButton = 0; // Stop //
+            else multiButton = 1; // Play //
+        
+          InterfaceButtons();
+        }
       break;
       
       // ------------------------------- Button 2 ------------------------------- //
