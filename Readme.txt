@@ -110,3 +110,9 @@ June 28 2011 - Version 1.4.4
 - Fixed: Song-Mode code was saving the first 2 pattern-positions on the wrong EEPROM location.
 
 ---------------------------------------------------------------------------------
+
+July 06 2011 - Version 1.4.5
+
+- Better MIDI Sync Slave mode.
+
+---------------------------------------------------------------------------------

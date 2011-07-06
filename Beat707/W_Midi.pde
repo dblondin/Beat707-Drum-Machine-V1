@@ -300,14 +300,11 @@ void midiInputCheck()
       MSerial.write(incomingByte);
     #endif
     
-    if (incomingByte == 240)
-    {
-      songDumpReceive(); // MIDI SysEx //
-    }
-    else if (incomingByte == 0xF8 && midiClockType == 1) { midiTimer(); midiTimer(); }
+    if (incomingByte == 0xF8 && midiClockType == 1 && midiClockRunning == 1) { midiTimer(); midiTimer(); }
     else if (incomingByte == 0xFA && midiClockType == 1) MidiClockStart();
     else if (incomingByte == 0xFB && midiClockType == 1) MidiClockStart(false); // Continue
     else if (incomingByte == 0xFC && (midiClockType == 1 || midiUSBmode == 1)) MidiClockStop();
+    else if (incomingByte == 240) { songDumpReceive(); }
     else
     {
       switch (state)
