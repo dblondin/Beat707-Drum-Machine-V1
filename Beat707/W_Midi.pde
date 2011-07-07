@@ -301,8 +301,10 @@ void midiInputCheck()
     #endif
     
     if (incomingByte == 0xF8 && midiClockType == 1 && midiClockRunning == 1) { midiTimer(); midiTimer(); }
-    else if (incomingByte == 0xFA && midiClockType == 1) MidiClockStart();
-    else if (incomingByte == 0xFB && midiClockType == 1) MidiClockStart(false); // Continue
+    #if !EXTRA_MIDI_IN_H_2
+      else if (incomingByte == 0xFA && midiClockType == 1) MidiClockStart();
+      else if (incomingByte == 0xFB && midiClockType == 1) MidiClockStart(false); // Continue
+    #endif
     else if (incomingByte == 0xFC && (midiClockType == 1 || midiUSBmode == 1)) MidiClockStop();
     else if (incomingByte == 240) { songDumpReceive(); }
     else
@@ -415,7 +417,11 @@ void midiInputCheck()
                      }
                    #endif
                  }
-                 else if (curZone == 3)
+                 #if EXTRA_MIDI_IN_H_2
+                   else if (curZone == 3 && channel != 15)
+                 #else
+                   else if (curZone == 3)
+                 #endif
                  {
                    #if MIDI_INPUT_ST
                       dbStepsCalc();

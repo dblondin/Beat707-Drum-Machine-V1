@@ -224,37 +224,76 @@ void Hack_and_Mods_Loop()
     switch (data[0])
     {
       case 192: // Program Change to Pattern Selector
-        if (data[1] < MAXSPATTERNS)  { nextPattern = data[1]; updateLCDPattern(); }
+        #if EXTRA_MIDI_IN_H_1
+          if (data[1] < MAXSPATTERNS)  { nextPattern = data[1]; updateLCDPattern(); }
+        #endif
         break;
         
       case 176:
-        switch (data[1])
-        {
-          case 1: // Midi CC - Modulation Wheel to BPM Tempo
-            midiClockBPM = map(data[2], 0, 127, 25, 255);
-            if (midiClockRunning) MidiClockNewTime();
-            setupChanged = doLCDupdate = 1;
-            break;
-            
-          case 2: // Midi CC 2 to Pattern Number of Steps
-            numberOfSteps = map(data[2], 0, 127, 1, 16); break;
-            setupChanged = doLCDupdate = 1;
-            break;
-        }
+        #if EXTRA_MIDI_IN_H_1
+          switch (data[1])
+          {
+            case 1: // Midi CC - Modulation Wheel to BPM Tempo
+              midiClockBPM = map(data[2], 0, 127, 25, 255);
+              if (midiClockRunning) MidiClockNewTime();
+              setupChanged = doLCDupdate = 1;
+              break;
+              
+            case 2: // Midi CC 2 to Pattern Number of Steps
+              numberOfSteps = map(data[2], 0, 127, 1, 16); break;
+              setupChanged = doLCDupdate = 1;
+              break;
+          }
+        #endif
+        #if EXTRA_MIDI_IN_H_2
+          if (data[1] == 123) // All Notes Off
+          {
+            if (midiClockRunning == 1) MidiClockStop();
+          }
+        #endif
         break;
         
       case 224:  // Pitch Wheel (Bend)
-        if (data[2] > 90 && !midiClockRunning) MidiClockStart(); 
-          else if (data[2] < 40 && midiClockRunning) MidiClockStop(); 
+        #if EXTRA_MIDI_IN_H_1
+          if (data[2] > 90 && !midiClockRunning) MidiClockStart(); 
+            else if (data[2] < 40 && midiClockRunning) MidiClockStop(); 
+        #endif
         break;
-        
-      case 144: // This will split the whole keyboard into 3 sections: Drum-Tracks, S1 and S2 - this will only work correctly if MIDIECHO is disabled
-      case 128:
-        if (data[1] >= 72) { data[1] -= 24; channel = dmChannel[DRUMTRACKS+1]; }
-          else if (data[1] >= 36) { channel = dmChannel[DRUMTRACKS]; }
-          else { data[1] += 12; channel = dmChannel[0]; }
-        sendMidiData(data, channel, 3);
-        break;
+
+      #if EXTRA_MIDI_IN_H_1
+        case 144: // This will split the whole keyboard into 3 sections: Drum-Tracks, S1 and S2 - this will only work correctly if MIDIECHO is disabled
+        case 128:
+          if (data[1] >= 72) { data[1] -= 24; channel = dmChannel[DRUMTRACKS+1]; }
+            else if (data[1] >= 36) { channel = dmChannel[DRUMTRACKS]; }
+            else { data[1] += 12; channel = dmChannel[0]; }
+          sendMidiData(data, channel, 3);
+          break;
+      #endif
+      
+      #if EXTRA_MIDI_IN_H_2
+        case 144: // Select and Play Pattern //
+          if (channel == 15)
+          {
+            if (data[1] < 24)
+            {
+              if (midiClockRunning == 1) MidiClockStop();
+            }
+            else if (data[2] > 0 && data[1] >= 24 && (data[1]-24) < MAXSPATTERNS)
+            { 
+              if ((data[1]-24) != currentPattern)
+              {
+                if (patternChanged) savePattern(0);
+                currentPattern = nextPattern = (data[1]-24); 
+                loadPattern(0);
+                patternBufferN = !patternBufferN;
+              }
+              MidiClockStart(1);
+              updateLCDPattern();
+              if (setupChanged) saveSetup();
+            }
+          }
+          break;
+      #endif
     }
   }
 #endif

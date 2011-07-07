@@ -111,8 +111,9 @@ June 28 2011 - Version 1.4.4
 
 ---------------------------------------------------------------------------------
 
-July 06 2011 - Version 1.4.5
+July 07 2011 - Version 1.4.5
 
 - Better MIDI Sync Slave mode.
+- Added new options to Config.h - EXTRA_MIDI_IN_H_1 and EXTRA_MIDI_IN_H_2 - see the Config.h file for details.
 
 ---------------------------------------------------------------------------------
