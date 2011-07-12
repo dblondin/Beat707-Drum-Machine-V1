@@ -29,29 +29,29 @@
     #define ENCODER_SPEED 1     // When set, it will detect the speed of the encoder movement and apply changes faster or slower
   #define EXTRA_8_BUTTONS 0     // Will use the extra 8 buttons input header to read 8 inputs (no need for pull-up/down resistors, the hardware already has it) and call user-code that can be written on the W_Hacks tab. By default, J1 is for sequencer play / stop.
   #define MIDI_INPUT_REC 0      // Adds extra code for when Record is pressed in Pattern Mode - Input MIDI Notes will be added to the current playing steps. (Omni MIDI Channel)
-  #define MIDI_INPUT_ST 1       // Midi Note Input to Tracks S1/S2 - this allows you to manipulate the 2x synth tracks directly from a Midi Keyboard (Omni MIDI Channel)
+  #define MIDI_INPUT_ST 0       // Midi Note Input to Tracks S1/S2 - this allows you to manipulate the 2x synth tracks directly from a Midi Keyboard (Omni MIDI Channel)
     #define MIDI_INPUT_AUTO 1   // Auto-Step - When activated and a new note is hit, the current editing step will move to the next one
     #define MIDI_INPUT_AUTO_N 1 // Used by the Auto-Step - number of steps to move when a new note is hit
     #define MIDI_INPUT_AUTO_V 1 // When set, a low-velocity note will set an empty note (velocity < 40)
     #define MIDI_INPUT_AU_LW 24 // When set, a lower-octave note will set an empty note (note < MIDI_INPUT_AU_LW)
-  #define EXTRA_MIDI_IN_HACKS 1 // When set, will call midiInputHacks() in the W_Hacks Tab for any new Midi Input Data. (see below)
+  #define EXTRA_MIDI_IN_HACKS 0 // When set, will call midiInputHacks() in the W_Hacks Tab for any new Midi Input Data. (see below)
     #define EXTRA_MIDI_IN_H_1 0 // It includes the following code: Program Change to Pattern Selection, Modulation Wheel to BPM Tempo, CC #2 to Number of Steps, Drums/S1/S2-Tracks KeyZone Split and Pitch Wheel (Bend) to Sequence Stop/Play
-    #define EXTRA_MIDI_IN_H_2 1 // It includes the following code: Note Number to Pattern Selection (starting on note 24, channel 16) Play on Note-On and Stop on Note 23, All-Notes-Off and MIDI Clock Stop (it doesn't respond to MIDI Clock Start)
+    #define EXTRA_MIDI_IN_H_2 0 // It includes the following code: Note Number to Pattern Selection (starting on note 24, channel 16) Play on Note-On and Stop on Note 23, All-Notes-Off and MIDI Clock Stop (it doesn't respond to MIDI Clock Start)
     
   // ===================================================================================================================================================================== //
   #define EXTENDED_DRUM_NAMES 1 // Add more GM Drum Note Names to the Track Drum Note Selectors
   #define STORAGE_FORCE_INIT 0  // Force an Initiation of all EEPROM memory during startup 
-  #define MANAGER_DUMP_RECV 1   // Adds extra code to be used with the Beat707 Manager program in order to Dump and Receive complete machine data
+  #define MANAGER_DUMP_RECV 0   // Adds extra code to be used with the Beat707 Manager program in order to Dump and Receive complete machine data
   #define SHOWFREEMEM 0         // Outputs free RAM to LCD
   #define MSerial Serial        // Used for MIDI Input/Output
-  #define SPI_CLOCK_SPEED 0x00  // SPI Clock Speed - usually 0x00 (DIV4), but some Arduino boards may only work at 0x05 (DIV8)
+  #define SPI_CLOCK_SPEED 0x05  // SPI Clock Speed - usually 0x00 (DIV4), but some Arduino boards may only work at 0x05 (DIV8)
   #define INIT_EMPTY_SONG 1     // Determinates if an Empty Song should be saved during Initiation of the EEPROM + Flash
   #define DISABLE_MIDI 0        // Debug Only
   #define DISABLE_STORAGE_CHK 0 // Debug Only
   #define CHECK_CPU_USAGE 0     // Debug Only - Checks CPU usage (uses special macros: CHECK_CPU_START and CHECK_CPU_END)
   #define LEDS_PWM_A1 50        // The LEDs dim light is controlled by a PWM code, that counts from 0 to LEDS_PWM_A1, while LEDS_PWM_A2 is the near LEDS_PWM_A1 value. So, anything before LEDS_PWM_A1 is the lowest level, going above LEDS_PWM_A2 is the medium level and going over LEDS_PWM_A1 is the highest level.
   #define LEDS_PWM_A2 40        // The Medium level of the LEDs PWM dim lights.
-  #define INI_PATT_FULL_ACNT 1  // During Pattern Initialization both Accents tracks will be set to either full-value or the values set below (depending if you use INI_PATT_USER_V or not)
+  #define INI_PATT_FULL_ACNT 0  // During Pattern Initialization both Accents tracks will be set to either full-value or the values set below (depending if you use INI_PATT_USER_V or not)
     #define INI_PATT_USER_V 1   // If set, instead of setting everything to 1, it will use the values set below
     #define INI_PATT_FULL_AC_1A "1010101010101010"
     #define INI_PATT_FULL_AC_1B "1010101010101011"
