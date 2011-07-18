@@ -280,16 +280,23 @@ void Hack_and_Mods_Loop()
             }
             else if (data[2] > 0 && data[1] >= 24 && (data[1]-24) < MAXSPATTERNS)
             { 
+              if (setupChanged) saveSetup();
               if ((data[1]-24) != currentPattern)
               {
                 if (patternChanged) savePattern(0);
                 currentPattern = nextPattern = (data[1]-24); 
-                loadPattern(0);
+                loadPatternPartial();
                 patternBufferN = !patternBufferN;
+                MidiClockStart(1);
+                midiBufferCheck();
+                loadPattern(0);
+                patternBufferN = !patternBufferN;                
               }
-              MidiClockStart(1);
-              updateLCDPattern();
-              if (setupChanged) saveSetup();
+              else
+              {
+                MidiClockStart(1);
+              }
+              doLCDupdate = 1;
             }
           }
           break;

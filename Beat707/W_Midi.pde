@@ -21,7 +21,16 @@ void midiTimer()
   }
   
   if (midiClockProcess || midiClockProcessDoubleSteps)
-  {    
+  {
+    #if BEAT707_BIG_TIME
+      midiClockBeats++;
+      if (midiClockBeats >= 8)
+      {
+        midiClockBeats = 0;
+        sendBeatToBigTime = 1;
+      }
+    #endif    
+    
     if (midiClockDirection == 1) midiClockCounter2 = 15-midiClockCounter;
       else if (midiClockDirection == 2) midiClockCounter2 = random(0, 15);
         else midiClockCounter2 = midiClockCounter;        
@@ -98,6 +107,10 @@ void midiTimer()
       if (stepsPos >= 2 || !enableABpattern)
       {
         stepsPos = 0;
+        #if EXTRA_MIDI_IN_H_2
+          midiClockRunning = midiClockProcess = 0;
+          return;
+        #endif        
         if (curMode == 1)
         {
           patternSongRepeatCounter++;
@@ -152,7 +165,9 @@ void MidiShuffleUpdate()
 // ======================================================================================= //
 void MidiClockStart(uint8_t restart)
 {
-  MidiShuffleUpdate();  
+  #if !EXTRA_MIDI_IN_H_2
+    MidiShuffleUpdate();  
+  #endif
   midiClockRunning = 1;
   stepsPos = midiClockShuffleCounter = 0;
   if (autoSteps) { editStepsPos = 0; doPatternLCDupdate = 1; }
@@ -164,6 +179,7 @@ void MidiClockStart(uint8_t restart)
   }
   if (midiClockType == 2) MSerial.write(0xFA); // MIDI Start
   if (midiClockType != 1) timerStart();
+  midiTimer();
 }
 
 // ======================================================================================= //
@@ -173,6 +189,13 @@ void MidiClockStop()
   if (midiClockType == 2) MSerial.write(0xFC); // MIDI Stop
   if (midiClockType != 1) timerStop();
   sendMidiAllNotesOff();
+  #if BEAT707_BIG_TIME
+    midiClockBeats = 0;
+    wireSendByte(BIGTIME_ADDR, 1); // Reset
+  #endif
+  #if EXTRA_MIDI_IN_H_2
+    MidiShuffleUpdate();  
+  #endif  
 }
 
 // ======================================================================================= //

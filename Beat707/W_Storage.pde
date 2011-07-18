@@ -89,6 +89,29 @@ void loadPattern(uint8_t mergePattern)
   for (char q=0; q<64; q++) { if (mergePattern) dmSynthTrack[1][!patternBufferN][q] |= Wire.receive(); else dmSynthTrack[1][!patternBufferN][q] = Wire.receive(); }
 }
 
+#if EXTRA_MIDI_IN_H_2
+  // ======================================================================================= //
+  void loadPatternPartial()
+  {
+    wireBeginTransmission(prePos+(currentPattern*patternSizeBytes));
+    Wire.endTransmission();
+    Wire.requestFrom(0x50,((DRUMTRACKS+2)*2));
+    for (char q=0; q<(DRUMTRACKS+2); q++)
+    {
+      dmSteps[!patternBufferN][q] = ((Wire.receive() << 0) & 0xFF) + ((Wire.receive() << 8) & 0xFF00);
+    }
+  
+    wireBeginTransmission(prePos+(currentPattern*patternSizeBytes)+((DRUMTRACKS+2)*8));
+    Wire.endTransmission();
+    Wire.requestFrom(0x50,1);
+    dmSynthTrack[0][!patternBufferN][0] = Wire.receive();
+    wireBeginTransmission(prePos+64+(currentPattern*patternSizeBytes)+((DRUMTRACKS+2)*8));
+    Wire.endTransmission();
+    Wire.requestFrom(0x50,1);
+    dmSynthTrack[1][!patternBufferN][0] = Wire.receive();
+  }
+#endif
+
 // ======================================================================================= //
 void loadSongPosition()
 {
@@ -154,6 +177,11 @@ void saveSetup()
       else if (q == 17) value = midiUSBmode;
       else if (q == 18) value = externalMIDIportSelector; // slot 18 is used for an external variable: MIDI Out Port - for the USB to MIDI Converter  
       else if (q == 19) value = midiClockDirection;
+      #if BEAT707_BIG_TIME
+        // 20 = Beats (4, 8) 
+        // 21 = showDots (0, 1)
+        // 22 = Mode (0, 1, 2)
+      #endif
       
     Wire.send(value);
   }

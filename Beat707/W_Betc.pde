@@ -440,6 +440,13 @@ void wireEndTransmission()
   delayNI(6);
 }
 
+void wireSendByte(uint8_t address, uint8_t data)
+{
+  Wire.beginTransmission(address);
+  Wire.send(data);
+  Wire.endTransmission();
+}
+
 void wireWrite64check(uint8_t inMiddle)
 {
   if ((!inMiddle && wireBufferCounter > 0) || (wireBufferCounter == 64)) wireEndTransmission();

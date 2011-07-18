@@ -12,6 +12,10 @@ void loop()
   #if CHECK_CPU_USAGE
     checkCPUusage();
   #endif
+  
+  #if BEAT707_BIG_TIME
+    if (sendBeatToBigTime == 1) { sendBeatToBigTime = 0; wireSendByte(BIGTIME_ADDR, 0); }
+  #endif
       
   midiBufferCheck();
   midiInputCheck();

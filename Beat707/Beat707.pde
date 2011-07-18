@@ -2,7 +2,7 @@
 
   Created by Beat707 (c) 2011 - http://www.Beat707.com
 
-  Main File for Variable Declaration and Setup - July 07 2011 - Version 1.4.5
+  Main File for Variable Declaration and Setup - July 18 2011 - Version 1.4.6
 
 */
 
@@ -96,6 +96,10 @@ uint8_t bufferMIDIpos[2] = {0,0};
 #endif
 #if GATE_OUTS
   unsigned long gateOutDelay[3] = {0,0,0};
+#endif
+#if BEAT707_BIG_TIME
+  uint8_t midiClockBeats = 0;
+  uint8_t sendBeatToBigTime = 0;
 #endif
 
 // ======================================================================================= //
