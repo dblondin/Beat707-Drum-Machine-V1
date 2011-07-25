@@ -35,7 +35,7 @@ void InterfaceTickPattern()
     case 1:
       lateAutoSave = 1;
       if (midiClockRunning) MidiClockStop();
-      MidiClockStart();
+      MidiClockStart(true, true);
       break;
       
     // ------------------------------- LEFT ------------------------------- //

@@ -2,7 +2,7 @@
 
   Created by Beat707 (c) 2011 - http://www.Beat707.com
 
-  Main File for Variable Declaration and Setup - July 18 2011 - Version 1.4.6
+  Main File for Variable Declaration and Setup - July 25 2011 - Version 1.4.6
 
 */
 

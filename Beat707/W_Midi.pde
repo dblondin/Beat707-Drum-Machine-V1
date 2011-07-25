@@ -163,7 +163,7 @@ void MidiShuffleUpdate()
 }
 
 // ======================================================================================= //
-void MidiClockStart(uint8_t restart)
+void MidiClockStart(uint8_t restart, uint8_t callMidiTimer)
 {
   #if !EXTRA_MIDI_IN_H_2
     MidiShuffleUpdate();  
@@ -179,7 +179,7 @@ void MidiClockStart(uint8_t restart)
   }
   if (midiClockType == 2) MSerial.write(0xFA); // MIDI Start
   if (midiClockType != 1) timerStart();
-  midiTimer();
+  if (callMidiTimer == 1) midiTimer();
 }
 
 // ======================================================================================= //
@@ -325,8 +325,8 @@ void midiInputCheck()
     
     if (incomingByte == 0xF8 && midiClockType == 1 && midiClockRunning == 1) { midiTimer(); midiTimer(); }
     #if !EXTRA_MIDI_IN_H_2
-      else if (incomingByte == 0xFA && midiClockType == 1) MidiClockStart();
-      else if (incomingByte == 0xFB && midiClockType == 1) MidiClockStart(false); // Continue
+      else if (incomingByte == 0xFA && midiClockType == 1) MidiClockStart(true, false);
+      else if (incomingByte == 0xFB && midiClockType == 1) MidiClockStart(false, false); // Continue
     #endif
     else if (incomingByte == 0xFC && (midiClockType == 1 || midiUSBmode == 1)) MidiClockStop();
     else if (incomingByte == 240) { songDumpReceive(); }

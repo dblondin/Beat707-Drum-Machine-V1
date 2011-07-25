@@ -238,7 +238,7 @@ void startSong()
     loadSongNextPosition();
     if (patternSongNext > 1) nextPattern = patternSongNext-2;
     patternSongRepeatCounter = 0;
-    MidiClockStart();
+    MidiClockStart(true, true);
     curZone = 0;
   }
   updateLCDSong();

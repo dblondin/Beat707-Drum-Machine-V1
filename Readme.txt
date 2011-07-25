@@ -118,7 +118,7 @@ July 07 2011 - Version 1.4.5
 
 ---------------------------------------------------------------------------------
 
-July 18 2011 - Version 1.4.6
+July 25 2011 - Version 1.4.6
 
 - Better MIDI Sync code, specially when using the EXTRA_MIDI_IN_H_2 option.
 - Beat707 BigTime support: https://github.com/Beat707/Beat707-BigTime - check the Config.h for the new BEAT707_BIG_TIME option.

@@ -255,7 +255,7 @@ void Hack_and_Mods_Loop()
         
       case 224:  // Pitch Wheel (Bend)
         #if EXTRA_MIDI_IN_H_1
-          if (data[2] > 90 && !midiClockRunning) MidiClockStart(); 
+          if (data[2] > 90 && !midiClockRunning) MidiClockStart(true, true); 
             else if (data[2] < 40 && midiClockRunning) MidiClockStop(); 
         #endif
         break;
@@ -287,14 +287,14 @@ void Hack_and_Mods_Loop()
                 currentPattern = nextPattern = (data[1]-24); 
                 loadPatternPartial();
                 patternBufferN = !patternBufferN;
-                MidiClockStart(1);
+                MidiClockStart(true, true);
                 midiBufferCheck();
                 loadPattern(0);
                 patternBufferN = !patternBufferN;                
               }
               else
               {
-                MidiClockStart(1);
+                MidiClockStart(true, true);
               }
               doLCDupdate = 1;
             }
