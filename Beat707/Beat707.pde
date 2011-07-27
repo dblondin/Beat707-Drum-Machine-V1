@@ -2,7 +2,7 @@
 
   Created by Beat707 (c) 2011 - http://www.Beat707.com
 
-  Main File for Variable Declaration and Setup - July 25 2011 - Version 1.4.6
+  Main File for Variable Declaration and Setup - July 27 2011 - Version 1.4.6
 
 */
 
@@ -100,6 +100,11 @@ uint8_t bufferMIDIpos[2] = {0,0};
 #if BEAT707_BIG_TIME
   uint8_t midiClockBeats = 0;
   uint8_t sendBeatToBigTime = 0;
+#endif
+#if EXTRA_MIDI_IN_H_2
+  #if XTH2_AUTO_STOP
+    uint8_t doAutoStop = 0;
+  #endif
 #endif
 
 // ======================================================================================= //

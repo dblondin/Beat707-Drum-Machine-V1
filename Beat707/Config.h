@@ -37,6 +37,7 @@
   #define EXTRA_MIDI_IN_HACKS 0 // When set, will call midiInputHacks() in the W_Hacks Tab for any new Midi Input Data. (see below)
     #define EXTRA_MIDI_IN_H_1 0 // It includes the following code: Program Change to Pattern Selection, Modulation Wheel to BPM Tempo, CC #2 to Number of Steps, Drums/S1/S2-Tracks KeyZone Split and Pitch Wheel (Bend) to Sequence Stop/Play
     #define EXTRA_MIDI_IN_H_2 0 // It includes the following code: Note Number to Pattern Selection (starting on note 24, channel 16) Play on Note-On and Stop on Note 23, All-Notes-Off and MIDI Clock Stop (it doesn't respond to MIDI Clock Start)
+      #define XTH2_AUTO_STOP 0  // When set in conjunction with EXTRA_MIDI_IN_H_2, playback will stop at the end of the pattern. This is handy when using with a sequencer, so you can insert notes to select patterns, and there's no risk of double-notes when a pattern is about to re-start and a new one is selected.
   #define BEAT707_BIG_TIME 0    // This is a special hack that requires a special hardware as seen on the following link: https://github.com/Beat707/Beat707-BigTime
     #define BIGTIME_ADDR 0x26   // Beat707 BigTime I2C Address in Hex format (should match TWI_SLAVE_ADDR from the BigTime code (found inside the Library.h file)
     

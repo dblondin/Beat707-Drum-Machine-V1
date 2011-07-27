@@ -288,6 +288,9 @@ void Hack_and_Mods_Loop()
                 loadPatternPartial();
                 patternBufferN = !patternBufferN;
                 MidiClockStart(true, true);
+                #if XTH2_AUTO_STOP
+                  doAutoStop = 1;
+                #endif
                 midiBufferCheck();
                 loadPattern(0);
                 patternBufferN = !patternBufferN;                
@@ -295,6 +298,9 @@ void Hack_and_Mods_Loop()
               else
               {
                 MidiClockStart(true, true);
+                #if XTH2_AUTO_STOP
+                  doAutoStop = 1;
+                #endif
               }
               doLCDupdate = 1;
             }

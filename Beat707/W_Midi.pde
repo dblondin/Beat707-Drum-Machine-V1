@@ -108,8 +108,15 @@ void midiTimer()
       {
         stepsPos = 0;
         #if EXTRA_MIDI_IN_H_2
-          midiClockRunning = midiClockProcess = 0;
-          return;
+          #if XTH2_AUTO_STOP
+            if (doAutoStop == 1)
+            {
+          #endif
+              midiClockRunning = midiClockProcess = 0;
+              return;
+          #if XTH2_AUTO_STOP
+            }
+          #endif
         #endif        
         if (curMode == 1)
         {

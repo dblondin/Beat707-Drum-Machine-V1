@@ -36,6 +36,11 @@ void InterfaceTickPattern()
       lateAutoSave = 1;
       if (midiClockRunning) MidiClockStop();
       MidiClockStart(true, true);
+      #if EXTRA_MIDI_IN_H_2
+        #if XTH2_AUTO_STOP
+          doAutoStop = 0;
+        #endif
+      #endif      
       break;
       
     // ------------------------------- LEFT ------------------------------- //

@@ -118,9 +118,10 @@ July 07 2011 - Version 1.4.5
 
 ---------------------------------------------------------------------------------
 
-July 25 2011 - Version 1.4.6
+July 27 2011 - Version 1.4.6
 
 - Better MIDI Sync code, specially when using the EXTRA_MIDI_IN_H_2 option.
 - Beat707 BigTime support: https://github.com/Beat707/Beat707-BigTime - check the Config.h for the new BEAT707_BIG_TIME option.
+- Added XTH2_AUTO_STOP to Config.h - When set in conjunction with EXTRA_MIDI_IN_H_2, playback will stop at the end of the pattern. This is handy when using with a sequencer, so you can insert notes to select patterns, and there's no risk of double-notes when a pattern is about to re-start and a new one is selected.
 
 ---------------------------------------------------------------------------------
