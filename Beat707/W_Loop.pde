@@ -16,8 +16,14 @@ void loop()
   #if BEAT707_BIG_TIME
     if (sendBeatToBigTime == 1) { sendBeatToBigTime = 0; wireSendByte(BIGTIME_ADDR, 0); }
   #endif
-      
-  midiBufferCheck();
+  
+  #if EXTRA_MIDI_IN_H_2
+    midiInputCheck();
+  #endif
+
+  #if !MIDI_NO_OUT_BUFFER
+    midiBufferCheck();
+  #endif
   
   // ======================================================================================= //
   if (doLCDupdate || (lastMillisLateLCDupdate > 0 && lastMillisLateLCDupdate < millisNI()))

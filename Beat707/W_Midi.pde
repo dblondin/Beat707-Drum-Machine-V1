@@ -326,7 +326,7 @@ void midiBufferCheck()
 void midiInputCheck()
 {
   while (MSerial.available() > 0) 
-  { 
+  {
     incomingByte = MSerial.read();
     #if MIDIECHO && !MIDIECHO_BYTRACK
       MSerial.write(incomingByte);

@@ -14,8 +14,6 @@ uint8_t stepLEDScounter, extraExternal, interfaceButtons = 0;
 // ======================================================================================= //
 ISR(TIMER2_COMPA_vect) 
 { 
-  midiInputCheck();
-  
   if (enableButtonsAndLEDs)
   {    
     // Input Buttons and Output LEDs //
@@ -36,7 +34,9 @@ ISR(TIMER2_COMPA_vect)
     setLatchHigh();   // 74HC165 set to shift mode        
   }
   
-  midiInputCheck();
+  #if !EXTRA_MIDI_IN_H_2
+    midiInputCheck();
+  #endif
 }
 
 // ======================================================================================= //

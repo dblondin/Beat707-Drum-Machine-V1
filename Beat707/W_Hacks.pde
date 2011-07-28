@@ -280,7 +280,6 @@ void Hack_and_Mods_Loop()
             }
             else if (data[2] > 0 && data[1] >= 24 && (data[1]-24) < MAXSPATTERNS)
             { 
-              if (setupChanged) saveSetup();
               if ((data[1]-24) != currentPattern)
               {
                 if (patternChanged) savePattern(0);
@@ -291,9 +290,12 @@ void Hack_and_Mods_Loop()
                 #if XTH2_AUTO_STOP
                   doAutoStop = 1;
                 #endif
-                midiBufferCheck();
+                #if !MIDI_NO_OUT_BUFFER
+                  midiBufferCheck();
+                #endif
                 loadPattern(0);
-                patternBufferN = !patternBufferN;                
+                patternBufferN = !patternBufferN;
+                doLCDupdate = 1;
               }
               else
               {
@@ -302,7 +304,6 @@ void Hack_and_Mods_Loop()
                   doAutoStop = 1;
                 #endif
               }
-              doLCDupdate = 1;
             }
           }
           break;
