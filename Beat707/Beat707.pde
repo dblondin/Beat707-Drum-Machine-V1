@@ -209,7 +209,6 @@ void setup()
   if (curMode == 0) loadPattern(0); else if (curMode == 1) loadSongPosition();
   patternBufferN = 1;
   recordShowCurPos = 1;
-  timerStop();
   
   checkMIDIusbMode();
   if (midiUSBmode)
@@ -221,10 +220,11 @@ void setup()
   
   if (curMode == 0) updateLCDPattern(); 
     else if (curMode == 1) updateLCDSong();
-    else updateLCDFile();  
-  
-  sendMidiAllNotesOff();
-  
+    else updateLCDFile();
+    
+  MidiClockStop();
+  timerStop();    
+    
   #if SHOWFREEMEM
     lcd.clear();
     lcdPrintString("Free Mem: ");
