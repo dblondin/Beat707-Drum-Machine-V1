@@ -18,7 +18,6 @@ void loop()
   #endif
       
   midiBufferCheck();
-  midiInputCheck();
   
   // ======================================================================================= //
   if (doLCDupdate || (lastMillisLateLCDupdate > 0 && lastMillisLateLCDupdate < millisNI()))

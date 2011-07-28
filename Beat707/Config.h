@@ -26,13 +26,13 @@
   #define GATE_OUTS 0           // When enabled adds 3 Gate Outputs on pins A0, D2 and D3. (check the Board Details PDF file for headers information - should be SV2 and SV3) Gates are fixed for Tracks 1, 2 and 3. (MIDI is disabled on those tracks)
     #define GATE_OUTS_TIME 15   // Time of the Gate Trig (from High to Low)
   #define ENCODER_INPUT 0       // When set, it will setup and read an endless encoder on pins D2 and D3. (see Header SV3) The encoder will act as an Up and Down button, therefore, working on anywhere in the interface where Up and Down strokes can be used to tweak values. Currently speed is not been detected, but this could change in the future
-    #define ENCODER_SPEED 1     // When set, it will detect the speed of the encoder movement and apply changes faster or slower
+    #define ENCODER_SPEED 0     // When set, it will detect the speed of the encoder movement and apply changes faster or slower
   #define EXTRA_8_BUTTONS 0     // Will use the extra 8 buttons input header to read 8 inputs (no need for pull-up/down resistors, the hardware already has it) and call user-code that can be written on the W_Hacks tab. By default, J1 is for sequencer play / stop.
   #define MIDI_INPUT_REC 0      // Adds extra code for when Record is pressed in Pattern Mode - Input MIDI Notes will be added to the current playing steps. (Omni MIDI Channel)
   #define MIDI_INPUT_ST 0       // Midi Note Input to Tracks S1/S2 - this allows you to manipulate the 2x synth tracks directly from a Midi Keyboard (Omni MIDI Channel)
-    #define MIDI_INPUT_AUTO 1   // Auto-Step - When activated and a new note is hit, the current editing step will move to the next one
-    #define MIDI_INPUT_AUTO_N 1 // Used by the Auto-Step - number of steps to move when a new note is hit
-    #define MIDI_INPUT_AUTO_V 1 // When set, a low-velocity note will set an empty note (velocity < 40)
+    #define MIDI_INPUT_AUTO 0   // Auto-Step - When activated and a new note is hit, the current editing step will move to the next one
+    #define MIDI_INPUT_AUTO_N 0 // Used by the Auto-Step - number of steps to move when a new note is hit
+    #define MIDI_INPUT_AUTO_V 0 // When set, a low-velocity note will set an empty note (velocity < 40)
     #define MIDI_INPUT_AU_LW 24 // When set, a lower-octave note will set an empty note (note < MIDI_INPUT_AU_LW)
   #define EXTRA_MIDI_IN_HACKS 0 // When set, will call midiInputHacks() in the W_Hacks Tab for any new Midi Input Data. (see below)
     #define EXTRA_MIDI_IN_H_1 0 // It includes the following code: Program Change to Pattern Selection, Modulation Wheel to BPM Tempo, CC #2 to Number of Steps, Drums/S1/S2-Tracks KeyZone Split and Pitch Wheel (Bend) to Sequence Stop/Play
@@ -54,6 +54,8 @@
   #define CHECK_CPU_USAGE 0     // Debug Only - Checks CPU usage (uses special macros: CHECK_CPU_START and CHECK_CPU_END)
   #define LEDS_PWM_A1 50        // The LEDs dim light is controlled by a PWM code, that counts from 0 to LEDS_PWM_A1, while LEDS_PWM_A2 is the near LEDS_PWM_A1 value. So, anything before LEDS_PWM_A1 is the lowest level, going above LEDS_PWM_A2 is the medium level and going over LEDS_PWM_A1 is the highest level.
   #define LEDS_PWM_A2 40        // The Medium level of the LEDs PWM dim lights.
+  #define MIDI_NO_OUT_BUFFER 0  // When set MIDI notes won't be buffered, they will go out to the MIDI Serial Output right away, but this may flicker the LEDs a bit
+  #define DISABLE_SHFT_SHCUTS 0 // When set this will disable some Quick and Double Shift ShortCuts: Double Steps Edit and Mirror Pattern On/Off
   #define INI_PATT_FULL_ACNT 0  // During Pattern Initialization both Accents tracks will be set to either full-value or the values set below (depending if you use INI_PATT_USER_V or not)
     #define INI_PATT_USER_V 1   // If set, instead of setting everything to 1, it will use the values set below
     #define INI_PATT_FULL_AC_1A "1010101010101010"

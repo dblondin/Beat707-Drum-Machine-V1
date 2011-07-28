@@ -125,3 +125,14 @@ July 27 2011 - Version 1.4.6
 - Added XTH2_AUTO_STOP to Config.h - When set in conjunction with EXTRA_MIDI_IN_H_2, playback will stop at the end of the pattern. This is handy when using with a sequencer, so you can insert notes to select patterns, and there's no risk of double-notes when a pattern is about to re-start and a new one is selected.
 
 ---------------------------------------------------------------------------------
+
+July 28 2011 - Version 1.4.8
+
+- Added to Config.h MIDI_NO_OUT_BUFFER - When set MIDI notes won't be buffered, they will go out to the MIDI Serial Output right away, but this may flicker the LEDs a bit
+- Added to Config.h DISABLE_SHFT_SHCUTS - When set this will disable some Quick and Double Shift ShortCuts: Double Steps Edit and Mirror Pattern On/Off
+- Fixed a problem when switching MIDI Clock Modes (Slave, Master, Off)
+- Fixed some problems with the MIDI Clock Slave Mode
+- Clicking the Shift key no longer halts the MIDI Clock while in Slave mode
+- Faster Pattern loading when using the EXTRA_MIDI_IN_H_2 option.
+
+---------------------------------------------------------------------------------

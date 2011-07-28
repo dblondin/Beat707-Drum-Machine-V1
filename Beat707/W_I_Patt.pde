@@ -133,6 +133,8 @@ void InterfaceTickPattern()
       }        
       else if (curZone == 7)
       {
+        MidiClockStop();
+        timerStop();
         midiClockType++;
         if (midiClockType > 2) midiClockType = 0;
         setupChanged = 1;
@@ -276,6 +278,8 @@ void InterfaceTickPattern()
       }
       else if (curZone == 7)
       {
+        MidiClockStop();
+        timerStop();
         midiClockType--;
         if (midiClockType == 255) midiClockType = 2;
         setupChanged = 1;
@@ -462,11 +466,13 @@ void shiftButtonPattern()
         // Double Quickly Shift Click //
         if (lastMillisShiftClick > millisNI())
         {
-          editDoubleSteps = 0;
-          editStepsPos = stepsPos;
-          mirrorPatternEdit = !mirrorPatternEdit;
-          if (mirrorPatternEdit) enableABpattern = 1;
-          setupChanged = doLCDupdate = 1;
+          #if !DISABLE_SHFT_SHCUTS
+            editDoubleSteps = 0;
+            editStepsPos = stepsPos;
+            mirrorPatternEdit = !mirrorPatternEdit;
+            if (mirrorPatternEdit) enableABpattern = 1;
+            setupChanged = doLCDupdate = 1;
+          #endif
         }
         else
         {
@@ -475,8 +481,10 @@ void shiftButtonPattern()
             else if (recordEnabled) recordShowCurPos = !recordShowCurPos;
             else
             {
-              editDoubleSteps = !editDoubleSteps;
-              updateLCDPatNumber();
+              #if !DISABLE_SHFT_SHCUTS
+                editDoubleSteps = !editDoubleSteps;
+                updateLCDPatNumber();
+              #endif
             }
         }
         lastMillisShiftClick = millisNI()+500;

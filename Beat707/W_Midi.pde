@@ -40,8 +40,10 @@ void midiTimer()
     uint8_t velocity = 87+(bitRead(dmSteps[patternBufferN][DRUMTRACKS+dBB],midiClockCounter2)*20)+(bitRead(dmSteps[patternBufferN][DRUMTRACKS+1+dBB],midiClockCounter2)*20);
     
     char midiBuffer = 0xFF;
-    if (bufferMIDIpos[0] == 0) midiBuffer = 0;
-      else if (bufferMIDIpos[1] == 0) midiBuffer = 1;
+    #if !MIDI_NO_OUT_BUFFER
+      if (bufferMIDIpos[0] == 0) midiBuffer = 0;
+        else if (bufferMIDIpos[1] == 0) midiBuffer = 1;
+    #endif
     
     for (char xdtm=0; xdtm<DRUMTRACKS; xdtm++)
     {
@@ -330,15 +332,35 @@ void midiInputCheck()
       MSerial.write(incomingByte);
     #endif
     
-    if (incomingByte == 0xF8 && midiClockType == 1 && midiClockRunning == 1) { midiTimer(); midiTimer(); }
-    #if !EXTRA_MIDI_IN_H_2
-      else if (incomingByte == 0xFA && midiClockType == 1) MidiClockStart(true, false);
-      else if (incomingByte == 0xFB && midiClockType == 1) MidiClockStart(false, false); // Continue
-    #endif
-    else if (incomingByte == 0xFC && (midiClockType == 1 || midiUSBmode == 1)) MidiClockStop();
-    else if (incomingByte == 240) { songDumpReceive(); }
-    else
+    switch (incomingByte)
     {
+      case 0xF8:
+         if (midiClockType == 1 && midiClockRunning == 1) 
+         { 
+           midiTimer(); 
+           midiTimer(); 
+         }
+         break;
+         
+      #if !EXTRA_MIDI_IN_H_2
+        case 0xFA: 
+          if (midiClockType == 1) MidiClockStart(true, false);
+          break;
+          
+        case 0xFB:
+          if (midiClockType == 1) MidiClockStart(false, false); // Continue
+          break;
+      #endif
+      
+    case 0xFC:
+      if (midiClockType == 1 || midiUSBmode == 1) MidiClockStop();
+      break;
+      
+    case 240: 
+      songDumpReceive();
+      break;
+    
+    default:
       switch (state)
       {
         case 0:
@@ -482,7 +504,6 @@ void midiInputCheck()
              }
              midiInputB[0] = midiInputB[1] = midiInputB[2] = state = 0;
            }
-           break;
        }
     }
   }
