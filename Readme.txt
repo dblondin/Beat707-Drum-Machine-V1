@@ -126,7 +126,7 @@ July 27 2011 - Version 1.4.6
 
 ---------------------------------------------------------------------------------
 
-August 25 2011 - Version 1.4.8
+August 24 2011 - Version 1.4.8
 
 - Added to Config.h MIDI_NO_OUT_BUFFER - When set MIDI notes won't be buffered, they will go out to the MIDI Serial Output right away, but this may flicker the LEDs a bit
 - Added to Config.h DISABLE_SHFT_SHCUTS - When set this will disable some Quick and Double Shift ShortCuts: Double Steps Edit and Mirror Pattern On/Off
