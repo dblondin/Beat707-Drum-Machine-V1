@@ -131,8 +131,8 @@ void Hack_and_Mods_Loop()
     }
     else
     {
-      sendMidiNoteOff(dmNotes[xdtm], dmChannel[xdtm]);
-      sendMidiNoteOn(dmNotes[xdtm],velocity, dmChannel[xdtm]);
+      sendMidiNoteOff(dmNotes[xdtm], dmChannel[xdtm], 0xFF);
+      sendMidiNoteOn(dmNotes[xdtm],velocity, dmChannel[xdtm], 0xFF);
     }
   }
 #endif
