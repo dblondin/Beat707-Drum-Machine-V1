@@ -56,7 +56,7 @@
   #define LEDS_PWM_A2 40        // The Medium level of the LEDs PWM dim lights.
   #define MIDI_NO_OUT_BUFFER 0  // When set MIDI notes won't be buffered, they will go out to the MIDI Serial Output right away, but this may flicker the LEDs a bit
   #define DISABLE_SHFT_SHCUTS 0 // When set this will disable some Quick and Double Shift ShortCuts: Double Steps Edit and Mirror Pattern On/Off
-  #define INI_PATT_FULL_ACNT 0  // During Pattern Initialization both Accents tracks will be set to either full-value or the values set below (depending if you use INI_PATT_USER_V or not)
+  #define INI_PATT_FULL_ACNT 1  // During Pattern Initialization both Accents tracks will be set to either full-value or the values set below (depending if you use INI_PATT_USER_V or not)
     #define INI_PATT_USER_V 1   // If set, instead of setting everything to 1, it will use the values set below
     #define INI_PATT_FULL_AC_1A "1010101010101010"
     #define INI_PATT_FULL_AC_1B "1010101010101011"

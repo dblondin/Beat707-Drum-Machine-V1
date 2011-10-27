@@ -8,7 +8,7 @@
 
 // ======================================================================================= //
 void loop()
-{
+{  
   #if CHECK_CPU_USAGE
     checkCPUusage();
   #endif
@@ -17,7 +17,7 @@ void loop()
     if (sendBeatToBigTime == 1) { sendBeatToBigTime = 0; wireSendByte(BIGTIME_ADDR, 0); }
   #endif
   
-  #if EXTRA_MIDI_IN_H_2
+  #if EXTRA_MIDI_IN_H_2 || MANAGER_DUMP_RECV
     midiInputCheck();
   #endif
 

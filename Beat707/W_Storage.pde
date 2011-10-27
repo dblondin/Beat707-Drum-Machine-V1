@@ -380,7 +380,7 @@ void songDumpReceive(void)
 {
   uint32_t address = 0;
   wireBufferCounter = 0;
-  
+    
   if (midiClockRunning) goto sysExEnd;
   
   // First check Manufacturer's ID bytes 1 to 6 and User's ID //
@@ -389,6 +389,7 @@ void songDumpReceive(void)
   if (midiInput() != 0x04) goto sysExEnd;
   if (midiInput() != 0x02) goto sysExEnd;
   if (midiInput() != 0x09) goto sysExEnd;
+  
   if (midiInput() == 100)
   {
     if (midiInput() != sysMIDI_ID) goto sysExEnd;
@@ -610,7 +611,7 @@ void songDumpReceive(void)
   #endif
   else if (incomingByte != sysMIDI_ID) goto sysExEnd;
     
-  sysExEnd:
+  sysExEnd:  
   while (incomingByte != 247) { midiInput(); }
   doLCDupdate = 1;
 }

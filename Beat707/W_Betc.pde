@@ -34,7 +34,7 @@ ISR(TIMER2_COMPA_vect)
     setLatchHigh();   // 74HC165 set to shift mode        
   }
   
-  #if !EXTRA_MIDI_IN_H_2
+  #if !EXTRA_MIDI_IN_H_2 && !MANAGER_DUMP_RECV
     midiInputCheck();
   #endif
 }
