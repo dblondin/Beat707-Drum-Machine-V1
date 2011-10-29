@@ -137,8 +137,9 @@ August 24 2011 - Version 1.4.8
 
 ---------------------------------------------------------------------------------
 
-October 27 2011 - Version 1.4.9
+October 29 2011 - Version 1.4.9
 
 - Fixed problem with Beat707 Manager (be sure to enable it under the Config.h file if you plan on using it, set #define MANAGER_DUMP_RECV 1 in order to activate it, and switch Beat707 USB MODE to On)
+- Added support to the new Arduino 1.0 IDE
 
 ---------------------------------------------------------------------------------

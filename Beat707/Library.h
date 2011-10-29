@@ -11,9 +11,13 @@
 #ifndef WDEXTRA_h
 #define WDEXTRA_h
 
-  #include "WProgram.h"
+  #if ARDUINO > 22
+    #include "Arduino.h"
+  #else
+    #include "WProgram.h"
+    #include "pins_arduino.h"
+  #endif
   #include <inttypes.h>
-  #include "pins_arduino.h"
   #include <math.h>
   #include <stdlib.h>
   #include <avr/io.h>
