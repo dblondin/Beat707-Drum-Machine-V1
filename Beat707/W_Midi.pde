@@ -96,7 +96,7 @@ void midiTimer()
   if (midiClockCounterDivider >= (midiClockShuffleData[0][midiClockShuffleCounter]*timeScale))
   {
     midiClockShuffleCounter++;
-    if (midiClockShuffleCounter >= 3) midiClockShuffleCounter = 0;
+    if (midiClockShuffleCounter >= 2) midiClockShuffleCounter = 0;
     
     midiClockProcess = 1;
     midiClockCounterDivider = 0;
@@ -165,10 +165,10 @@ void checkPatternLoader()
 // ======================================================================================= //
 void MidiShuffleUpdate()
 {
-  midiClockShuffleData[0][1] = 12+midiClockShuffle;
-  midiClockShuffleData[1][1] = 6+midiClockShuffle;
-  midiClockShuffleData[0][2] = 12-midiClockShuffle;
-  midiClockShuffleData[1][2] = 6-midiClockShuffle;
+  midiClockShuffleData[0][0] = 12+midiClockShuffle;
+  midiClockShuffleData[1][0] = 6+midiClockShuffle;
+  midiClockShuffleData[0][1] = 12-midiClockShuffle;
+  midiClockShuffleData[1][1] = 6-midiClockShuffle;
 }
 
 // ======================================================================================= //
